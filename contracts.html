@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Contracts — AppToChain</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+:root{--bg:#000;--bg1:#0a0a0a;--bg2:#111;--bg3:#161616;--bg4:#1c1c1c;--border:#222;--border2:#2a2a2a;--border3:#333;--text:#ededed;--text2:#a1a1a1;--text3:#666;--blue:#2563eb;--blue-light:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 0 0 16px}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);font-size:14px;font-weight:700;flex-shrink:0}
+.nav-logo-box{width:24px;height:24px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+.nav-sep{width:1px;height:20px;background:var(--border2);margin:0 14px;flex-shrink:0}
+.nav-links{display:flex;flex:1;overflow:hidden}
+.nav-links a{display:block;padding:0 12px;height:52px;line-height:52px;font-size:13px;color:var(--text3);text-decoration:none;white-space:nowrap;transition:color 0.1s}
+.nav-links a:hover{color:var(--text2)} .nav-links a.active{color:var(--text);border-bottom:1px solid var(--text)}
+.nav-r{display:flex;align-items:center;gap:8px;padding:0 16px;margin-left:auto;flex-shrink:0}
+.btn{height:32px;padding:0 14px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all 0.12s;white-space:nowrap}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border3);background:var(--bg2)}
+.btn-solid{background:var(--text);color:var(--bg)}
+.btn-solid:hover{background:#d4d4d4}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:#1d4ed8}
+.ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;flex-shrink:0}
+.ham span{display:block;width:20px;height:1.5px;background:var(--text2)}
+/* LAYOUT */
+.app{display:flex;padding-top:52px;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--border);background:var(--bg1);padding:16px 0;position:fixed;top:52px;bottom:0;left:0;overflow-y:auto;z-index:50}
+.sb-section{padding:8px 14px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-top:8px}
+.sb-link{display:flex;align-items:center;gap:9px;padding:7px 14px;font-size:13px;color:var(--text3);text-decoration:none;transition:background 0.1s,color 0.1s;cursor:pointer;border:none;background:none;width:100%;font-family:inherit}
+.sb-link:hover{background:rgba(255,255,255,0.03);color:var(--text2)}
+.sb-link.active{background:rgba(255,255,255,0.05);color:var(--text)}
+.sb-link .ico{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;background:rgba(37,99,235,0.15);color:var(--blue-light);font-size:10px;font-weight:700;padding:1px 6px;border-radius:999px}
+.main{flex:1;margin-left:220px;padding:28px 24px;min-width:0}
+/* PAGE HEADER */
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-head h1{font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.page-head p{font-size:13px;color:var(--text3);margin-top:3px}
+.head-actions{display:flex;gap:8px;flex-wrap:wrap}
+/* FILTERS */
+.filter-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filter-tab{height:30px;padding:0 14px;border-radius:999px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text3);transition:all 0.12s}
+.filter-tab:hover{color:var(--text2);border-color:var(--border3)}
+.filter-tab.active{background:rgba(37,99,235,0.1);border-color:rgba(37,99,235,0.3);color:var(--text)}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:0 12px;height:34px;margin-left:auto}
+.search-box svg{flex-shrink:0;color:var(--text3)}
+.search-box input{background:none;border:none;color:var(--text);font-family:inherit;font-size:13px;outline:none;width:180px}
+.search-box input::placeholder{color:var(--text3)}
+/* CONTRACT GRID */
+.contract-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:32px}
+.contract-card{background:var(--bg1);border:1px solid var(--border2);border-radius:12px;overflow:hidden;transition:border-color 0.15s,transform 0.15s;cursor:pointer}
+.contract-card:hover{border-color:var(--border3);transform:translateY(-2px)}
+.cc-head{padding:16px 18px 12px;border-bottom:1px solid var(--border)}
+.cc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cc-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--border2)}
+.cc-meta{flex:1;min-width:0}
+.cc-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.cc-status{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green)}
+.dot-draft{width:6px;height:6px;border-radius:50%;background:var(--text3)}
+.dot-error{width:6px;height:6px;border-radius:50%;background:var(--red)}
+.cc-addr{font-family:monospace;font-size:10px;color:var(--text3);background:var(--bg3);padding:4px 8px;border-radius:4px;display:flex;align-items:center;justify-content:space-between}
+.cc-addr button{background:none;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:0;transition:color 0.1s}
+.cc-addr button:hover{color:var(--text2)}
+.cc-body{padding:14px 18px}
+.cc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.cc-stat{text-align:center}
+.cc-stat-v{font-size:14px;font-weight:800;letter-spacing:-0.03em}
+.cc-stat-l{font-size:10px;color:var(--text3);margin-top:2px}
+.cc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
+.tag.blue{background:rgba(37,99,235,0.1);border-color:rgba(37,99,235,0.2);color:#60a5fa}
+.tag.green{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.2);color:var(--green)}
+.cc-actions{display:flex;gap:6px}
+.cc-btn{flex:1;height:30px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text2);transition:all 0.12s;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.cc-btn:hover{border-color:var(--border3);color:var(--text);background:var(--bg2)}
+.cc-btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.cc-btn.primary:hover{background:#1d4ed8}
+/* TEMPLATE SECTION */
+.section-title{font-size:16px;font-weight:800;letter-spacing:-0.02em;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.section-title span{font-size:12px;font-weight:500;color:var(--text3);font-size:12px}
+.template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:32px}
+.template-card{background:var(--bg1);border:1px solid var(--border2);border-radius:10px;padding:16px;cursor:pointer;transition:all 0.12s}
+.template-card:hover{border-color:rgba(37,99,235,0.3);background:var(--bg2);transform:translateY(-1px)}
+.tc-icon{font-size:22px;margin-bottom:10px}
+.tc-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.tc-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.tc-badge{display:inline-block;margin-top:8px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(37,99,235,0.1);color:#60a5fa;border:1px solid rgba(37,99,235,0.2)}
+/* DETAIL MODAL */
+.modal-bg{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg1);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:640px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}
+.modal-head{display:flex;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border);gap:12px}
+.modal-head h3{font-size:16px;font-weight:800;flex:1}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:4px;transition:color 0.1s}
+.modal-close:hover{color:var(--text)}
+.modal-body{flex:1;overflow-y:auto;padding:20px}
+.modal-code{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:14px;font-family:monospace;font-size:12px;line-height:1.7;color:#d4d4d4;overflow-x:auto;margin-bottom:16px}
+.modal-code .kw{color:#569cd6} .modal-code .fn{color:#dcdcaa} .modal-code .st{color:#ce9178} .modal-code .cm{color:#4a4a4a;font-style:italic} .modal-code .ty{color:#4ec9b0} .modal-code .nm{color:#b5cea8}
+.modal-foot{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+/* MOBILE */
+.sb-toggle{display:none;position:fixed;bottom:20px;right:20px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--blue);border:none;color:#fff;font-size:18px;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,0.4)}
+@media(max-width:768px){
+  .nav-links,.nav-sep{display:none} .ham{display:flex}
+  .sidebar{transform:translateX(-100%);transition:transform 0.25s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:20px 16px}
+  .sb-toggle{display:flex;align-items:center;justify-content:center}
+  .contract-grid{grid-template-columns:1fr}
+  .template-grid{grid-template-columns:repeat(2,1fr)}
+  .filter-row{flex-direction:column;align-items:stretch}
+  .search-box{margin-left:0}
+  .search-box input{width:100%}
+}
+@media(max-width:480px){
+  .template-grid{grid-template-columns:1fr}
+  .page-head{flex-direction:column}
+  .cc-stats{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><div class="nav-logo-box">A</div>AppToChain</a>
+  <div class="nav-sep"></div>
+  <div class="nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="builder.html">Builder</a>
+    <a href="contracts.html" class="active">Contracts</a>
+    <a href="token-deploy.html">Tokens</a>
+    <a href="domains.html">Domains</a>
+    <a href="api-keys.html">API Keys</a>
+  </div>
+  <div class="nav-r">
+    <a href="builder.html" class="btn btn-solid">+ New Contract</a>
+    <div class="ham" onclick="toggleSidebar()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-section">Main</div>
+    <a href="dashboard.html" class="sb-link"><span class="ico">⊞</span>Dashboard</a>
+    <a href="builder.html" class="sb-link"><span class="ico">✦</span>AI Builder</a>
+    <a href="contracts.html" class="sb-link active"><span class="ico">📜</span>Contracts</a>
+    <a href="token-deploy.html" class="sb-link"><span class="ico">🪙</span>Token Launchpad</a>
+    <div class="sb-section">Filters</div>
+    <a class="sb-link" onclick="filterContracts('all')"><span class="ico">◻</span>All Contracts<span class="sb-badge">8</span></a>
+    <a class="sb-link" onclick="filterContracts('live')"><span class="ico">🟢</span>Live</a>
+    <a class="sb-link" onclick="filterContracts('draft')"><span class="ico">⚪</span>Drafts</a>
+    <a class="sb-link" onclick="filterContracts('error')"><span class="ico">🔴</span>Errors</a>
+    <div class="sb-section">Networks</div>
+    <a class="sb-link"><span class="ico" style="color:#627EEA">Ξ</span>Ethereum</a>
+    <a class="sb-link"><span class="ico" style="color:#0052FF">⬡</span>Base</a>
+    <a class="sb-link"><span class="ico" style="color:#9945FF">◎</span>Solana</a>
+    <a class="sb-link"><span class="ico" style="color:#F3BA2F">B</span>BNB Chain</a>
+    <div class="sb-section">Settings</div>
+    <a href="domains.html" class="sb-link"><span class="ico">🌐</span>Domains</a>
+    <a href="api-keys.html" class="sb-link"><span class="ico">🔑</span>API Keys</a>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Smart Contracts</h1>
+        <p>All your deployed and draft contracts across every network.</p>
+      </div>
+      <div class="head-actions">
+        <a href="builder.html" class="btn btn-ghost">Import ABI</a>
+        <a href="builder.html" class="btn btn-blue">+ New Contract</a>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-tab active" onclick="setFilter(this,'all')">All (8)</button>
+      <button class="filter-tab" onclick="setFilter(this,'live')">Live (5)</button>
+      <button class="filter-tab" onclick="setFilter(this,'draft')">Draft (2)</button>
+      <button class="filter-tab" onclick="setFilter(this,'error')">Error (1)</button>
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input placeholder="Search contracts…" oninput="searchContracts(this.value)">
+      </div>
+    </div>
+
+    <!-- MY CONTRACTS -->
+    <div class="section-title">Your Contracts <span>8 total</span></div>
+    <div class="contract-grid" id="contract-grid">
+
+      <div class="contract-card" data-status="live" onclick="openModal('defipool')">
+        <div class="cc-head">
+          <div class="cc-top">
+            <div class="cc-icon" style="background:rgba(37,99,235,0.1)">🏊</div>
+            <div class="cc-meta"><div class="cc-name">DeFiPool v2</div><div class="cc-sub">Liquidity Pool · Solidity 0.8.24</div></div>
+            <div class="cc-status"><div class="dot-live"></div><span style="color:var(--green)">Live</span></div>
+          </div>
+          <div class="cc-addr"><span>0x4A3b…9f2c</span><button onclick="event.stopPropagation();copyAddr(this,'0x4A3b9f2c')">Copy</button></div>
+        </div>
+        <div class="cc-body">
+          <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-v" style="color:#60a5fa">$2.4M</div><div class="cc-stat-l">TVL</div></div>
+            <div class="cc-stat"><div class="cc-stat-v">41</div><div class="cc-stat-l">Transactions</div></div>
+            <div class="cc-stat"><div class="cc-stat-v" style="color:var(--green)">98</div><div class="cc-stat-l">Audit Score</div></div>
+          </div>
+          <div class="cc-tags"><span class="tag blue">EVM</span><span class="tag">Base</span><span class="tag green">Audited</span><span class="tag">ReentrancyGuard</span></div>
+          <div class="cc-actions">
+            <a href="builder.html" class="cc-btn">Edit</a>
+            <button class="cc-btn" onclick="event.stopPropagation()">Etherscan ↗</button>
+            <a href="builder.html" class="cc-btn primary">Deploy</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="contract-card" data-status="live" onclick="openModal('token')">
+        <div class="cc-head">
+          <div class="cc-top">
+            <div class="cc-icon" style="background:rgba(245,158,11,0.1)">🪙</div>
+            <div class="cc-meta"><div class="cc-name">DogeMoon ERC-20</div><div class="cc-sub">Token Contract · Solidity 0.8.24</div></div>
+            <div class="cc-status"><div class="dot-live"></div><span style="color:var(--green)">Live</span></div>
+          </div>
+          <div class="cc-addr"><span>0x7Bce…1a4f</span><button onclick="event.stopPropagation();copyAddr(this,'0x7Bce1a4f')">Copy</button></div>
+        </div>
+        <div class="cc-body">
+          <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-v">1B</div><div class="cc-stat-l">Supply</div></div>
+            <div class="cc-stat"><div class="cc-stat-v">2,400</div><div class="cc-stat-l">Holders</div></div>
+            <div class="cc-stat"><div class="cc-stat-v" style="color:var(--green)">100</div><div class="cc-stat-l">Audit Score</div></div>
+          </div>
+          <div class="cc-tags"><span class="tag blue">ERC-20</span><span class="tag">BNB Chain</span><span class="tag green">Verified</span></div>
+          <div class="cc-actions">
+            <a href="builder.html" class="cc-btn">Edit</a>
+            <button class="cc-btn" onclick="event.stopPropagation()">BscScan ↗</button>
+            <button class="cc-btn primary" onclick="event.stopPropagation()">Mint</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="contract-card" data-status="live">
+        <div class="cc-head">
+          <div class="cc-top">
+            <div class="cc-icon" style="background:rgba(124,58,237,0.1)">🗳</div>
+            <div class="cc-meta"><div class="cc-name">DAO Governor</div><div class="cc-sub">Governance · OpenZeppelin</div></div>
+            <div class="cc-status"><div class="dot-live"></div><span style="color:var(--green)">Live</span></div>
+          </div>
+          <div class="cc-addr"><span>0x9Dfa…3c8b</span><button onclick="event.stopPropagation();copyAddr(this,'0x9Dfa3c8b')">Copy</button></div>
+        </div>
+        <div class="cc-body">
+          <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-v">12</div><div class="cc-stat-l">Proposals</div></div>
+            <div class="cc-stat"><div class="cc-stat-v">847</div><div class="cc-stat-l">Voters</div></div>
+            <div class="cc-stat"><div class="cc-stat-v" style="color:var(--green)">96</div><div class="cc-stat-l">Audit Score</div></div>
+          </div>
+          <div class="cc-tags"><span class="tag blue">Governor</span><span class="tag">Polygon</span><span class="tag green">Audited</span></div>
+          <div class="cc-actions">
+            <a href="builder.html" class="cc-btn">Edit</a>
+            <button class="cc-btn" onclick="event.stopPropagation()">Explorer ↗</button>
+            <a href="builder.html" class="cc-btn primary">Manage</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="contract-card" data-status="live">
+        <div class="cc-head">
+          <div class="cc-top">
+            <div class="cc-icon" style="background:rgba(34,197,94,0.1)">🏆</div>
+            <div class="cc-meta"><div class="cc-name">Staking Rewards</div><div class="cc-sub">Staking · Solidity 0.8.20</div></div>
+            <div class="cc-status"><div class="dot-live"></div><span style="color:var(--green)">Live</span></div>
+          </div>
+          <div class="cc-addr"><span>0x2Eab…7d1c</span><button onclick="event.stopPropagation();copyAddr(this,'0x2Eab7d1c')">Copy</button></div>
+        </div>
+        <div class="cc-body">
+          <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-v">$890K</div><div class="cc-stat-l">Staked</div></div>
+            <div class="cc-stat"><div class="cc-stat-v">18.4%</div><div class="cc-stat-l">APY</div></div>
+            <div class="cc-stat"><div class="cc-stat-v" style="color:var(--green)">99</div><div class="cc-stat-l">Audit Score</div></div>
+          </div>
+          <div class="cc-tags"><span class="tag blue">Staking</span><span class="tag">Ethereum</span><span class="tag green">Verified</span></div>
+          <div class="cc-actions">
+            <a href="builder.html" class="cc-btn">Edit</a>
+            <button class="cc-btn" onclick="event.stopPropagation()">Etherscan ↗</button>
+            <a href="builder.html" class="cc-btn primary">Manage</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="contract-card" data-status="draft">
+        <div class="cc-head">
+          <div class="cc-top">
+            <div class="cc-icon" style="background:rgba(100,100,100,0.1)">🖼</div>
+            <div class="cc-meta"><div class="cc-name">NFT Collection</div><div class="cc-sub">ERC-721 · Draft</div></div>
+            <div class="cc-status"><div class="dot-draft"></div><span style="color:var(--text3)">Draft</span></div>
+          </div>
+          <div class="cc-addr"><span>Not yet deployed</span><button onclick="event.stopPropagation()">—</button></div>
+        </div>
+        <div class="cc-body">
+          <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-v">5,000</div><div class="cc-stat-l">Max Supply</div></div>
+            <div class="cc-stat"><div class="cc-stat-v">0.08</div><div class="cc-stat-l">Mint Price</div></div>
+            <div class="cc-stat"><div class="cc-stat-v" style="color:var(--yellow)">Draft</div><div class="cc-stat-l">Status</div></div>
+          </div>
+          <div class="cc-tags"><span class="tag blue">ERC-721</span><span class="tag">Ethereum</span></div>
+          <div class="cc-actions">
+            <a href="builder.html" class="cc-btn">Edit</a>
+            <button class="cc-btn" onclick="event.stopPropagation()">Audit</button>
+            <a href="builder.html" class="cc-btn primary">Deploy</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="contract-card" data-status="error">
+        <div class="cc-head">
+          <div class="cc-top">
+            <div class="cc-icon" style="background:rgba(239,68,68,0.1)">🎮</div>
+            <div class="cc-meta"><div class="cc-name">GameItems</div><div class="cc-sub">ERC-1155 · Deploy failed</div></div>
+            <div class="cc-status"><div class="dot-error"></div><span style="color:var(--red)">Error</span></div>
+          </div>
+          <div class="cc-addr"><span>Deploy failed — gas error</span></div>
+        </div>
+        <div class="cc-body">
+          <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--red);margin-bottom:12px">
+            ⚠ Error: insufficient gas. Estimated 2.1M — sent 1.5M. Increase gas limit and retry.
+          </div>
+          <div class="cc-tags"><span class="tag blue">ERC-1155</span><span class="tag">Solana</span></div>
+          <div class="cc-actions">
+            <a href="builder.html" class="cc-btn">Edit</a>
+            <button class="cc-btn primary" onclick="event.stopPropagation()">Retry Deploy</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TEMPLATES -->
+    <div class="section-title">Contract Templates <span>Start from a verified template</span></div>
+    <div class="template-grid">
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">🪙</div><div class="tc-name">ERC-20 Token</div><div class="tc-desc">Standard fungible token with mint, burn, and transfer.</div><span class="tc-badge">EVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">🖼</div><div class="tc-name">ERC-721 NFT</div><div class="tc-desc">Non-fungible token with metadata URI and royalties.</div><span class="tc-badge">EVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">📦</div><div class="tc-name">ERC-1155 Multi</div><div class="tc-desc">Batch-mintable multi-token for games and bundles.</div><span class="tc-badge">EVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">🏆</div><div class="tc-name">Staking Contract</div><div class="tc-desc">Time-locked staking with configurable APY rewards.</div><span class="tc-badge">EVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">🗳</div><div class="tc-name">DAO Governor</div><div class="tc-desc">On-chain governance with proposal and voting system.</div><span class="tc-badge">EVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">⏳</div><div class="tc-name">Vesting Contract</div><div class="tc-desc">Token vesting with cliff, linear, and custom schedules.</div><span class="tc-badge">EVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">🔐</div><div class="tc-name">Multisig Wallet</div><div class="tc-desc">N-of-M multisig wallet for secure team treasury.</div><span class="tc-badge">EVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">🔄</div><div class="tc-name">DEX Router</div><div class="tc-desc">Uniswap V2-compatible AMM router and pair factory.</div><span class="tc-badge">EVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">◎</div><div class="tc-name">SPL Token</div><div class="tc-desc">Solana SPL token with metadata and freeze authority.</div><span class="tc-badge">SVM</span></div>
+      <div class="template-card" onclick="window.location.href='builder.html'"><div class="tc-icon">◆</div><div class="tc-name">Move Module</div><div class="tc-desc">Sui/Aptos Move module for assets and coin resources.</div><span class="tc-badge">Move</span></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <span style="font-size:20px" id="modal-icon">🏊</span>
+      <h3 id="modal-title">DeFiPool v2</h3>
+      <span style="background:rgba(34,197,94,0.1);color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px">Live</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Network</div>
+          <div style="font-size:14px;font-weight:700">Base Mainnet</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Deployed</div>
+          <div style="font-size:14px;font-weight:700">2 hours ago</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Audit Score</div>
+          <div style="font-size:14px;font-weight:700;color:var(--green)">98 / 100</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Gas Used</div>
+          <div style="font-size:14px;font-weight:700">~$0.04</div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em">Contract Source</div>
+      <div class="modal-code"><span class="cm">// SPDX-License-Identifier: MIT</span>
+<span class="kw">pragma</span> solidity ^<span class="nm">0.8.24</span>;
+
+<span class="kw">import</span> <span class="st">"@openzeppelin/contracts/security/ReentrancyGuard.sol"</span>;
+
+<span class="kw">contract</span> <span class="ty">DeFiPool</span> <span class="kw">is</span> <span class="ty">ReentrancyGuard</span> {
+  <span class="kw">uint256</span> <span class="kw">public</span> totalLiquidity;
+  <span class="kw">uint256</span> <span class="kw">public</span> FEE = <span class="nm">30</span>; <span class="cm">// 0.3%</span>
+  <span class="kw">mapping</span>(<span class="kw">address</span> => <span class="kw">uint256</span>) <span class="kw">public</span> shares;
+
+  <span class="kw">function</span> <span class="fn">addLiquidity</span>(<span class="kw">uint256</span> amount) <span class="kw">external</span> <span class="fn">nonReentrant</span> {
+    <span class="cm">// ... fee logic, minting shares</span>
+  }
+}</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Close</button>
+      <a href="builder.html" class="btn btn-ghost btn-sm">Edit in Builder</a>
+      <button class="btn btn-blue btn-sm">View on Explorer ↗</button>
+    </div>
+  </div>
+</div>
+
+<button class="sb-toggle" onclick="toggleSidebar()">☰</button>
+
+<script>
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+function setFilter(btn,type){document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');filterContracts(type)}
+function filterContracts(type){
+  document.querySelectorAll('.contract-card').forEach(c=>{
+    c.style.display=(type==='all'||c.dataset.status===type)?'':'none';
+  });
+}
+function searchContracts(val){
+  document.querySelectorAll('.contract-card').forEach(c=>{
+    const name=c.querySelector('.cc-name').textContent.toLowerCase();
+    c.style.display=name.includes(val.toLowerCase())?'':'none';
+  });
+}
+function copyAddr(btn,addr){btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)}
+function openModal(id){document.getElementById('modal').classList.add('open')}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal()})
+
+// define btn-sm
+document.querySelectorAll('.btn-sm').forEach(b=>b.style.cssText+='height:32px;padding:0 14px;font-size:12px;border-radius:6px')
+</script>
+</body>
+</html>
