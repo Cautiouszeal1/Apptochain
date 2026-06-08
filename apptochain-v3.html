@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AppToChain — Build Apps With Words</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+
+:root {
+  --bg:#000; --bg1:#0a0a0a; --bg2:#111; --bg3:#161616; --bg4:#1c1c1c;
+  --border:#222; --border2:#2a2a2a; --border3:#333;
+  --text:#ededed; --text2:#a1a1a1; --text3:#666;
+  --blue:#2563eb; --blue-light:#3b82f6;
+  --green:#22c55e;
+}
+
+body {
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg); color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  font-size:14px; line-height:1.5;
+  width:100%; max-width:100vw;
+}
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  height:52px;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center;
+  padding:0 16px;
+  gap:0;
+}
+.nav-logo {
+  display:flex; align-items:center; gap:8px;
+  text-decoration:none; color:var(--text);
+  font-size:14px; font-weight:700; letter-spacing:-0.3px;
+  flex-shrink:0;
+}
+.nav-logo-box {
+  width:24px; height:24px; background:var(--blue);
+  border-radius:6px; display:flex; align-items:center;
+  justify-content:center; font-size:12px; font-weight:800; color:#fff;
+  flex-shrink:0;
+}
+.nav-sep { width:1px; height:20px; background:var(--border2); margin:0 12px; flex-shrink:0; }
+.nav-links { display:flex; list-style:none; flex:1; }
+.nav-links a {
+  display:block; padding:0 12px; height:52px; line-height:52px;
+  font-size:13px; font-weight:450; color:var(--text2);
+  text-decoration:none; transition:color 0.1s; white-space:nowrap;
+}
+.nav-links a:hover { color:var(--text); }
+.nav-right { display:flex; align-items:center; gap:8px; margin-left:auto; flex-shrink:0; }
+.pill-status {
+  display:flex; align-items:center; gap:5px;
+  font-size:11px; color:var(--text3); padding:0 10px; height:26px;
+  border:1px solid var(--border2); border-radius:999px; font-weight:500; white-space:nowrap;
+}
+.pill-status i { width:6px; height:6px; border-radius:50%; background:var(--green); display:block; box-shadow:0 0 5px var(--green); flex-shrink:0; }
+.nav-btn {
+  height:32px; padding:0 14px; border-radius:7px;
+  font-family:inherit; font-size:13px; font-weight:500;
+  cursor:pointer; border:none; text-decoration:none;
+  display:flex; align-items:center; transition:all 0.12s;
+  white-space:nowrap; flex-shrink:0;
+}
+.nb-ghost { background:transparent; border:1px solid var(--border2); color:var(--text2); }
+.nb-ghost:hover { color:var(--text); border-color:var(--border3); background:var(--bg2); }
+.nb-solid { background:var(--text); color:var(--bg); font-weight:600; }
+.nb-solid:hover { background:#d4d4d4; }
+
+/* hamburger */
+.ham { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; margin-left:8px; flex-shrink:0; }
+.ham span { display:block; width:20px; height:1.5px; background:var(--text2); transition:all 0.2s; }
+
+/* mobile menu */
+.mob-menu {
+  display:none; position:fixed; top:52px; left:0; right:0; z-index:199;
+  background:var(--bg1); border-bottom:1px solid var(--border);
+  padding:12px 0 16px;
+}
+.mob-menu.open { display:block; }
+.mob-menu a {
+  display:block; padding:11px 20px;
+  font-size:15px; font-weight:500; color:var(--text2);
+  text-decoration:none; border-bottom:1px solid var(--border);
+}
+.mob-menu a:last-child { border:none; }
+.mob-menu a:hover { color:var(--text); background:var(--bg2); }
+.mob-menu-btns { display:flex; gap:10px; padding:14px 16px 0; }
+.mob-menu-btns a { flex:1; text-align:center; padding:10px; border-radius:8px; font-size:14px; font-weight:600; text-decoration:none; }
+.mob-menu-btns .mbl { background:transparent; border:1px solid var(--border2); color:var(--text2); }
+.mob-menu-btns .mbs { background:var(--text); color:var(--bg); }
+
+/* ── HERO ── */
+.hero {
+  position:relative; z-index:1;
+  padding:120px 20px 72px;
+  text-align:center; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 20%,transparent 80%);
+}
+.hero-glow {
+  position:absolute; top:-200px; left:50%; transform:translateX(-50%);
+  width:min(600px,100vw); height:600px;
+  background:radial-gradient(circle,rgba(37,99,235,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-announce {
+  display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center;
+  padding:5px 12px;
+  background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.2);
+  border-radius:999px; font-size:12px; color:var(--blue-light); font-weight:500;
+  margin-bottom:28px; cursor:pointer; transition:border-color 0.15s;
+  max-width:100%;
+}
+.hero-announce:hover { border-color:rgba(37,99,235,0.4); }
+.hero-announce span { color:var(--text3); }
+.hero h1 {
+  font-size:clamp(32px,8vw,72px);
+  font-weight:800; letter-spacing:-0.04em; line-height:1.04;
+  margin-bottom:20px; color:var(--text);
+  max-width:800px; margin-left:auto; margin-right:auto;
+}
+.hero h1 em {
+  font-style:normal;
+  background:linear-gradient(135deg,#60a5fa 0%,#a78bfa 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.hero-sub {
+  font-size:clamp(14px,2.5vw,16px); color:var(--text2);
+  max-width:460px; margin:0 auto 36px;
+  line-height:1.65; font-weight:400; padding:0 4px;
+}
+.hero-actions {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  flex-wrap:wrap; margin-bottom:56px;
+}
+.btn-p {
+  height:40px; padding:0 20px; background:var(--text); color:var(--bg);
+  border:none; border-radius:8px; font-family:inherit; font-size:14px; font-weight:600;
+  cursor:pointer; text-decoration:none; display:flex; align-items:center; gap:7px;
+  transition:background 0.12s; letter-spacing:-0.2px; white-space:nowrap;
+}
+.btn-p:hover { background:#d4d4d4; }
+.btn-s {
+  height:40px; padding:0 20px; background:transparent;
+  border:1px solid var(--border2); border-radius:8px; color:var(--text2);
+  font-family:inherit; font-size:14px; font-weight:500;
+  cursor:pointer; text-decoration:none; display:flex; align-items:center; gap:7px;
+  transition:all 0.12s; white-space:nowrap;
+}
+.btn-s:hover { border-color:var(--border3); color:var(--text); background:var(--bg2); }
+
+/* hero visual */
+.hero-visual {
+  width:100%; max-width:900px; margin:0 auto;
+  border-radius:12px; border:1px solid var(--border2);
+  background:var(--bg1); overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 40px 100px rgba(0,0,0,0.8);
+}
+.hv-bar {
+  height:38px; background:var(--bg2); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 12px; gap:8px; overflow:hidden;
+}
+.hv-dots { display:flex; gap:5px; flex-shrink:0; }
+.hv-dots s { display:block; width:10px; height:10px; border-radius:50%; text-decoration:none; }
+.hv-tabs { display:flex; gap:0; overflow:hidden; flex:1; }
+.hv-tab {
+  height:38px; padding:0 12px; font-size:11px; color:var(--text3);
+  border-right:1px solid var(--border); display:flex; align-items:center; gap:5px;
+  cursor:pointer; white-space:nowrap; flex-shrink:0;
+}
+.hv-tab.on { color:var(--text2); background:var(--bg1); }
+.hv-tab-dot { width:6px; height:6px; border-radius:50%; background:var(--text3); flex-shrink:0; }
+.hv-tab.on .hv-tab-dot { background:#22c55e; }
+.hv-deploy {
+  margin-left:auto; height:24px; padding:0 10px; flex-shrink:0;
+  background:var(--blue); border:none; border-radius:4px;
+  color:#fff; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit;
+}
+
+.hv-body { display:grid; grid-template-columns:180px 1fr 1fr; min-height:360px; }
+
+/* sidebar */
+.hv-sidebar { border-right:1px solid var(--border); padding:8px 0; background:var(--bg1); overflow:hidden; }
+.hv-slbl { padding:8px 12px 3px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text3); }
+.hv-file {
+  display:flex; align-items:center; gap:7px; padding:5px 12px;
+  font-size:11px; color:var(--text3); cursor:pointer; transition:background 0.1s,color 0.1s;
+  white-space:nowrap; overflow:hidden;
+}
+.hv-file:hover { background:rgba(255,255,255,0.03); color:var(--text2); }
+.hv-file.active { background:rgba(255,255,255,0.05); color:var(--text); }
+.hv-file .ico { font-size:11px; width:12px; flex-shrink:0; }
+.hv-fbadge { margin-left:auto; font-size:9px; font-weight:700; padding:1px 4px; border-radius:3px; }
+.hv-fbadge.g { background:rgba(34,197,94,0.15); color:#22c55e; }
+.hv-fbadge.b { background:rgba(37,99,235,0.15); color:#60a5fa; }
+
+/* editor */
+.hv-editor {
+  border-right:1px solid var(--border); background:var(--bg);
+  font-family:'SF Mono','Fira Code','Fira Mono','Roboto Mono',monospace;
+  font-size:11px; line-height:1.75; padding:12px 0; overflow:hidden;
+}
+.cl { display:flex; padding:0 12px 0 0; }
+.cl-n { width:32px; text-align:right; color:#333; user-select:none; flex-shrink:0; padding-right:12px; font-size:10px; }
+.cl.hl { background:rgba(37,99,235,0.06); }
+.cl.hl .cl-n { color:#3b82f6; }
+.co { color:#4a4a4a; font-style:italic; }
+.kw { color:#569cd6; } .fn { color:#dcdcaa; } .st { color:#ce9178; }
+.nm { color:#b5cea8; } .ty { color:#4ec9b0; } .pn { color:#808080; } .wh { color:#d4d4d4; }
+.cursor::after { content:'█'; color:#60a5fa; animation:bk 1s step-end infinite; font-size:7px; }
+@keyframes bk { 50%{opacity:0} }
+
+/* preview */
+.hv-preview { background:var(--bg); display:flex; flex-direction:column; overflow:hidden; }
+.hv-preview-bar { height:34px; border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 10px; gap:6px; }
+.hv-url { flex:1; height:20px; background:var(--bg2); border:1px solid var(--border); border-radius:4px; padding:0 7px; font-size:10px; color:var(--text3); font-family:monospace; display:flex; align-items:center; overflow:hidden; white-space:nowrap; }
+.hv-pbody { flex:1; padding:12px; display:flex; flex-direction:column; gap:8px; overflow:hidden; }
+.mini-card { background:var(--bg2); border:1px solid var(--border2); border-radius:7px; padding:10px 12px; }
+.mini-card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.mini-card-title { font-size:11px; font-weight:600; }
+.mini-live { display:flex; align-items:center; gap:4px; font-size:10px; font-weight:600; color:var(--green); }
+.mini-live i { width:5px; height:5px; border-radius:50%; background:var(--green); display:block; flex-shrink:0; }
+.mini-stats { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+.mini-stat { background:var(--bg3); border-radius:4px; padding:6px 7px; }
+.mini-stat-l { font-size:9px; color:var(--text3); margin-bottom:1px; }
+.mini-stat-v { font-size:13px; font-weight:700; letter-spacing:-0.04em; }
+.mini-btn-row { display:flex; gap:5px; margin-top:7px; }
+.mini-btn { flex:1; height:24px; border-radius:4px; font-family:inherit; font-size:10px; font-weight:600; cursor:pointer; border:none; }
+.mini-btn.p { background:var(--blue); color:#fff; }
+.mini-btn.s { background:var(--bg4); border:1px solid var(--border2); color:var(--text2); }
+.mini-ai { background:var(--bg2); border:1px solid var(--border2); border-radius:7px; padding:9px 10px; }
+.mini-ai-top { display:flex; align-items:center; gap:5px; margin-bottom:6px; }
+.mini-ai-icon { width:16px; height:16px; border-radius:3px; background:var(--blue); display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; font-weight:700; flex-shrink:0; }
+.mini-ai-lbl { font-size:10px; font-weight:600; }
+.mini-ai-lbl span { color:var(--blue-light); }
+.mini-ai-ok { margin-left:auto; font-size:9px; color:var(--green); display:flex; align-items:center; gap:3px; }
+.mini-ai-ok i { width:4px; height:4px; border-radius:50%; background:var(--green); display:block; }
+.mini-ai-msg { font-size:10px; color:var(--text2); line-height:1.5; margin-bottom:7px; }
+.mini-ai-row { display:flex; gap:5px; }
+.mini-ai-field { flex:1; height:24px; background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:0 7px; font-size:10px; color:var(--text3); font-family:monospace; }
+.mini-ai-go { height:24px; padding:0 9px; background:var(--blue); border:none; border-radius:4px; color:#fff; font-size:10px; font-weight:600; cursor:pointer; font-family:inherit; }
+
+.hv-status {
+  height:22px; background:var(--blue);
+  display:flex; align-items:center; padding:0 12px; gap:16px;
+  border-top:1px solid rgba(255,255,255,0.1);
+  overflow:hidden;
+}
+.hv-status span { font-size:10px; font-weight:500; color:rgba(255,255,255,0.75); white-space:nowrap; }
+.hv-status span em { color:#fff; font-style:normal; }
+
+/* ── TRUST ── */
+.trust { border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:20px 16px; overflow:hidden; }
+.trust-inner { max-width:960px; margin:0 auto; display:flex; align-items:center; gap:20px; justify-content:center; flex-wrap:wrap; }
+.trust-label { font-size:11px; color:var(--text3); white-space:nowrap; }
+.trust-logos { display:flex; gap:24px; align-items:center; flex-wrap:wrap; justify-content:center; }
+.trust-logo { font-size:12px; font-weight:700; color:var(--text3); letter-spacing:-0.5px; }
+.trust-logo:hover { color:var(--text2); }
+
+/* ── METRICS ── */
+.metrics { border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.metrics-row { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); }
+.met { padding:36px 24px; border-right:1px solid var(--border); }
+.met:last-child { border-right:none; }
+.met-val { font-size:clamp(28px,5vw,48px); font-weight:800; letter-spacing:-0.05em; line-height:1; color:var(--text); margin-bottom:6px; }
+.met-val sup { font-size:0.4em; vertical-align:super; }
+.met-lbl { font-size:12px; color:var(--text3); }
+.met-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+
+/* ── SECTIONS ── */
+.section { padding:72px 20px; max-width:1200px; margin:0 auto; }
+.lbl { font-size:12px; font-weight:600; color:var(--blue-light); letter-spacing:0.02em; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.lbl::before { content:''; width:12px; height:1px; background:currentColor; display:block; flex-shrink:0; }
+h2 { font-size:clamp(24px,4vw,44px); font-weight:800; letter-spacing:-0.03em; line-height:1.1; margin-bottom:12px; color:var(--text); }
+h2 b { font-weight:inherit; color:#60a5fa; }
+.lead { font-size:clamp(13px,2vw,15px); color:var(--text2); line-height:1.7; max-width:460px; }
+
+/* ── BENTO ── */
+.bento {
+  display:grid; grid-template-columns:repeat(12,1fr);
+  gap:1px; background:var(--border);
+  border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:48px;
+}
+.bento-cell { background:var(--bg1); padding:28px 24px; transition:background 0.15s; position:relative; overflow:hidden; }
+.bento-cell:hover { background:var(--bg2); }
+.bento-cell.c6 { grid-column:span 6; }
+.bento-cell.c4 { grid-column:span 4; }
+.bento-cell.c3 { grid-column:span 3; }
+.bc-tag { font-size:10px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text3); margin-bottom:12px; display:block; }
+.bc-icon { font-size:18px; margin-bottom:12px; display:block; }
+.bento-cell h3 { font-size:clamp(14px,2vw,17px); font-weight:700; letter-spacing:-0.02em; margin-bottom:7px; color:var(--text); }
+.bento-cell p { font-size:13px; color:var(--text2); line-height:1.65; }
+.code-snip { margin-top:14px; background:var(--bg); border:1px solid var(--border2); border-radius:6px; padding:10px 12px; font-family:'SF Mono',monospace; font-size:11px; line-height:1.7; color:#6a9955; word-break:break-all; }
+.code-snip .kw2{color:#569cd6} .code-snip .fn2{color:#dcdcaa} .code-snip .st2{color:#ce9178}
+.net-pills { display:flex; gap:5px; flex-wrap:wrap; margin-top:14px; }
+.net-pill2 { display:flex; align-items:center; gap:5px; height:24px; padding:0 9px; background:var(--bg3); border:1px solid var(--border2); border-radius:4px; font-size:11px; font-weight:600; color:var(--text2); }
+.np-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+
+/* ── NETWORKS ── */
+.net-section { background:var(--bg1); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.net-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:1px; background:var(--border); border-radius:8px; overflow:hidden; margin-top:40px; }
+.net-cell { background:var(--bg1); padding:16px 10px; text-align:center; cursor:pointer; transition:background 0.12s; }
+.net-cell:hover { background:var(--bg2); }
+.net-cell.feat { background:rgba(37,99,235,0.05); }
+.nc-circle { width:32px; height:32px; border-radius:50%; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; border:1px solid var(--border2); }
+.nc-name { font-size:11px; font-weight:600; margin-bottom:2px; letter-spacing:-0.2px; }
+.nc-type { font-size:9px; color:var(--text3); }
+.nc-badge { display:inline-block; margin-top:3px; font-size:9px; font-weight:700; letter-spacing:0.04em; padding:1px 5px; border-radius:3px; }
+.nc-badge.evm{background:rgba(37,99,235,0.12);color:#60a5fa}
+.nc-badge.svm{background:rgba(124,58,237,0.12);color:#a78bfa}
+.nc-badge.mvm{background:rgba(16,185,129,0.12);color:#34d399}
+
+/* ── DEPLOY ── */
+.deploy-split { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
+.form-card { background:var(--bg1); border:1px solid var(--border2); border-radius:12px; overflow:hidden; }
+.form-card-head { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:9px; background:var(--bg2); flex-wrap:wrap; gap:8px; }
+.form-card-head h4 { font-size:13px; font-weight:600; flex:1; min-width:0; }
+.fch-steps { display:flex; gap:5px; flex-wrap:wrap; }
+.fch-step { font-size:10px; border-radius:3px; padding:2px 7px; font-weight:600; }
+.fch-step.done{background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2)}
+.fch-step.active{background:rgba(37,99,235,0.1);color:#60a5fa;border:1px solid rgba(37,99,235,0.3)}
+.fch-step.idle{color:var(--text3);border:1px solid var(--border)}
+.form-card-body { padding:18px; }
+.fg { margin-bottom:14px; }
+.fg label { display:block; font-size:10px; font-weight:600; color:var(--text3); margin-bottom:5px; letter-spacing:0.04em; text-transform:uppercase; }
+.fg input { display:block; width:100%; height:36px; padding:0 12px; background:var(--bg); border:1px solid var(--border2); border-radius:6px; font-family:inherit; font-size:13px; color:var(--text); outline:none; transition:border-color 0.12s; }
+.fg input:focus { border-color:var(--blue); }
+.fg input.mono { font-family:monospace; }
+.fg-hint { font-size:11px; color:var(--text3); margin-top:4px; }
+.fg-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.chain-picker { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.cp-opt { display:flex; flex-direction:column; align-items:center; padding:8px 4px; border-radius:6px; border:1px solid var(--border2); cursor:pointer; transition:all 0.1s; font-size:11px; font-weight:600; color:var(--text3); gap:4px; }
+.cp-opt:hover{border-color:var(--border3);color:var(--text2)}
+.cp-opt.sel{border-color:var(--blue);background:rgba(37,99,235,0.08);color:var(--text)}
+.cp-dot { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; }
+.summary-box { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:12px; margin:14px 0; }
+.sum-row { display:flex; justify-content:space-between; padding:5px 0; font-size:12px; border-bottom:1px solid var(--border); }
+.sum-row:last-child{border-bottom:none}
+.sum-row span:first-child{color:var(--text3)}
+.sum-row span:last-child{font-weight:600;font-family:monospace;font-size:11px}
+.sum-row .ok{color:var(--green)} .sum-row .hi{color:#60a5fa}
+.deploy-btn { width:100%; height:40px; background:var(--text); color:var(--bg); border:none; border-radius:8px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; transition:background 0.1s; }
+.deploy-btn:hover{background:#d4d4d4}
+
+/* deploy steps list */
+.dep-steps { display:flex; flex-direction:column; gap:18px; margin-top:28px; }
+.dep-step { display:flex; gap:14px; align-items:flex-start; }
+.dep-step-num { width:30px; height:30px; border-radius:7px; background:var(--bg2); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--text3); flex-shrink:0; }
+.dep-step-body h4 { font-size:14px; font-weight:600; margin-bottom:4px; }
+.dep-step-body p { font-size:13px; color:var(--text2); }
+
+/* ── USE CASES ── */
+.uc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:48px; }
+.uc-cell { background:var(--bg1); padding:24px 20px; transition:background 0.12s; cursor:pointer; }
+.uc-cell:hover{background:var(--bg2)}
+.uc-ico { font-size:20px; margin-bottom:12px; display:block; }
+.uc-cell h4 { font-size:13px; font-weight:700; letter-spacing:-0.2px; margin-bottom:5px; }
+.uc-cell p { font-size:12px; color:var(--text2); line-height:1.6; }
+
+/* ── PRICING ── */
+.plans { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:48px; }
+.plan { background:var(--bg1); border:1px solid var(--border2); border-radius:12px; padding:24px; }
+.plan.featured { border-color:var(--blue); background:rgba(37,99,235,0.04); }
+.plan-name { font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--text3); margin-bottom:10px; }
+.plan-price { font-size:clamp(28px,5vw,40px); font-weight:800; letter-spacing:-0.05em; line-height:1; margin-bottom:5px; }
+.plan-price small { font-size:13px; font-weight:400; color:var(--text3); letter-spacing:0; }
+.plan-desc { font-size:12px; color:var(--text2); line-height:1.55; }
+.plan-sep { border:none; border-top:1px solid var(--border); margin:18px 0; }
+.plan-feats { list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+.plan-feats li { font-size:13px; color:var(--text2); display:flex; gap:8px; align-items:flex-start; }
+.plan-feats li::before { content:'✓'; color:var(--green); font-weight:700; flex-shrink:0; font-size:11px; margin-top:1px; }
+.plan-feats li.off{color:var(--text3)}
+.plan-feats li.off::before{content:'—';color:var(--border3)}
+.plan-cta { display:block; width:100%; height:38px; border-radius:7px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; border:none; text-align:center; line-height:38px; text-decoration:none; transition:all 0.1s; }
+.plan-cta.o{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.plan-cta.o:hover{border-color:var(--border3);color:var(--text);background:var(--bg2)}
+.plan-cta.f{background:var(--text);color:var(--bg);font-weight:700}
+.plan-cta.f:hover{background:#d4d4d4}
+
+/* ── CTA BANNER ── */
+.cta-banner {
+  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:72px 20px; text-align:center; background:var(--bg1);
+  position:relative; overflow:hidden;
+}
+.cta-banner::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 70% 100% at 50% 50%,black,transparent);
+}
+.cta-banner h2 { font-size:clamp(24px,5vw,48px); max-width:520px; margin:0 auto 12px; }
+.cta-banner p { font-size:15px; color:var(--text2); margin-bottom:32px; }
+.cta-btns { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+
+/* ── FOOTER ── */
+footer { border-top:1px solid var(--border); padding:52px 20px 36px; }
+.ft { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:36px; }
+.ft-brand p { font-size:13px; color:var(--text3); line-height:1.7; margin-top:10px; max-width:220px; }
+.ft-col h6 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text3); margin-bottom:14px; }
+.ft-col a { display:block; font-size:13px; color:var(--text3); text-decoration:none; margin-bottom:9px; transition:color 0.1s; }
+.ft-col a:hover{color:var(--text2)}
+.ft-bottom { max-width:1200px; margin:36px auto 0; padding-top:20px; border-top:1px solid var(--border); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+.ft-bottom p { font-size:12px; color:var(--text3); }
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:3px}
+
+/* ════════════════════════
+   RESPONSIVE BREAKPOINTS
+════════════════════════ */
+
+/* tablet landscape 1024 */
+@media(max-width:1024px){
+  .hv-body { grid-template-columns:160px 1fr 1fr; }
+  .bento-cell.c4 { grid-column:span 6; }
+  .bento-cell.c3 { grid-column:span 6; }
+  .net-grid { grid-template-columns:repeat(4,1fr); }
+  .deploy-split { grid-template-columns:1fr; gap:36px; }
+  .plans { grid-template-columns:1fr 1fr; }
+  .ft { grid-template-columns:1fr 1fr 1fr; gap:24px; }
+  .ft-brand { grid-column:span 3; }
+}
+
+/* tablet portrait 768 */
+@media(max-width:768px){
+  /* nav */
+  .nav-sep,.nav-links,.pill-status,.nb-ghost { display:none; }
+  .ham { display:flex; }
+
+  /* hero visual: hide sidebar + preview on small tablets, show editor only */
+  .hv-body { grid-template-columns:1fr 1fr; }
+  .hv-sidebar { display:none; }
+  .hv-tabs .hv-tab:nth-child(3) { display:none; }
+
+  /* bento */
+  .bento-cell.c6,.bento-cell.c4,.bento-cell.c3 { grid-column:span 12; }
+
+  /* metrics 2 col */
+  .metrics-row { grid-template-columns:1fr 1fr; }
+  .met { border-right:none; border-bottom:1px solid var(--border); }
+  .met:nth-child(odd) { border-right:1px solid var(--border); }
+  .met:nth-last-child(-n+2) { border-bottom:none; }
+
+  /* networks 3 col */
+  .net-grid { grid-template-columns:repeat(3,1fr); }
+
+  /* use cases 2 col */
+  .uc-grid { grid-template-columns:1fr 1fr; }
+
+  /* pricing stacked */
+  .plans { grid-template-columns:1fr; }
+
+  /* footer 2 col */
+  .ft { grid-template-columns:1fr 1fr; }
+  .ft-brand { grid-column:span 2; }
+  .ft-brand p { max-width:100%; }
+
+  /* section padding */
+  .section { padding:56px 16px; }
+}
+
+/* mobile 480 */
+@media(max-width:480px){
+  /* hero */
+  .hero { padding:100px 16px 56px; }
+  .hero-actions { flex-direction:column; align-items:stretch; gap:10px; }
+  .hero-actions .btn-p,.hero-actions .btn-s { justify-content:center; }
+  .hero-announce { font-size:11px; }
+
+  /* hero visual: show just editor, no preview */
+  .hv-body { grid-template-columns:1fr; }
+  .hv-preview { display:none; }
+  .hv-tabs .hv-tab { padding:0 8px; font-size:10px; }
+  .hv-editor { font-size:10px; }
+
+  /* trust */
+  .trust-inner { flex-direction:column; gap:12px; }
+  .trust-logos { gap:16px; }
+
+  /* metrics 1 col */
+  .metrics-row { grid-template-columns:1fr; }
+  .met { border-right:none; border-bottom:1px solid var(--border); }
+  .met:last-child { border-bottom:none; }
+
+  /* bento */
+  .bento { border-radius:8px; }
+  .bento-cell { padding:20px 16px; }
+
+  /* networks 2 col */
+  .net-grid { grid-template-columns:repeat(2,1fr); }
+
+  /* use cases 1 col */
+  .uc-grid { grid-template-columns:1fr; }
+
+  /* deploy steps */
+  .fg-row { grid-template-columns:1fr; }
+  .chain-picker { grid-template-columns:repeat(3,1fr); }
+
+  /* pricing */
+  .plans { grid-template-columns:1fr; }
+
+  /* footer */
+  .ft { grid-template-columns:1fr; }
+  .ft-brand { grid-column:span 1; }
+  .ft-bottom { flex-direction:column; gap:6px; }
+
+  /* cta */
+  .cta-btns { flex-direction:column; align-items:center; }
+  .cta-btns .btn-p,.cta-btns .btn-s { width:100%; max-width:320px; justify-content:center; }
+
+  /* section */
+  .section { padding:48px 16px; }
+}
+
+/* very small 360 */
+@media(max-width:360px){
+  nav { padding:0 12px; }
+  .hero h1 { font-size:28px; }
+  .hero { padding:96px 12px 48px; }
+  .section { padding:40px 12px; }
+  .bento-cell { padding:16px 14px; }
+  .net-grid { grid-template-columns:repeat(2,1fr); }
+  .chain-picker { grid-template-columns:repeat(2,1fr); }
+  .trust-logos { gap:12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-box">A</div>
+    AppToChain
+  </a>
+  <div class="nav-sep"></div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#networks">Networks</a></li>
+    <li><a href="#deploy">Token Deploy</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#">Docs</a></li>
+    <li><a href="#">Blog</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="pill-status"><i></i>All systems normal</div>
+    <a href="apptochain/login.html" class="nav-btn nb-ghost">Log in</a>
+    <a href="apptochain/signup.html" class="nav-btn nb-solid">Get started</a>
+    <div class="ham" id="ham" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mob-menu">
+  <a href="#features" onclick="toggleMenu()">Features</a>
+  <a href="#networks" onclick="toggleMenu()">Networks</a>
+  <a href="#deploy" onclick="toggleMenu()">Token Deploy</a>
+  <a href="#pricing" onclick="toggleMenu()">Pricing</a>
+  <a href="#" onclick="toggleMenu()">Docs</a>
+  <a href="#" onclick="toggleMenu()">Blog</a>
+  <div class="mob-menu-btns">
+    <a href="apptochain/login.html" class="mbl" onclick="toggleMenu()">Log in</a>
+    <a href="apptochain/signup.html" class="mbs" onclick="toggleMenu()">Get started</a>
+  </div>
+</div>
+
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-announce">
+    🚀 Token Launchpad — deploy to 30+ chains <span>·</span> Read more →
+  </div>
+  <h1>Build any app.<br>Deploy it <em>onchain.</em></h1>
+  <p class="hero-sub">The AI dev platform for Web3. Write smart contracts, build dApps, launch tokens — on any blockchain. From idea to mainnet in minutes.</p>
+  <div class="hero-actions">
+    <a href="apptochain/signup.html" class="btn-p">Start building free →</a>
+    <a href="#" class="btn-s">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 4.5L9 7L5.5 9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Watch demo
+    </a>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hv-bar">
+      <div class="hv-dots">
+        <s style="background:#ff5f57"></s>
+        <s style="background:#febc2e"></s>
+        <s style="background:#28c840"></s>
+      </div>
+      <div class="hv-tabs">
+        <div class="hv-tab"><div class="hv-tab-dot"></div>Token.sol</div>
+        <div class="hv-tab on"><div class="hv-tab-dot"></div>DeFiPool.sol</div>
+        <div class="hv-tab"><div class="hv-tab-dot"></div>app.tsx</div>
+      </div>
+      <button class="hv-deploy">▶ Deploy</button>
+    </div>
+
+    <div class="hv-body">
+      <!-- sidebar -->
+      <div class="hv-sidebar">
+        <div class="hv-slbl">Explorer</div>
+        <div class="hv-file"><span class="ico">📂</span>contracts</div>
+        <div class="hv-file" style="padding-left:22px"><span class="ico">📄</span>Token.sol<span class="hv-fbadge g" style="margin-left:4px">ok</span></div>
+        <div class="hv-file active" style="padding-left:22px"><span class="ico">📄</span>DeFiPool.sol</div>
+        <div class="hv-file" style="padding-left:22px"><span class="ico">📄</span>Staking.sol</div>
+        <div class="hv-file"><span class="ico">📂</span>frontend</div>
+        <div class="hv-file" style="padding-left:22px"><span class="ico">📄</span>app.tsx</div>
+        <div class="hv-slbl" style="margin-top:6px">Deploy targets</div>
+        <div class="hv-file"><span class="ico" style="color:#60a5fa">⬡</span>Ethereum<span class="hv-fbadge b" style="margin-left:4px">live</span></div>
+        <div class="hv-file"><span class="ico" style="color:#a78bfa">⬡</span>Base</div>
+        <div class="hv-file"><span class="ico" style="color:#fbbf24">⬡</span>BNB Chain</div>
+      </div>
+
+      <!-- editor -->
+      <div class="hv-editor">
+        <div class="cl"><span class="cl-n">1</span><span class="co">// SPDX-License-Identifier: MIT</span></div>
+        <div class="cl"><span class="cl-n">2</span><span class="kw">pragma</span> <span class="wh">solidity</span> ^<span class="nm">0.8.24</span><span class="pn">;</span></div>
+        <div class="cl"><span class="cl-n">3</span></div>
+        <div class="cl"><span class="cl-n">4</span><span class="kw">import</span> <span class="st">"@openzeppelin/ERC20"</span><span class="pn">;</span></div>
+        <div class="cl"><span class="cl-n">5</span><span class="kw">import</span> <span class="st">"@openzeppelin/ReentrancyGuard"</span><span class="pn">;</span></div>
+        <div class="cl"><span class="cl-n">6</span></div>
+        <div class="cl"><span class="cl-n">7</span><span class="co">/// @title DeFi Liquidity Pool</span></div>
+        <div class="cl"><span class="cl-n">8</span><span class="kw">contract</span> <span class="ty">DeFiPool</span> <span class="kw">is</span> <span class="ty">ReentrancyGuard</span> <span class="pn">{</span></div>
+        <div class="cl"><span class="cl-n">9</span>&nbsp;&nbsp;<span class="ty">IERC20</span> <span class="kw">public</span> <span class="wh">token</span><span class="pn">;</span></div>
+        <div class="cl"><span class="cl-n">10</span>&nbsp;&nbsp;<span class="kw">uint256</span> <span class="kw">public</span> <span class="wh">totalLiquidity</span><span class="pn">;</span></div>
+        <div class="cl"><span class="cl-n">11</span>&nbsp;&nbsp;<span class="kw">mapping</span><span class="pn">(</span><span class="kw">address</span> <span class="pn">=></span> <span class="kw">uint256</span><span class="pn">)</span> <span class="kw">public</span> <span class="wh">shares</span><span class="pn">;</span></div>
+        <div class="cl"><span class="cl-n">12</span></div>
+        <div class="cl hl"><span class="cl-n">13</span>&nbsp;&nbsp;<span class="kw">function</span> <span class="fn">addLiquidity</span><span class="pn">(</span><span class="kw">uint256</span> <span class="wh">amount</span><span class="pn">)</span></div>
+        <div class="cl hl"><span class="cl-n">14</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">external</span> <span class="fn">nonReentrant</span> <span class="pn">{</span></div>
+        <div class="cl"><span class="cl-n">15</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="wh">token</span><span class="pn">.</span><span class="fn">transferFrom</span><span class="pn">(</span><span class="kw">msg.sender</span><span class="pn">,</span></div>
+        <div class="cl"><span class="cl-n">16</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">address</span><span class="pn">(</span><span class="kw">this</span><span class="pn">),</span> <span class="wh">amount</span><span class="pn">);</span></div>
+        <div class="cl"><span class="cl-n">17</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="wh">shares</span><span class="pn">[</span><span class="kw">msg.sender</span><span class="pn">]</span> <span class="pn">+=</span> <span class="wh">amount</span><span class="pn">;</span></div>
+        <div class="cl"><span class="cl-n">18</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="wh">totalLiquidity</span> <span class="pn">+=</span> <span class="wh">amount</span><span class="pn">;</span></div>
+        <div class="cl"><span class="cl-n">19</span>&nbsp;&nbsp;<span class="pn">}</span></div>
+        <div class="cl"><span class="cl-n">20</span><span class="pn">}</span> <span class="cursor"></span></div>
+      </div>
+
+      <!-- preview -->
+      <div class="hv-preview">
+        <div class="hv-preview-bar">
+          <div class="hv-url">app.apptochain.xyz/pool</div>
+        </div>
+        <div class="hv-pbody">
+          <div class="mini-card">
+            <div class="mini-card-head">
+              <div class="mini-card-title">DeFi Pool</div>
+              <div class="mini-live"><i></i>Base Mainnet</div>
+            </div>
+            <div class="mini-stats">
+              <div class="mini-stat"><div class="mini-stat-l">TVL</div><div class="mini-stat-v" style="color:#60a5fa">$2.4M</div></div>
+              <div class="mini-stat"><div class="mini-stat-l">APY</div><div class="mini-stat-v" style="color:#22c55e">18.4%</div></div>
+            </div>
+            <div class="mini-btn-row">
+              <button class="mini-btn p">Add Liquidity</button>
+              <button class="mini-btn s">Withdraw</button>
+            </div>
+          </div>
+          <div class="mini-ai">
+            <div class="mini-ai-top">
+              <div class="mini-ai-icon">A</div>
+              <div class="mini-ai-lbl">AppTo<span>Chain</span> AI</div>
+              <div class="mini-ai-ok"><i></i>No issues</div>
+            </div>
+            <div class="mini-ai-msg">Compiled ✓ — audit passed. Ready to deploy to Base or any EVM.</div>
+            <div class="mini-ai-row">
+              <div class="mini-ai-field">Add 0.3% swap fee...</div>
+              <button class="mini-ai-go">↵</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hv-status">
+      <span>◎ <em>Base Mainnet</em></span>
+      <span>⚡ <em>0</em> errors</span>
+      <span>✓ Audit passed</span>
+      <span style="margin-left:auto">Gas: <em>~$0.04</em></span>
+    </div>
+  </div>
+</section>
+
+
+<!-- TRUST -->
+<div class="trust">
+  <div class="trust-inner">
+    <span class="trust-label">Trusted by builders at</span>
+    <div class="trust-logos">
+      <span class="trust-logo">Coinbase</span>
+      <span class="trust-logo">Uniswap</span>
+      <span class="trust-logo">Aave</span>
+      <span class="trust-logo">OpenSea</span>
+      <span class="trust-logo">Chainlink</span>
+      <span class="trust-logo">Alchemy</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- METRICS -->
+<div class="metrics">
+  <div class="metrics-row">
+    <div class="met"><div class="met-val">10K<sup>+</sup></div><div class="met-lbl">Apps deployed</div><div class="met-sub">across 30+ networks</div></div>
+    <div class="met"><div class="met-val">&lt;60s</div><div class="met-lbl">Average deploy time</div><div class="met-sub">prompt to mainnet</div></div>
+    <div class="met"><div class="met-val">99.9%</div><div class="met-lbl">Platform uptime</div><div class="met-sub">SLA guaranteed</div></div>
+    <div class="met"><div class="met-val">$0</div><div class="met-lbl">Platform fee</div><div class="met-sub">keep 100% of revenue</div></div>
+  </div>
+</div>
+
+
+<!-- FEATURES -->
+<div id="features" class="section">
+  <div class="lbl">Platform</div>
+  <h2>Everything you need to<br>build <b>onchain.</b></h2>
+  <p class="lead">From AI-generated contracts to one-click token deploys — AppToChain is the complete Web3 dev platform.</p>
+
+  <div class="bento">
+    <div class="bento-cell c6">
+      <span class="bc-tag">01 — AI Builder</span>
+      <span class="bc-icon">✦</span>
+      <h3>Describe it. We build it.</h3>
+      <p>Write what you want in plain text. Our AI generates production-ready Solidity, frontend code, and DB schema end to end.</p>
+      <div class="code-snip">
+        <span class="kw2">describe</span>: <span class="st2">"A staking contract with 14-day lockup"</span><br>
+        → <span class="fn2">generating</span> Staking.sol ...<br>
+        → <span class="fn2">auditing</span> contract ...<br>
+        → <span class="fn2">deploying</span> to Base mainnet ✓
+      </div>
+    </div>
+    <div class="bento-cell c6">
+      <span class="bc-tag">02 — Smart Contracts</span>
+      <span class="bc-icon">📜</span>
+      <h3>Full contract IDE</h3>
+      <p>Solidity, Rust, Move, Vyper. AI autocomplete, security auditing, gas optimization, and one-click deploy to any network.</p>
+      <div class="net-pills">
+        <div class="net-pill2"><div class="np-dot" style="background:#627EEA"></div>Solidity</div>
+        <div class="net-pill2"><div class="np-dot" style="background:#9945FF"></div>Rust</div>
+        <div class="net-pill2"><div class="np-dot" style="background:#4DA2FF"></div>Move</div>
+        <div class="net-pill2"><div class="np-dot" style="background:#34d399"></div>Vyper</div>
+      </div>
+    </div>
+    <div class="bento-cell c4">
+      <span class="bc-tag">03 — Token Launch</span>
+      <span class="bc-icon">🪙</span>
+      <h3>Launch tokens in 60 seconds</h3>
+      <p>ERC-20, SPL, BEP-20. Supply, vesting, taxes — configured with a form.</p>
+    </div>
+    <div class="bento-cell c4">
+      <span class="bc-tag">04 — Domains</span>
+      <span class="bc-icon">🌐</span>
+      <h3>Custom domains</h3>
+      <p>Your domain, ENS, or Unstoppable Domains. Decentralized hosting included.</p>
+    </div>
+    <div class="bento-cell c4">
+      <span class="bc-tag">05 — Ownership</span>
+      <span class="bc-icon">🔑</span>
+      <h3>You own everything</h3>
+      <p>Contracts deploy to your wallet. AppToChain holds nothing. Provable onchain, forever.</p>
+    </div>
+    <div class="bento-cell c4">
+      <span class="bc-tag">06 — Database</span>
+      <span class="bc-icon">💾</span>
+      <h3>Onchain database</h3>
+      <p>Transparent, decentralized data. Every record is verifiable.</p>
+    </div>
+    <div class="bento-cell c4">
+      <span class="bc-tag">07 — Payments</span>
+      <span class="bc-icon">💳</span>
+      <h3>Built-in monetization</h3>
+      <p>Subscriptions, one-time payments, royalties. Crypto-native.</p>
+    </div>
+    <div class="bento-cell c4">
+      <span class="bc-tag">08 — Security</span>
+      <span class="bc-icon">🛡</span>
+      <h3>Automated auditing</h3>
+      <p>Every generated contract passes security analysis before deploy.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- NETWORKS -->
+<div id="networks" class="net-section">
+  <div class="section">
+    <div class="lbl">Networks</div>
+    <h2>Deploy to any <b>blockchain.</b></h2>
+    <p class="lead">30+ EVM and non-EVM networks. Mainnet, testnet, and L2s. One click.</p>
+    <div class="net-grid">
+      <div class="net-cell feat"><div class="nc-circle" style="background:rgba(98,126,234,0.12);color:#627EEA;border-color:rgba(98,126,234,0.2)">Ξ</div><div class="nc-name">Ethereum</div><div class="nc-type">L1 · Mainnet</div><span class="nc-badge evm">EVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(0,82,255,0.08);color:#0052FF;border-color:rgba(0,82,255,0.2)">⬡</div><div class="nc-name">Base</div><div class="nc-type">L2 · Optimistic</div><span class="nc-badge evm">EVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(153,69,255,0.08);color:#9945FF;border-color:rgba(153,69,255,0.2)">◎</div><div class="nc-name">Solana</div><div class="nc-type">L1 · High speed</div><span class="nc-badge svm">SVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(243,186,47,0.08);color:#F3BA2F;border-color:rgba(243,186,47,0.2)">B</div><div class="nc-name">BNB Chain</div><div class="nc-type">L1 · PoSA</div><span class="nc-badge evm">EVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(130,71,229,0.08);color:#8247E5;border-color:rgba(130,71,229,0.2)">⬡</div><div class="nc-name">Polygon</div><div class="nc-type">L2 · PoS</div><span class="nc-badge evm">EVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(40,160,240,0.08);color:#28A0F0;border-color:rgba(40,160,240,0.2)">◆</div><div class="nc-name">Arbitrum</div><div class="nc-type">L2 · Nitro</div><span class="nc-badge evm">EVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(255,4,32,0.08);color:#FF0420;border-color:rgba(255,4,32,0.2)">⬡</div><div class="nc-name">Optimism</div><div class="nc-type">L2 · OP Stack</div><span class="nc-badge evm">EVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(232,65,66,0.08);color:#E84142;border-color:rgba(232,65,66,0.2)">▲</div><div class="nc-name">Avalanche</div><div class="nc-type">L1 · Snowman</div><span class="nc-badge evm">EVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(77,162,255,0.08);color:#4DA2FF;border-color:rgba(77,162,255,0.2)">◆</div><div class="nc-name">Sui</div><div class="nc-type">L1 · Object</div><span class="nc-badge mvm">Move</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(0,181,200,0.08);color:#00B5C8;border-color:rgba(0,181,200,0.2)">◆</div><div class="nc-name">Aptos</div><div class="nc-type">L1 · Block-STM</div><span class="nc-badge mvm">Move</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(29,212,174,0.08);color:#1dd4ae;border-color:rgba(29,212,174,0.2)">Z</div><div class="nc-name">zkSync</div><div class="nc-type">L2 · ZK rollup</div><span class="nc-badge evm">EVM</span></div>
+      <div class="net-cell"><div class="nc-circle" style="background:rgba(255,255,255,0.04);color:#555;border-color:#222">+18</div><div class="nc-name">More</div><div class="nc-type">Tron, NEAR…</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TOKEN DEPLOY -->
+<div id="deploy" class="section">
+  <div class="deploy-split">
+    <div>
+      <div class="lbl">Token Launchpad</div>
+      <h2>Launch your token.<br>Any chain. <b>60 seconds.</b></h2>
+      <p class="lead" style="margin-bottom:28px">Configure supply, vesting, and fees. Pick a network. Deploy. Audited contracts — no Solidity needed.</p>
+      <div class="dep-steps">
+        <div class="dep-step"><div class="dep-step-num">1</div><div class="dep-step-body"><h4>Configure your token</h4><p>Name, symbol, total supply, decimals, buy/sell tax, and vesting schedule.</p></div></div>
+        <div class="dep-step"><div class="dep-step-num">2</div><div class="dep-step-body"><h4>Select a network</h4><p>EVM, Solana, BNB, and 30+ more. Testnet first if you want.</p></div></div>
+        <div class="dep-step"><div class="dep-step-num">3</div><div class="dep-step-body"><h4>Deploy &amp; own</h4><p>Contract goes to your wallet. You control it. We touch nothing.</p></div></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-head">
+        <span>🪙</span>
+        <h4>Token Deployer</h4>
+        <div class="fch-steps">
+          <div class="fch-step done">✓ Config</div>
+          <div class="fch-step active">◎ Network</div>
+          <div class="fch-step idle">Deploy</div>
+        </div>
+      </div>
+      <div class="form-card-body">
+        <div class="fg-row">
+          <div class="fg"><label>Token Name</label><input value="AppChain Token"></div>
+          <div class="fg"><label>Symbol</label><input value="ACT"></div>
+        </div>
+        <div class="fg"><label>Total Supply</label><input class="mono" value="1,000,000,000"><div class="fg-hint">1 Billion tokens · 18 decimals</div></div>
+        <div class="fg">
+          <label>Select Network</label>
+          <div class="chain-picker">
+            <div class="cp-opt sel"><div class="cp-dot" style="background:#0052FF">⬡</div>Base</div>
+            <div class="cp-opt"><div class="cp-dot" style="background:#627EEA">Ξ</div>Ethereum</div>
+            <div class="cp-opt"><div class="cp-dot" style="background:#9945FF">◎</div>Solana</div>
+            <div class="cp-opt"><div class="cp-dot" style="background:#F3BA2F">B</div>BNB</div>
+            <div class="cp-opt"><div class="cp-dot" style="background:#8247E5">⬡</div>Polygon</div>
+            <div class="cp-opt"><div class="cp-dot" style="background:#28A0F0">◆</div>Arbitrum</div>
+          </div>
+        </div>
+        <div class="summary-box">
+          <div class="sum-row"><span>Standard</span><span class="hi">ERC-20</span></div>
+          <div class="sum-row"><span>Network</span><span class="hi">Base Mainnet</span></div>
+          <div class="sum-row"><span>Mintable</span><span>No</span></div>
+          <div class="sum-row"><span>Audit</span><span class="ok">✓ Passed</span></div>
+          <div class="sum-row"><span>Est. gas</span><span>~$0.04</span></div>
+          <div class="sum-row"><span>Ownership</span><span class="ok">Your wallet</span></div>
+        </div>
+        <button class="deploy-btn">🚀 Deploy to Base Mainnet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- USE CASES -->
+<div style="border-top:1px solid var(--border)">
+<div class="section">
+  <div class="lbl">Use cases</div>
+  <h2>Built for any kind of <b>builder.</b></h2>
+  <div class="uc-grid">
+    <div class="uc-cell"><span class="uc-ico">🏦</span><h4>DeFi Protocols</h4><p>AMMs, lending, yield farms, staking on any EVM chain</p></div>
+    <div class="uc-cell"><span class="uc-ico">🪙</span><h4>Token Launches</h4><p>ERC-20, SPL, BEP-20 with custom tokenomics and vesting</p></div>
+    <div class="uc-cell"><span class="uc-ico">🖼️</span><h4>NFT Platforms</h4><p>Minting sites, marketplaces, royalty enforcement</p></div>
+    <div class="uc-cell"><span class="uc-ico">🗳️</span><h4>DAOs</h4><p>On-chain governance, voting, treasury, multi-sig</p></div>
+    <div class="uc-cell"><span class="uc-ico">🎮</span><h4>Web3 Games</h4><p>On-chain economies, item contracts, game logic</p></div>
+    <div class="uc-cell"><span class="uc-ico">🤖</span><h4>AI Agents</h4><p>Autonomous on-chain bots, wallet agents, automation</p></div>
+    <div class="uc-cell"><span class="uc-ico">🌐</span><h4>Social Apps</h4><p>Decentralized communities, creator monetization</p></div>
+    <div class="uc-cell"><span class="uc-ico">🏢</span><h4>Enterprise</h4><p>Supply chain, payroll, transparent business logic</p></div>
+  </div>
+</div>
+</div>
+
+
+<!-- PRICING -->
+<div id="pricing" style="border-top:1px solid var(--border);background:var(--bg1)">
+<div class="section">
+  <div class="lbl">Pricing</div>
+  <h2>Simple pricing.<br>No surprises.</h2>
+  <p class="lead">Start free. Upgrade when you need more. You always own what you deploy.</p>
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Hobby</div>
+      <div class="plan-price">$0 <small>/ month</small></div>
+      <p class="plan-desc">For exploring and building your first dApp or contract.</p>
+      <hr class="plan-sep">
+      <ul class="plan-feats">
+        <li>5 app deployments</li>
+        <li>AI App Builder (limited)</li>
+        <li>Smart contract generation</li>
+        <li>Testnet only</li>
+        <li>*.apptochain.xyz domain</li>
+        <li class="off">Mainnet deploy</li>
+        <li class="off">Token Launchpad</li>
+        <li class="off">Custom domain</li>
+      </ul>
+      <a href="apptochain/signup.html" class="plan-cta o">Get started for free</a>
+    </div>
+    <div class="plan featured">
+      <div class="plan-name" style="color:var(--blue-light)">Pro</div>
+      <div class="plan-price">$49 <small>/ month</small></div>
+      <p class="plan-desc">For founders and serious builders shipping real products.</p>
+      <hr class="plan-sep">
+      <ul class="plan-feats">
+        <li>Unlimited deployments</li>
+        <li>Full AI App Builder</li>
+        <li>All 30+ networks</li>
+        <li>Token Launchpad</li>
+        <li>Custom domain</li>
+        <li>Onchain database</li>
+        <li>Built-in payments</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="apptochain/signup.html" class="plan-cta f">Start Pro — free 14-day trial</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price" style="font-size:28px;padding-top:6px">Custom</div>
+      <p class="plan-desc">For studios, protocols, and teams needing dedicated infra.</p>
+      <hr class="plan-sep">
+      <ul class="plan-feats">
+        <li>Everything in Pro</li>
+        <li>White-label platform</li>
+        <li>Dedicated infra</li>
+        <li>99.99% SLA</li>
+        <li>Contract audit service</li>
+        <li>Dedicated engineer</li>
+        <li>Custom integrations</li>
+        <li>Invoice billing</li>
+      </ul>
+      <a href="#" class="plan-cta o">Talk to sales →</a>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- CTA -->
+<div class="cta-banner">
+  <h2>Start building onchain<br>in the next 5 minutes.</h2>
+  <p>No credit card. No DevOps. No Solidity experience required.</p>
+  <div class="cta-btns">
+    <a href="apptochain/signup.html" class="btn-p">Start for free →</a>
+    <a href="#" class="btn-s">Read the docs</a>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft">
+    <div class="ft-brand">
+      <div style="display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700">
+        <div class="nav-logo-box">A</div>AppToChain
+      </div>
+      <p>The AI dev platform to build, deploy, and own full-stack dApps and tokens on any blockchain.</p>
+    </div>
+    <div class="ft-col"><h6>Product</h6><a href="#">AI App Builder</a><a href="#">Smart Contracts</a><a href="#">Token Launchpad</a><a href="#">Domains</a><a href="#">Onchain DB</a></div>
+    <div class="ft-col"><h6>Networks</h6><a href="#">Ethereum</a><a href="#">Base</a><a href="#">Solana</a><a href="#">BNB Chain</a><a href="#">All networks →</a></div>
+    <div class="ft-col"><h6>Developers</h6><a href="#">Docs</a><a href="#">API Reference</a><a href="#">SDK</a><a href="#">Changelog</a><a href="#">Status</a></div>
+    <div class="ft-col"><h6>Company</h6><a href="#">About</a><a href="#">Blog</a><a href="#">Careers</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+  </div>
+  <div class="ft-bottom">
+    <p>© 2026 AppToChain · apptochain.xyz</p>
+    <p>IDEA → APP → ONCHAIN OWNERSHIP</p>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){
+  const m=document.getElementById('mob-menu');
+  m.classList.toggle('open');
+}
+// close menu on outside click
+document.addEventListener('click',e=>{
+  const m=document.getElementById('mob-menu');
+  const h=document.getElementById('ham');
+  if(m.classList.contains('open')&&!m.contains(e.target)&&!h.contains(e.target)) m.classList.remove('open');
+});
+// chain picker
+document.querySelectorAll('.cp-opt').forEach(o=>{
+  o.onclick=()=>{ document.querySelectorAll('.cp-opt').forEach(x=>x.classList.remove('sel')); o.classList.add('sel'); };
+});
+// network cells
+document.querySelectorAll('.net-cell').forEach(c=>{
+  c.onclick=()=>{ document.querySelectorAll('.net-cell').forEach(x=>x.classList.remove('feat')); c.classList.add('feat'); };
+});
+// scroll reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';} });
+},{threshold:0.05});
+document.querySelectorAll('.bento-cell,.plan,.uc-cell,.met,.net-cell,.dep-step').forEach(el=>{
+  el.style.cssText+='opacity:0;transform:translateY(10px);transition:opacity 0.35s ease,transform 0.35s ease';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
