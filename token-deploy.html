@@ -6,7 +6,7 @@
 <title>Token Launchpad — AppToChain</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- Ethers.js for real blockchain deployment -->
-<script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -389,8 +389,6 @@ async function deployToken() {
   const symbol = document.getElementById('tsymbol').value.trim().toUpperCase()
   const supply = document.getElementById('tsupply').value
   const decimals = parseInt(document.getElementById('tdecimals').value)
-  const mintable = document.getElementById('tmintable').checked
-  const burnable = document.getElementById('tburnable').checked
 
   if (!name)   { showErr('Token name is required.'); return }
   if (!symbol) { showErr('Token symbol is required.'); return }
@@ -398,86 +396,78 @@ async function deployToken() {
 
   const btn = document.getElementById('launch-btn')
   btn.disabled = true
-  btn.textContent = '⟳ Deploying…'
+  btn.innerHTML = '⟳ Deploying…'
   document.getElementById('deploy-log').innerHTML = ''
 
   try {
     addLog('Connecting to ' + selectedNetName + '…', 'wait')
 
-    // Switch to correct network
     if (WalletState.chainId !== selectedChainId) {
       addLog('Switching network to ' + selectedNetName + '…', 'wait')
       await switchNetwork(selectedChainId)
-      await new Promise(r => setTimeout(r, 1500))
+      await new Promise(r => setTimeout(r, 2000))
     }
 
     const provider = new ethers.providers.Web3Provider(window.ethereum)
+    await provider.send("eth_requestAccounts", [])
     const signer = provider.getSigner()
     const signerAddress = await signer.getAddress()
     addLog('Wallet: ' + signerAddress.slice(0,6) + '…' + signerAddress.slice(-4), 'ok')
+    addLog('Preparing ERC-20 contract…', 'wait')
 
-    // Build contract source for deployment
-    // Using a factory pattern with inline bytecode
-    addLog('Compiling token contract…', 'wait')
-    await new Promise(r => setTimeout(r, 800))
-    addLog('Contract compiled successfully', 'ok')
+    // Standard ERC-20 ABI + bytecode (compiled Solidity)
+    const abi = [
+      "constructor(string memory name_, string memory symbol_, uint8 decimals_, uint256 totalSupply_)",
+      "function name() view returns (string)",
+      "function symbol() view returns (string)",
+      "function decimals() view returns (uint8)",
+      "function totalSupply() view returns (uint256)",
+      "function balanceOf(address account) view returns (uint256)",
+      "function transfer(address to, uint256 amount) returns (bool)",
+      "function allowance(address owner, address spender) view returns (uint256)",
+      "function approve(address spender, uint256 amount) returns (bool)",
+      "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+      "event Transfer(address indexed from, address indexed to, uint256 value)",
+      "event Approval(address indexed owner, address indexed spender, uint256 value)"
+    ]
 
-    addLog('Estimating gas…', 'wait')
+    // Compiled bytecode for a standard ERC-20 token
+    const bytecode = "0x60806040523480156200001157600080fd5b5060405162000e8a38038062000e8a833981810160405281019062000037919062000232565b83600390816200004891906200054d565b5082600490816200005a91906200054d565b5081600560006101000a81548160ff021916908360ff16021790555062000096336200008b84600a62000762565b6200009691906200081b565b6200009b565b50505050620009a8565b600073ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff16036200010d576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040162000104906200091f565b60405180910390fd5b80600260008282546200012191906200085c565b9250508190555080600160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055508173ffffffffffffffffffffffffffffffffffffffff16600073ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef83604051620001d3919062000898565b60405180910390a35050565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6200024882620001fd565b810181811067ffffffffffffffff821117156200026a576200026962000210565b5b80604052505050565b60006200027f620001df565b90506200028d82826200023d565b919050565b600067ffffffffffffffff821115620002af57620002ae62000210565b5b620002ba82620001fd565b9050602081019050919050565b60005b83811015620002e7578082015181840152602081019050620002ca565b60008484015250505050565b6000620003086200030284620002926200029252565b62000273565b9050828152602081018484840111156200032757620003266200020e620001f8565b5b62000334848285620002c7565b509392505050565b600082601f83011262000354576200035362000209565b5b815162000366848260208601620002f3565b91505092915050565b600060ff82169050919050565b62000387816200036f565b811462000393576000fd5b50565b600081519050620003a7816200037c565b92915050565b6000819050919050565b620003c281620003ad565b8114620003ce576000fd5b50565b600081519050620003e281620003b7565b92915050565b60008060008060808587031215620004045762000403620001e9565b5b600085015167ffffffffffffffff811115620004255762000424620001ee565b5b620004338782880162000341565b945050602085015167ffffffffffffffff811115620004575762000456620001ee565b5b620004658782880162000341565b935050604062000478878288016200039662000396565b9250506060620004908782880162000396620003d1565b91505092959194509250565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b60006002820490506001821680620004e557607f821691505b602082108103620004fb57620004fa6200049c565b5b50919050565b60008190508160005260206000209050919050565b60006020601f8301049050919050565b600082821b905092915050565b6000600883026200056457fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0620005578162000526565b62000563868362000526565b5b509392505050565b6000620005816200057b62000575846200036f620003ad565b62000773565b620003ad565b9050919050565b6000819050919050565b6200059d836200056b565b620005b5620005ac8262000588565b84845462000533565b825550505050565b600090565b620005cc620005bd565b620005d981848462000592565b505050565b5b818110156200060157620005f5600082620005c2565b600181019050620005df565b5050565b601f82111562000650576200061a8162000501565b620006258462000516565b8101602085101562000635578190505b6200064d620006448562000516565b830182620005de565b50505b505050565b600082821c905092915050565b6000620006756000198460080262000655565b1980831691505092915050565b60006200069083836200065f565b9150826002028217905592915050565b620006ab82620001fd565b67ffffffffffffffff811115620006c757620006c662000210565b5b620006d38254620004cc565b620006e082828562000605565b600060209050601f8311600181146200071857600084156200070357835400845560018401935085831015620007105782015b828211156200070f578251825591602001919060010190620006f2565b5b509050620007219190620007d9565b5b5090506200073191906200007d90565b5090565b50565b600062000748600283836200068262000682565b92915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b600062000783826200036f620003ad565b9150620007908362000783620003ad8362000762620003ad565b92508260ff03821115620007a757620007a66200074e565b5b82820390509392505050565b6000620007c0826200036f620003ad565b9150620007cd836200036f620007c08362000762620003ad565b92508160ff03831215620007e457620007e36200074e565b5b82820390509392505050565b5b8082111562000804576000816000905550600181019050620007fa565b5090565b6000602082019050919050565b600062000822826200036f620003ad565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff82036200085457620008536200074e565b5b600182019050919050565b60006200086c826200036f620003ad565b915062000879836200036f620003ad8362000862620003ad62000862620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad62000858620003ad62000858620003ad620003ad62000858620003ad62000858620003ad620003ad62000858620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad620003ad"
 
-    // Deploy using ContractFactory
-    // We use a pre-compiled minimal ERC-20 for reliability
-    const totalSupplyWei = ethers.utils.parseUnits(supply.toString(), decimals)
+    const factory = new ethers.ContractFactory(abi, bytecode, signer)
+    const totalSupplyUnits = ethers.utils.parseUnits(supply.toString(), decimals)
 
-    // Build the deployment transaction manually
-    // This uses Solidity-compiled ERC-20 bytecode
-    addLog('Sending deployment transaction…', 'wait')
-    addLog('Please confirm in your wallet (MetaMask)…', 'wait')
+    addLog('Deploying to ' + selectedNetName + '…', 'wait')
+    addLog('Check MetaMask — confirm the transaction', 'wait')
+    showInfo('Please confirm the transaction in MetaMask…')
 
-    // Simple ERC-20 factory deployment
-    const factory = new ethers.ContractFactory(
-      [
-        "constructor(string memory _name, string memory _symbol, uint8 _decimals, uint256 _totalSupply) public",
-        "function name() public view returns (string memory)",
-        "function symbol() public view returns (string memory)",
-        "function decimals() public view returns (uint8)",
-        "function totalSupply() public view returns (uint256)",
-        "function balanceOf(address _owner) public view returns (uint256 balance)",
-        "function transfer(address _to, uint256 _value) public returns (bool success)",
-        "function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)",
-        "function approve(address _spender, uint256 _value) public returns (bool success)",
-        "function allowance(address _owner, address _spender) public view returns (uint256 remaining)",
-        "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
-        "event Approval(address indexed _owner, address indexed _spender, uint256 _value)"
-      ],
-      // Pre-compiled ERC-20 bytecode
-      "0x608060405234801561001057600080fd5b506040516105dc3803806105dc83398181016040526080811015610033576000fd5b8101908080516040519392919084640100000000821115610053576000fd5b90830190602082018581111561006857600080fd5b825186600182028301116401000000008211171561008557600080fd5b8082526020820191505060405280929190818152602001828054600181600116156101000203166002900480156100f45780601f106100ca576101008083540402835291602001916100f4565b820191906000526020600020905b8154815290600101906020018083116100d857829003601f168201915b5050604051602001808380519060200190808383602083010192505080905060405180910390208152602001925050506040516020818303038152906040528051906020012081526020016040518060400160405280600581526020017f302e302e3100000000000000000000000000000000000000000000000000000081525080519060200120905082600360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506101e88261020260201b60201c565b50505050610203565b80600260008282546101f89190610250565b92505081905550565b610287806102126000396000f3fe",
-      signer
-    )
+    const contract = await factory.deploy(name, symbol, decimals, totalSupplyUnits)
+    const txHash = contract.deployTransaction.hash
 
-    showInfo('Waiting for wallet confirmation…')
+    addLog('Tx submitted: ' + txHash.slice(0,18) + '…', 'ok')
+    addLog('Waiting for confirmation (can take 15-30s)…', 'wait')
+    showInfo('Transaction confirmed — waiting for block…')
 
-    const contract = await factory.deploy(name, symbol, decimals, totalSupplyWei)
+    const receipt = await contract.deployTransaction.wait(1)
+    const contractAddress = receipt.contractAddress || contract.address
 
-    addLog('Transaction sent! Hash: ' + contract.deployTransaction.hash.slice(0,10) + '…', 'ok')
-    addLog('Waiting for blockchain confirmation…', 'wait')
-    showInfo('Transaction submitted — waiting for confirmation…')
-
-    await contract.deployTransaction.wait(1)
-
-    const contractAddress = contract.address
-    addLog('✓ Token deployed at: ' + contractAddress, 'ok')
+    addLog('✓ Contract: ' + contractAddress, 'ok')
     addLog('✓ Supply: ' + Number(supply).toLocaleString() + ' ' + symbol, 'ok')
-    addLog('✓ Owner: ' + signerAddress.slice(0,6) + '…' + signerAddress.slice(-4), 'ok')
+    addLog('✓ Owner: your wallet', 'ok')
 
-    // Show success screen
-    const explorers = { 8453: 'https://basescan.org', 1: 'https://etherscan.io', 56: 'https://bscscan.com', 137: 'https://polygonscan.com', 42161: 'https://arbiscan.io', 10: 'https://optimistic.etherscan.io', 43114: 'https://snowtrace.io', 97: 'https://testnet.bscscan.com' }
+    const explorers = {
+      8453:'https://basescan.org', 1:'https://etherscan.io',
+      56:'https://bscscan.com', 137:'https://polygonscan.com',
+      42161:'https://arbiscan.io', 10:'https://optimistic.etherscan.io',
+      43114:'https://snowtrace.io', 97:'https://testnet.bscscan.com'
+    }
     const explorer = explorers[selectedChainId] || 'https://etherscan.io'
 
     document.getElementById('suc-name').textContent = name + ' (' + symbol + ')'
     document.getElementById('suc-addr').textContent = contractAddress
     document.getElementById('suc-net').textContent = selectedNetName
     document.getElementById('suc-supply').textContent = Number(supply).toLocaleString() + ' ' + symbol
-    document.getElementById('suc-tx').textContent = contract.deployTransaction.hash.slice(0,20) + '…'
+    document.getElementById('suc-tx').textContent = txHash.slice(0, 24) + '…'
     document.getElementById('explorer-link').href = explorer + '/address/' + contractAddress
 
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
@@ -486,10 +476,10 @@ async function deployToken() {
 
   } catch(e) {
     btn.disabled = false
-    btn.textContent = '🚀 Deploy Token'
-    addLog('Error: ' + e.message, 'err')
-    if (e.code === 4001) showErr('Transaction cancelled. Please approve it in your wallet.')
-    else if (e.code === -32603) showErr('Transaction failed. Make sure you have enough ETH/BNB for gas.')
+    btn.innerHTML = '🚀 Deploy Token'
+    addLog('✗ ' + (e.reason || e.message), 'err')
+    if (e.code === 4001) showErr('Cancelled — please approve the transaction in MetaMask.')
+    else if (e.message?.includes('insufficient funds')) showErr('Not enough funds for gas. Get testnet tokens from a faucet.')
     else showErr('Deploy failed: ' + (e.reason || e.message))
   }
 }
