@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sign up — AppToChain</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+:root{--bg:#000;--bg1:#0a0a0a;--bg2:#111;--border:#222;--border2:#2a2a2a;--border3:#333;--text:#ededed;--text2:#a1a1a1;--text3:#666;--blue:#2563eb;--blue-light:#3b82f6;--green:#22c55e;--red:#ef4444}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 80% at 50% 0%,black,transparent)}
+.auth-nav{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:relative;z-index:10;flex-shrink:0}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);font-size:14px;font-weight:700}
+.nav-logo-box{width:24px;height:24px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+.nav-r{margin-left:auto;font-size:13px;color:var(--text3)}
+.nav-r a{color:var(--blue-light);text-decoration:none;font-weight:500}
+.auth-body{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1}
+.card{width:100%;max-width:420px}
+h1{font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px}
+.sub{font-size:13px;color:var(--text3);margin-bottom:28px}
+.sub a{color:var(--blue-light);text-decoration:none}
+.oauth-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:40px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--bg1);color:var(--text);transition:all 0.12s;margin-bottom:10px}
+.oauth-btn:hover:not(:disabled){border-color:var(--border3);background:var(--bg2)}
+.oauth-btn:disabled{opacity:0.5;cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text3);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--text3);margin-bottom:5px;letter-spacing:0.04em;text-transform:uppercase}
+.fg input{display:block;width:100%;height:40px;padding:0 12px;background:var(--bg);border:1px solid var(--border2);border-radius:7px;font-family:inherit;font-size:14px;color:var(--text);outline:none;transition:all 0.12s}
+.fg input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.fg input::placeholder{color:var(--text3)}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pw{position:relative}
+.pw input{padding-right:42px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;display:flex}
+.strength-bar{height:3px;background:var(--border2);border-radius:2px;margin-top:6px;overflow:hidden}
+.strength-fill{height:100%;border-radius:2px;transition:width 0.3s,background 0.3s;width:0}
+.strength-lbl{font-size:10px;color:var(--text3);margin-top:4px}
+.check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px}
+.check-row input[type=checkbox]{margin-top:2px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+.check-row label{font-size:12px;color:var(--text3);line-height:1.55}
+.check-row label a{color:var(--blue-light);text-decoration:none}
+.submit-btn{width:100%;height:42px;border:none;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;transition:all 0.15s}
+.submit-btn:hover:not(:disabled){background:#1d4ed8}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed;background:var(--bg2);color:var(--text3);border:1px solid var(--border2)}
+.alert{display:none;border-radius:7px;padding:11px 13px;font-size:13px;margin-bottom:16px;line-height:1.5;align-items:flex-start;gap:8px}
+.alert.show{display:flex}
+.alert.e{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.alert.s{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:var(--green)}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.7s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* confirm email screen */
+.confirm-screen{display:none;text-align:center;padding:20px 0}
+.confirm-screen.show{display:block}
+.confirm-icon{font-size:48px;margin-bottom:16px}
+.confirm-screen h2{font-size:20px;font-weight:800;margin-bottom:8px}
+.confirm-screen p{font-size:14px;color:var(--text2);line-height:1.6}
+.confirm-screen .email-shown{color:var(--text);font-weight:600}
+@media(max-width:480px){.auth-body{align-items:flex-start;padding:24px 16px}.fg-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="auth-nav">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-box">A</div>AppToChain</a>
+  <div class="nav-r">Have an account? <a href="login.html">Sign in →</a></div>
+</nav>
+<div class="auth-body">
+  <div class="card">
+
+    <!-- SIGNUP FORM -->
+    <div id="form-view">
+      <h1>Create your account</h1>
+      <p class="sub">Already have one? <a href="login.html">Sign in</a></p>
+
+      <div class="alert e" id="aerr"><span>⚠</span><span id="aerr-msg"></span></div>
+
+      <button class="oauth-btn" id="btn-g" onclick="oauthGoogle()">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <button class="oauth-btn" id="btn-gh" onclick="oauthGitHub()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        Continue with GitHub
+      </button>
+
+      <div class="divider">or sign up with email</div>
+
+      <div class="fg-row">
+        <div class="fg"><label>First Name</label><input id="fname" placeholder="Satoshi" autocomplete="given-name"></div>
+        <div class="fg"><label>Last Name</label><input id="lname" placeholder="Nakamoto" autocomplete="family-name"></div>
+      </div>
+      <div class="fg"><label>Email address</label><input type="email" id="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="fg">
+        <label>Password</label>
+        <div class="pw">
+          <input type="password" id="pw" placeholder="Min. 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
+          <button class="pw-eye" type="button" onclick="togglePw()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="sfill"></div></div>
+        <div class="strength-lbl" id="slbl"></div>
+      </div>
+
+      <div class="check-row">
+        <input type="checkbox" id="agree">
+        <label for="agree">I agree to AppToChain's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I may receive product updates by email.</label>
+      </div>
+
+      <button class="submit-btn" id="sbtn" onclick="doSignup()">
+        Create account →
+      </button>
+    </div>
+
+    <!-- CONFIRM EMAIL SCREEN -->
+    <div class="confirm-screen" id="confirm-view">
+      <div class="confirm-icon">📬</div>
+      <h2>Check your email</h2>
+      <p>We sent a confirmation link to<br><span class="email-shown" id="confirm-email"></span></p>
+      <p style="margin-top:12px;font-size:13px;color:var(--text3)">Click the link to activate your account, then come back to sign in.</p>
+      <div style="margin-top:24px">
+        <a href="login.html" style="display:inline-flex;align-items:center;height:40px;padding:0 20px;background:var(--text);color:var(--bg);border-radius:8px;font-size:14px;font-weight:700;text-decoration:none">Go to Sign in →</a>
+      </div>
+      <p style="margin-top:14px;font-size:12px;color:var(--text3)">Didn't receive it? <button onclick="resendEmail()" style="background:none;border:none;color:var(--blue-light);font-size:12px;cursor:pointer;font-family:inherit">Resend email</button></p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  SUPABASE CONFIG — replace with your values
+//  https://supabase.com → project → Settings → API
+// ══════════════════════════════════════════════
+const SUPABASE_URL = 'https://brculchgeyvwnhoeljjq.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyY3VsY2hnZXl2d25ob2VsampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDcwNDMsImV4cCI6MjA5NjQ4MzA0M30.YbY5Wr4-PcvdI3gKZCJeQ8S7XY7YYWthnkq82MVj_WE'
+
+const { createClient } = supabase
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+let lastEmail = ''
+
+;(async () => {
+  const { data: { session } } = await sb.auth.getSession()
+  if (session) window.location.href = 'dashboard.html'
+})()
+
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) window.location.href = 'dashboard.html'
+})
+
+function showErr(msg) {
+  document.getElementById('aerr-msg').textContent = msg
+  document.getElementById('aerr').classList.add('show')
+}
+function clearErr() { document.getElementById('aerr').classList.remove('show') }
+
+function togglePw() {
+  const i = document.getElementById('pw')
+  i.type = i.type === 'password' ? 'text' : 'password'
+}
+
+function checkStrength(v) {
+  const f = document.getElementById('sfill')
+  const l = document.getElementById('slbl')
+  if (!v) { f.style.width = '0'; l.textContent = ''; return }
+  let s = 0
+  if (v.length >= 8) s++
+  if (v.length >= 12) s++
+  if (/[A-Z]/.test(v)) s++
+  if (/[0-9]/.test(v)) s++
+  if (/[^a-zA-Z0-9]/.test(v)) s++
+  const map = [[20,'#ef4444','Weak'],[40,'#f59e0b','Fair'],[60,'#f59e0b','Good'],[80,'#22c55e','Strong'],[100,'#22c55e','Very strong']]
+  const [w,c,t] = map[Math.min(s-1,4)] || [20,'#ef4444','Weak']
+  f.style.width = w+'%'; f.style.background = c
+  l.textContent = t; l.style.color = c
+}
+
+function setLoading(on) {
+  const b = document.getElementById('sbtn')
+  b.disabled = on
+  b.innerHTML = on ? '<div class="spin"></div> Creating account…' : 'Create account →'
+}
+
+async function doSignup() {
+  clearErr()
+  const fname = document.getElementById('fname').value.trim()
+  const lname = document.getElementById('lname').value.trim()
+  const email = document.getElementById('email').value.trim()
+  const pw = document.getElementById('pw').value
+  const agree = document.getElementById('agree').checked
+
+  if (!fname)  { showErr('Please enter your first name.'); return }
+  if (!email)  { showErr('Please enter your email address.'); return }
+  if (!/\S+@\S+\.\S+/.test(email)) { showErr('Please enter a valid email address.'); return }
+  if (!pw)     { showErr('Please enter a password.'); return }
+  if (pw.length < 8) { showErr('Password must be at least 8 characters.'); return }
+  if (!agree)  { showErr('Please agree to the Terms of Service.'); return }
+
+  setLoading(true)
+  lastEmail = email
+
+  const { error } = await sb.auth.signUp({
+    email,
+    password: pw,
+    options: {
+      data: { full_name: `${fname} ${lname}`.trim(), first_name: fname, last_name: lname },
+      emailRedirectTo: window.location.origin + '/apptochain/dashboard.html'
+    }
+  })
+
+  setLoading(false)
+
+  if (error) {
+    if (error.message.includes('already registered')) {
+      showErr('An account with this email already exists. Try signing in instead.')
+    } else {
+      showErr(error.message)
+    }
+    return
+  }
+
+  // Show confirm email screen
+  document.getElementById('confirm-email').textContent = email
+  document.getElementById('form-view').style.display = 'none'
+  document.getElementById('confirm-view').classList.add('show')
+}
+
+async function oauthGoogle() {
+  clearErr()
+  document.getElementById('btn-g').disabled = true
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/apptochain/dashboard.html' }
+  })
+  if (error) { showErr(error.message); document.getElementById('btn-g').disabled = false }
+}
+
+async function oauthGitHub() {
+  clearErr()
+  document.getElementById('btn-gh').disabled = true
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'github',
+    options: { redirectTo: window.location.origin + '/apptochain/dashboard.html' }
+  })
+  if (error) { showErr(error.message); document.getElementById('btn-gh').disabled = false }
+}
+
+async function resendEmail() {
+  if (!lastEmail) return
+  const { error } = await sb.auth.resend({ type: 'signup', email: lastEmail })
+  alert(error ? 'Could not resend: ' + error.message : 'Confirmation email resent!')
+}
+</script>
+</body>
+</html>
