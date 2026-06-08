@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AI Builder — AppToChain</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;-webkit-text-size-adjust:100%}
+:root{--bg:#000;--bg1:#0a0a0a;--bg2:#111;--bg3:#161616;--bg4:#1c1c1c;--border:#1e1e1e;--border2:#2a2a2a;--border3:#333;--text:#ededed;--text2:#a1a1a1;--text3:#555;--blue:#2563eb;--blue-light:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{height:42px;background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:0;flex-shrink:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:7px;text-decoration:none;color:var(--text);font-size:13px;font-weight:700;flex-shrink:0;padding-right:12px;border-right:1px solid var(--border2);margin-right:8px}
+.nav-logo-box{width:20px;height:20px;background:var(--blue);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff}
+.tb-proj{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+.tb-proj strong{color:var(--text2);font-weight:600}
+.tb-proj .slash{color:var(--border3)}
+.tb-tabs{display:flex;margin-left:auto;gap:0}
+.tb-tab{height:42px;padding:0 14px;font-size:12px;color:var(--text3);border:none;background:transparent;cursor:pointer;font-family:inherit;transition:color 0.1s;border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px}
+.tb-tab:hover{color:var(--text2)}
+.tb-tab.active{color:var(--text);border-bottom-color:var(--blue)}
+.tb-actions{display:flex;gap:6px;padding:0 12px;border-left:1px solid var(--border2);margin-left:12px}
+.tb-btn{height:26px;padding:0 10px;border-radius:5px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.12s}
+.tb-btn.ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.tb-btn.ghost:hover{border-color:var(--border3);color:var(--text)}
+.tb-btn.blue{background:var(--blue);color:#fff}
+.tb-btn.blue:hover{background:#1d4ed8}
+.tb-btn.green{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+
+/* MAIN LAYOUT */
+.studio{flex:1;display:flex;overflow:hidden}
+
+/* LEFT PANEL — AI prompt + file tree */
+.left-panel{width:260px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg1)}
+.panel-tabs{display:flex;border-bottom:1px solid var(--border)}
+.ptab{flex:1;height:34px;font-size:11px;font-weight:600;border:none;background:transparent;color:var(--text3);cursor:pointer;font-family:inherit;transition:color 0.1s;border-bottom:2px solid transparent}
+.ptab:hover{color:var(--text2)}
+.ptab.active{color:var(--text);border-bottom-color:var(--blue)}
+
+/* AI PROMPT PANE */
+.ai-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.ai-messages{flex:1;overflow-y:auto;padding:12px}
+.ai-msg-item{margin-bottom:14px}
+.ai-msg-role{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.ai-msg-role .dot{width:6px;height:6px;border-radius:50%;background:var(--blue);display:block}
+.ai-msg-role .dot.u{background:var(--text3)}
+.ai-msg-bubble{font-size:12px;color:var(--text2);line-height:1.6;background:var(--bg2);border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
+.ai-msg-bubble.user{background:rgba(37,99,235,0.07);border-color:rgba(37,99,235,0.15);color:var(--text)}
+.ai-msg-bubble pre{font-family:monospace;font-size:10.5px;color:#6a9955;margin-top:8px;line-height:1.7;overflow-x:auto}
+.ai-msg-bubble .kw{color:#569cd6} .ai-msg-bubble .fn{color:#dcdcaa} .ai-msg-bubble .st{color:#ce9178}
+.ai-thinking{display:flex;gap:4px;align-items:center;padding:10px 12px}
+.ai-thinking span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:bounce 1.2s infinite}
+.ai-thinking span:nth-child(2){animation-delay:0.2s}
+.ai-thinking span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,100%{transform:translateY(0);opacity:0.4}50%{transform:translateY(-4px);opacity:1}}
+
+.ai-input-area{border-top:1px solid var(--border);padding:10px}
+.ai-input-box{background:var(--bg);border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+.ai-textarea{width:100%;min-height:64px;max-height:140px;padding:9px 11px;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:12px;line-height:1.6;resize:none;outline:none}
+.ai-textarea::placeholder{color:var(--text3)}
+.ai-input-bottom{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-top:1px solid var(--border)}
+.ai-send{height:26px;padding:0 12px;background:var(--blue);border:none;border-radius:5px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:background 0.1s}
+.ai-send:hover{background:#1d4ed8}
+.ai-send:disabled{opacity:0.4;cursor:not-allowed}
+.ai-hints{display:flex;gap:4px;flex-wrap:wrap}
+.ai-hint{font-size:10px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:2px 7px;cursor:pointer;transition:all 0.1s}
+.ai-hint:hover{color:var(--text2);border-color:var(--border2)}
+
+/* FILE TREE PANE */
+.file-pane{flex:1;overflow-y:auto;padding:8px 0;display:none}
+.file-pane.active{display:block}
+.file-section{padding:7px 12px 3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3)}
+.file-item{display:flex;align-items:center;gap:7px;padding:5px 12px;font-size:12px;color:var(--text3);cursor:pointer;transition:background 0.1s,color 0.1s;white-space:nowrap;overflow:hidden}
+.file-item:hover{background:rgba(255,255,255,0.03);color:var(--text2)}
+.file-item.active{background:rgba(255,255,255,0.05);color:var(--text)}
+.file-item .fi{font-size:11px;width:12px;flex-shrink:0}
+.fi-badge{margin-left:auto;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px}
+.fi-badge.ok{background:rgba(34,197,94,0.15);color:var(--green)}
+.fi-badge.err{background:rgba(239,68,68,0.15);color:var(--red)}
+
+/* CENTER — CODE EDITOR */
+.editor-panel{flex:1;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--border)}
+.editor-tabs{height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:flex-end;overflow-x:auto;flex-shrink:0}
+.editor-tab{height:34px;padding:0 14px;font-size:12px;color:var(--text3);border:none;background:transparent;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap;border-right:1px solid var(--border);flex-shrink:0;transition:background 0.1s}
+.editor-tab.active{background:var(--bg);color:var(--text)}
+.editor-tab .close{font-size:10px;color:var(--text3);margin-left:3px;transition:color 0.1s}
+.editor-tab:hover .close,.editor-tab .close:hover{color:var(--text2)}
+.editor-tab-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.editor-tab.active .editor-tab-dot{background:var(--green)}
+
+.editor-body{flex:1;overflow:auto;font-family:'SF Mono','Fira Code','Roboto Mono',monospace;font-size:12px;line-height:1.75;padding:12px 0;background:var(--bg)}
+.cl{display:flex;padding:0 12px 0 0;min-width:0}
+.cl-n{width:40px;text-align:right;color:#2a2a2a;user-select:none;flex-shrink:0;padding-right:16px;font-size:11px}
+.cl-code{white-space:pre;min-width:0}
+.cl.hl{background:rgba(37,99,235,0.06)}
+.cl.hl .cl-n{color:#3b82f6}
+.co{color:#4a4a4a;font-style:italic}.kw{color:#569cd6}.fn{color:#dcdcaa}.st{color:#ce9178}.nm{color:#b5cea8}.ty{color:#4ec9b0}.pn{color:#808080}.wh{color:#d4d4d4}
+.cursor::after{content:'│';color:#60a5fa;animation:bk 1s step-end infinite;font-size:13px}
+@keyframes bk{50%{opacity:0}}
+
+.editor-statusbar{height:22px;background:var(--blue);display:flex;align-items:center;padding:0 12px;gap:16px;flex-shrink:0}
+.esb-item{font-size:10px;font-weight:500;color:rgba(255,255,255,0.75);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.esb-item em{color:#fff;font-style:normal}
+
+/* RIGHT PANEL — PREVIEW + DEPLOY */
+.right-panel{width:340px;flex-shrink:0;display:flex;flex-direction:column;background:var(--bg)}
+.rp-tabs{height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;flex-shrink:0}
+.rp-tab{flex:1;height:34px;font-size:11px;font-weight:600;border:none;background:transparent;color:var(--text3);cursor:pointer;font-family:inherit;transition:color 0.1s;border-bottom:2px solid transparent}
+.rp-tab:hover{color:var(--text2)}
+.rp-tab.active{color:var(--text);border-bottom-color:var(--blue)}
+
+/* PREVIEW */
+.preview-pane{flex:1;overflow-y:auto;display:none;flex-direction:column}
+.preview-pane.active{display:flex}
+.preview-topbar{height:32px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;gap:7px;flex-shrink:0;background:var(--bg1)}
+.preview-url{flex:1;height:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:0 8px;font-size:10px;color:var(--text3);font-family:monospace;display:flex;align-items:center;overflow:hidden;white-space:nowrap}
+.preview-body{flex:1;padding:14px;overflow-y:auto}
+
+/* mini dapp */
+.dapp-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:10px}
+.dapp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dapp-title{font-size:13px;font-weight:700}
+.dapp-badge{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--green)}
+.dapp-badge i{width:5px;height:5px;border-radius:50%;background:var(--green);display:block}
+.dapp-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.dapp-stat{background:var(--bg3);border-radius:7px;padding:8px 10px}
+.dapp-stat-l{font-size:9px;color:var(--text3);margin-bottom:3px}
+.dapp-stat-v{font-size:16px;font-weight:800;letter-spacing:-0.04em}
+.dapp-btn{width:100%;height:32px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:#fff;margin-bottom:6px;transition:background 0.1s}
+.dapp-btn:hover{background:#1d4ed8}
+.dapp-btn.out{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.dapp-addr{font-size:10px;color:var(--text3);text-align:center;font-family:monospace;margin-top:6px}
+
+/* DEPLOY PANE */
+.deploy-pane{flex:1;overflow-y:auto;display:none;padding:14px}
+.deploy-pane.active{display:block}
+.deploy-section{margin-bottom:18px}
+.deploy-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.deploy-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.network-grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.net-opt{border:1px solid var(--border2);border-radius:7px;padding:9px 8px;cursor:pointer;text-align:center;transition:all 0.1s}
+.net-opt:hover{border-color:var(--border3)}
+.net-opt.sel{border-color:var(--blue);background:rgba(37,99,235,0.07)}
+.net-opt-icon{font-size:16px;margin-bottom:4px}
+.net-opt-name{font-size:11px;font-weight:600}
+.net-opt-type{font-size:9px;color:var(--text3)}
+.deploy-summary{background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-bottom:14px}
+.ds-row{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid var(--border)}
+.ds-row:last-child{border-bottom:none}
+.ds-row span:first-child{color:var(--text3)}
+.ds-row span:last-child{font-weight:600;font-family:monospace;font-size:10px}
+.ds-row .ok{color:var(--green)} .ds-row .bl{color:#60a5fa}
+.deploy-launch-btn{width:100%;height:38px;background:var(--text);color:var(--bg);border:none;border-radius:7px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background 0.1s;letter-spacing:-0.2px}
+.deploy-launch-btn:hover{background:#d4d4d4}
+.deploy-launch-btn:disabled{opacity:0.5;cursor:not-allowed}
+
+/* AUDIT PANE */
+.audit-pane{flex:1;overflow-y:auto;display:none;padding:14px}
+.audit-pane.active{display:block}
+.audit-score{text-align:center;padding:20px 0}
+.audit-score-val{font-size:48px;font-weight:900;letter-spacing:-0.05em;color:var(--green)}
+.audit-score-lbl{font-size:12px;color:var(--text3);margin-top:4px}
+.audit-item{display:flex;gap:10px;padding:10px;background:var(--bg1);border:1px solid var(--border2);border-radius:8px;margin-bottom:8px}
+.audit-ico{font-size:14px;flex-shrink:0;margin-top:1px}
+.audit-msg{font-size:12px;color:var(--text2);line-height:1.5}
+.audit-msg strong{color:var(--text)}
+.audit-sev{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:auto;flex-shrink:0;align-self:flex-start}
+.sev-ok{background:rgba(34,197,94,0.12);color:var(--green)}
+.sev-info{background:rgba(37,99,235,0.12);color:#60a5fa}
+.sev-warn{background:rgba(245,158,11,0.12);color:var(--yellow)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .right-panel{display:none}
+  .left-panel{width:220px}
+}
+@media(max-width:600px){
+  .left-panel{position:fixed;left:0;top:42px;bottom:0;z-index:50;transform:translateX(-100%);transition:transform 0.25s;width:240px}
+  .left-panel.open{transform:translateX(0)}
+  .editor-panel{flex:1}
+  .tb-proj{display:none}
+  .mobile-sidebar-btn{display:flex!important}
+}
+.mobile-sidebar-btn{display:none;height:28px;width:28px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;align-items:center;justify-content:center;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-box">A</div>AppToChain
+  </a>
+  <button class="mobile-sidebar-btn" onclick="toggleLeft()" style="margin-right:8px">☰</button>
+  <div class="tb-proj">
+    <a href="dashboard.html" style="color:var(--text3);text-decoration:none;font-size:12px">Projects</a>
+    <span class="slash">/</span>
+    <strong>DeFiPool v2</strong>
+  </div>
+  <div class="tb-tabs">
+    <button class="tb-tab active" onclick="switchMainTab(this,'editor')">Code</button>
+    <button class="tb-tab" onclick="switchMainTab(this,'preview')">Preview</button>
+    <button class="tb-tab" onclick="switchMainTab(this,'logs')">Logs</button>
+  </div>
+  <div class="tb-actions">
+    <button class="tb-btn ghost" onclick="runAudit()">🛡 Audit</button>
+    <button class="tb-btn ghost">↗ Share</button>
+    <button class="tb-btn blue" onclick="handleDeploy()">▶ Deploy</button>
+  </div>
+</div>
+
+<!-- STUDIO -->
+<div class="studio">
+
+  <!-- LEFT: AI + Files -->
+  <div class="left-panel" id="left-panel">
+    <div class="panel-tabs">
+      <button class="ptab active" onclick="switchPanel(this,'ai')">✦ AI</button>
+      <button class="ptab" onclick="switchPanel(this,'files')">Files</button>
+      <button class="ptab" onclick="switchPanel(this,'templates')">Templates</button>
+    </div>
+
+    <!-- AI PANE -->
+    <div class="ai-pane" id="pane-ai">
+      <div class="ai-messages" id="ai-messages">
+        <div class="ai-msg-item">
+          <div class="ai-msg-role"><span class="dot"></span>AppToChain AI</div>
+          <div class="ai-msg-bubble">
+            Hello! I'm your AI builder. Describe what you want to build or modify, and I'll generate or update the code instantly.<br><br>
+            Your <strong>DeFiPool v2</strong> contract is loaded and audit-ready ✓
+          </div>
+        </div>
+        <div class="ai-msg-item">
+          <div class="ai-msg-role"><span class="dot u"></span>You</div>
+          <div class="ai-msg-bubble user">Add a 0.3% swap fee to the addLiquidity function and emit a LiquidityAdded event.</div>
+        </div>
+        <div class="ai-msg-item">
+          <div class="ai-msg-role"><span class="dot"></span>AppToChain AI</div>
+          <div class="ai-msg-bubble">
+            Done! I've updated <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:10px">DeFiPool.sol</code>:<br><br>
+            ✓ Added <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:10px">uint256 public FEE = 30;</code> (0.3%)<br>
+            ✓ Fee deducted in <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:10px">addLiquidity()</code><br>
+            ✓ Emitted <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:10px">LiquidityAdded</code> event<br>
+            ✓ Recompiled — 0 errors
+          </div>
+        </div>
+      </div>
+      <div class="ai-input-area">
+        <div style="margin-bottom:6px">
+          <div class="ai-hints">
+            <span class="ai-hint" onclick="setHint(this)">Add staking rewards</span>
+            <span class="ai-hint" onclick="setHint(this)">Add emergency withdraw</span>
+            <span class="ai-hint" onclick="setHint(this)">Make it ownable</span>
+            <span class="ai-hint" onclick="setHint(this)">Add timelock</span>
+          </div>
+        </div>
+        <div class="ai-input-box">
+          <textarea class="ai-textarea" id="ai-input" placeholder="Ask AI to modify, explain, or generate code…" onkeydown="handleKey(event)"></textarea>
+          <div class="ai-input-bottom">
+            <span style="font-size:10px;color:var(--text3)">⏎ Send · Shift+⏎ newline</span>
+            <button class="ai-send" id="ai-send" onclick="sendMessage()">↵ Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILES PANE -->
+    <div class="file-pane" id="pane-files">
+      <div class="file-section">Contracts</div>
+      <div class="file-item active" onclick="setActiveFile(this)"><span class="fi">📄</span>DeFiPool.sol<span class="fi-badge ok">✓</span></div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>Token.sol<span class="fi-badge ok">✓</span></div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>Staking.sol<span class="fi-badge ok">✓</span></div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>IPool.sol</div>
+      <div class="file-section">Frontend</div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>app.tsx</div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>pool.tsx</div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>hooks.ts</div>
+      <div class="file-item" onclick="setActiveFile(this)" style="padding-left:22px"><span class="fi">📄</span>usePool.ts</div>
+      <div class="file-section">Config</div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>hardhat.config.ts</div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>deploy.ts</div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>.env.example</div>
+      <div class="file-section">Scripts</div>
+      <div class="file-item" onclick="setActiveFile(this)"><span class="fi">📄</span>verify.ts</div>
+      <div class="file-item" style="color:var(--blue-light);padding:6px 12px;font-size:12px;cursor:pointer">+ New file</div>
+    </div>
+
+    <!-- TEMPLATES PANE -->
+    <div class="file-pane" id="pane-templates">
+      <div class="file-section">Smart Contracts</div>
+      <div class="file-item" onclick="loadTemplate('ERC-20 Token')"><span class="fi">🪙</span>ERC-20 Token</div>
+      <div class="file-item" onclick="loadTemplate('ERC-721 NFT')"><span class="fi">🖼</span>ERC-721 NFT</div>
+      <div class="file-item" onclick="loadTemplate('ERC-1155 Multi')"><span class="fi">📦</span>ERC-1155 Multi</div>
+      <div class="file-item" onclick="loadTemplate('Staking Contract')"><span class="fi">🏆</span>Staking Contract</div>
+      <div class="file-item" onclick="loadTemplate('DAO Governor')"><span class="fi">🗳</span>DAO Governor</div>
+      <div class="file-item" onclick="loadTemplate('Vesting Contract')"><span class="fi">⏳</span>Vesting Contract</div>
+      <div class="file-item" onclick="loadTemplate('Liquidity Pool')"><span class="fi">🏊</span>Liquidity Pool</div>
+      <div class="file-item" onclick="loadTemplate('Multisig Wallet')"><span class="fi">🔐</span>Multisig Wallet</div>
+      <div class="file-section">Full dApps</div>
+      <div class="file-item" onclick="loadTemplate('DEX Exchange')"><span class="fi">🔄</span>DEX Exchange</div>
+      <div class="file-item" onclick="loadTemplate('NFT Marketplace')"><span class="fi">🛒</span>NFT Marketplace</div>
+      <div class="file-item" onclick="loadTemplate('Token Launchpad')"><span class="fi">🚀</span>Token Launchpad</div>
+    </div>
+  </div>
+
+  <!-- CENTER: CODE EDITOR -->
+  <div class="editor-panel">
+    <div class="editor-tabs">
+      <div class="editor-tab active"><div class="editor-tab-dot"></div>DeFiPool.sol <span class="close">×</span></div>
+      <div class="editor-tab"><div class="editor-tab-dot" style="background:var(--text3)"></div>Token.sol <span class="close">×</span></div>
+      <div class="editor-tab"><div class="editor-tab-dot" style="background:var(--text3)"></div>app.tsx <span class="close">×</span></div>
+    </div>
+    <div class="editor-body">
+      <div class="cl"><span class="cl-n">1</span><span class="cl-code"><span class="co">// SPDX-License-Identifier: MIT</span></span></div>
+      <div class="cl"><span class="cl-n">2</span><span class="cl-code"><span class="kw">pragma</span> <span class="wh">solidity</span> ^<span class="nm">0.8.24</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">3</span><span class="cl-code"></span></div>
+      <div class="cl"><span class="cl-n">4</span><span class="cl-code"><span class="kw">import</span> <span class="st">"@openzeppelin/contracts/token/ERC20/IERC20.sol"</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">5</span><span class="cl-code"><span class="kw">import</span> <span class="st">"@openzeppelin/contracts/security/ReentrancyGuard.sol"</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">6</span><span class="cl-code"><span class="kw">import</span> <span class="st">"@openzeppelin/contracts/access/Ownable.sol"</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">7</span><span class="cl-code"></span></div>
+      <div class="cl"><span class="cl-n">8</span><span class="cl-code"><span class="co">/// @title DeFi Liquidity Pool v2 — AppToChain</span></span></div>
+      <div class="cl"><span class="cl-n">9</span><span class="cl-code"><span class="co">/// @author AppToChain AI Builder</span></span></div>
+      <div class="cl"><span class="cl-n">10</span><span class="cl-code"><span class="kw">contract</span> <span class="ty">DeFiPool</span> <span class="kw">is</span> <span class="ty">ReentrancyGuard</span><span class="pn">,</span> <span class="ty">Ownable</span> <span class="pn">{</span></span></div>
+      <div class="cl"><span class="cl-n">11</span><span class="cl-code">  <span class="ty">IERC20</span> <span class="kw">public</span> <span class="wh">token</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">12</span><span class="cl-code">  <span class="kw">uint256</span> <span class="kw">public</span> <span class="wh">totalLiquidity</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">13</span><span class="cl-code">  <span class="kw">uint256</span> <span class="kw">public</span> <span class="wh">FEE</span> <span class="pn">=</span> <span class="nm">30</span><span class="pn">;</span> <span class="co">// 0.3%</span></span></div>
+      <div class="cl"><span class="cl-n">14</span><span class="cl-code">  <span class="kw">mapping</span><span class="pn">(</span><span class="kw">address</span> <span class="pn">=></span> <span class="kw">uint256</span><span class="pn">)</span> <span class="kw">public</span> <span class="wh">shares</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">15</span><span class="cl-code"></span></div>
+      <div class="cl"><span class="cl-n">16</span><span class="cl-code">  <span class="kw">event</span> <span class="ty">LiquidityAdded</span><span class="pn">(</span><span class="kw">address indexed</span> <span class="wh">user</span><span class="pn">,</span> <span class="kw">uint256</span> <span class="wh">amount</span><span class="pn">,</span> <span class="kw">uint256</span> <span class="wh">minted</span><span class="pn">);</span></span></div>
+      <div class="cl"><span class="cl-n">17</span><span class="cl-code">  <span class="kw">event</span> <span class="ty">LiquidityRemoved</span><span class="pn">(</span><span class="kw">address indexed</span> <span class="wh">user</span><span class="pn">,</span> <span class="kw">uint256</span> <span class="wh">shares</span><span class="pn">);</span></span></div>
+      <div class="cl"><span class="cl-n">18</span><span class="cl-code"></span></div>
+      <div class="cl hl"><span class="cl-n">19</span><span class="cl-code">  <span class="kw">function</span> <span class="fn">addLiquidity</span><span class="pn">(</span><span class="kw">uint256</span> <span class="wh">amount</span><span class="pn">)</span> <span class="kw">external</span> <span class="fn">nonReentrant</span> <span class="pn">{</span></span></div>
+      <div class="cl hl"><span class="cl-n">20</span><span class="cl-code">    <span class="kw">require</span><span class="pn">(</span><span class="wh">amount</span> <span class="pn">></span> <span class="nm">0</span><span class="pn">,</span> <span class="st">"Amount must be > 0"</span><span class="pn">);</span></span></div>
+      <div class="cl hl"><span class="cl-n">21</span><span class="cl-code">    <span class="kw">uint256</span> <span class="wh">fee</span> <span class="pn">=</span> <span class="pn">(</span><span class="wh">amount</span> <span class="pn">*</span> <span class="wh">FEE</span><span class="pn">)</span> <span class="pn">/</span> <span class="nm">10000</span><span class="pn">;</span></span></div>
+      <div class="cl hl"><span class="cl-n">22</span><span class="cl-code">    <span class="kw">uint256</span> <span class="wh">net</span> <span class="pn">=</span> <span class="wh">amount</span> <span class="pn">-</span> <span class="wh">fee</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">23</span><span class="cl-code">    <span class="wh">token</span><span class="pn">.</span><span class="fn">transferFrom</span><span class="pn">(</span><span class="kw">msg.sender</span><span class="pn">,</span> <span class="kw">address</span><span class="pn">(</span><span class="kw">this</span><span class="pn">),</span> <span class="wh">amount</span><span class="pn">);</span></span></div>
+      <div class="cl"><span class="cl-n">24</span><span class="cl-code">    <span class="kw">uint256</span> <span class="wh">minted</span> <span class="pn">=</span> <span class="wh">totalLiquidity</span> <span class="pn">==</span> <span class="nm">0</span> <span class="pn">?</span> <span class="wh">net</span> <span class="pn">:</span> <span class="pn">(</span><span class="wh">net</span> <span class="pn">*</span> <span class="wh">totalLiquidity</span><span class="pn">);</span></span></div>
+      <div class="cl"><span class="cl-n">25</span><span class="cl-code">    <span class="wh">shares</span><span class="pn">[</span><span class="kw">msg.sender</span><span class="pn">]</span> <span class="pn">+=</span> <span class="wh">minted</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">26</span><span class="cl-code">    <span class="wh">totalLiquidity</span> <span class="pn">+=</span> <span class="wh">minted</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">27</span><span class="cl-code">    <span class="kw">emit</span> <span class="fn">LiquidityAdded</span><span class="pn">(</span><span class="kw">msg.sender</span><span class="pn">,</span> <span class="wh">net</span><span class="pn">,</span> <span class="wh">minted</span><span class="pn">);</span></span></div>
+      <div class="cl"><span class="cl-n">28</span><span class="cl-code">  <span class="pn">}</span></span></div>
+      <div class="cl"><span class="cl-n">29</span><span class="cl-code"></span></div>
+      <div class="cl"><span class="cl-n">30</span><span class="cl-code">  <span class="kw">function</span> <span class="fn">removeLiquidity</span><span class="pn">(</span><span class="kw">uint256</span> <span class="wh">shareAmount</span><span class="pn">)</span> <span class="kw">external</span> <span class="fn">nonReentrant</span> <span class="pn">{</span></span></div>
+      <div class="cl"><span class="cl-n">31</span><span class="cl-code">    <span class="kw">require</span><span class="pn">(</span><span class="wh">shares</span><span class="pn">[</span><span class="kw">msg.sender</span><span class="pn">]</span> <span class="pn">>=</span> <span class="wh">shareAmount</span><span class="pn">,</span> <span class="st">"Insufficient shares"</span><span class="pn">);</span></span></div>
+      <div class="cl"><span class="cl-n">32</span><span class="cl-code">    <span class="wh">shares</span><span class="pn">[</span><span class="kw">msg.sender</span><span class="pn">]</span> <span class="pn">-=</span> <span class="wh">shareAmount</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">33</span><span class="cl-code">    <span class="wh">totalLiquidity</span> <span class="pn">-=</span> <span class="wh">shareAmount</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">34</span><span class="cl-code">    <span class="kw">emit</span> <span class="fn">LiquidityRemoved</span><span class="pn">(</span><span class="kw">msg.sender</span><span class="pn">,</span> <span class="wh">shareAmount</span><span class="pn">);</span></span></div>
+      <div class="cl"><span class="cl-n">35</span><span class="cl-code">  <span class="pn">}</span></span></div>
+      <div class="cl"><span class="cl-n">36</span><span class="cl-code"></span></div>
+      <div class="cl"><span class="cl-n">37</span><span class="cl-code">  <span class="kw">function</span> <span class="fn">setFee</span><span class="pn">(</span><span class="kw">uint256</span> <span class="wh">_fee</span><span class="pn">)</span> <span class="kw">external</span> <span class="fn">onlyOwner</span> <span class="pn">{</span></span></div>
+      <div class="cl"><span class="cl-n">38</span><span class="cl-code">    <span class="kw">require</span><span class="pn">(</span><span class="wh">_fee</span> <span class="pn"><=</span> <span class="nm">1000</span><span class="pn">,</span> <span class="st">"Fee too high"</span><span class="pn">);</span> <span class="co">// max 10%</span></span></div>
+      <div class="cl"><span class="cl-n">39</span><span class="cl-code">    <span class="wh">FEE</span> <span class="pn">=</span> <span class="wh">_fee</span><span class="pn">;</span></span></div>
+      <div class="cl"><span class="cl-n">40</span><span class="cl-code">  <span class="pn">}</span></span></div>
+      <div class="cl"><span class="cl-n">41</span><span class="cl-code"><span class="pn">}</span> <span class="cursor"></span></span></div>
+    </div>
+    <div class="editor-statusbar">
+      <span class="esb-item">◎ <em>Base Mainnet</em></span>
+      <span class="esb-item">⚡ <em>0</em> errors, <em>0</em> warnings</span>
+      <span class="esb-item">✓ Compiled</span>
+      <span class="esb-item">Solidity <em>0.8.24</em></span>
+      <span class="esb-item" style="margin-left:auto">Ln 41, Col 1</span>
+      <span class="esb-item">Gas: <em>~$0.04</em></span>
+    </div>
+  </div>
+
+  <!-- RIGHT: PREVIEW + DEPLOY + AUDIT -->
+  <div class="right-panel">
+    <div class="rp-tabs">
+      <button class="rp-tab active" onclick="switchRight(this,'preview')">Preview</button>
+      <button class="rp-tab" onclick="switchRight(this,'deploy')">Deploy</button>
+      <button class="rp-tab" onclick="switchRight(this,'audit')">Audit</button>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-pane active" id="rp-preview">
+      <div class="preview-topbar">
+        <div class="preview-url">app.apptochain.xyz/defipool</div>
+        <button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px">↗</button>
+      </div>
+      <div class="preview-body">
+        <div class="dapp-card">
+          <div class="dapp-head">
+            <div class="dapp-title">🏊 DeFiPool v2</div>
+            <div class="dapp-badge"><i></i>Base Mainnet</div>
+          </div>
+          <div class="dapp-stats">
+            <div class="dapp-stat"><div class="dapp-stat-l">Total Liquidity</div><div class="dapp-stat-v" style="color:#60a5fa">$2.4M</div></div>
+            <div class="dapp-stat"><div class="dapp-stat-l">Pool APY</div><div class="dapp-stat-v" style="color:#22c55e">18.4%</div></div>
+            <div class="dapp-stat"><div class="dapp-stat-l">Swap Fee</div><div class="dapp-stat-v" style="font-size:14px">0.30%</div></div>
+            <div class="dapp-stat"><div class="dapp-stat-l">My Shares</div><div class="dapp-stat-v" style="font-size:13px">4,200 LP</div></div>
+          </div>
+          <button class="dapp-btn">+ Add Liquidity</button>
+          <button class="dapp-btn out">Withdraw</button>
+          <div class="dapp-addr">0x4A3b…9f2c · Base Mainnet</div>
+        </div>
+        <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:12px;font-size:11px;color:var(--text3)">
+          <div style="font-weight:700;color:var(--text2);margin-bottom:8px">Recent Transactions</div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span>0xab12…</span><span style="color:var(--green)">+500 USDC</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span>0xef34…</span><span style="color:var(--green)">+1,200 USDC</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0"><span>0x9a56…</span><span style="color:var(--red)">−800 USDC</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPLOY -->
+    <div class="deploy-pane" id="rp-deploy">
+      <div class="deploy-section">
+        <div class="deploy-section-title">Select Network</div>
+        <div class="network-grid2">
+          <div class="net-opt sel" onclick="selNet(this)"><div class="net-opt-icon" style="color:#0052FF">⬡</div><div class="net-opt-name">Base</div><div class="net-opt-type">L2 · EVM</div></div>
+          <div class="net-opt" onclick="selNet(this)"><div class="net-opt-icon" style="color:#627EEA">Ξ</div><div class="net-opt-name">Ethereum</div><div class="net-opt-type">L1 · EVM</div></div>
+          <div class="net-opt" onclick="selNet(this)"><div class="net-opt-icon" style="color:#9945FF">◎</div><div class="net-opt-name">Solana</div><div class="net-opt-type">L1 · SVM</div></div>
+          <div class="net-opt" onclick="selNet(this)"><div class="net-opt-icon" style="color:#F3BA2F">B</div><div class="net-opt-name">BNB Chain</div><div class="net-opt-type">L1 · EVM</div></div>
+          <div class="net-opt" onclick="selNet(this)"><div class="net-opt-icon" style="color:#8247E5">⬡</div><div class="net-opt-name">Polygon</div><div class="net-opt-type">L2 · EVM</div></div>
+          <div class="net-opt" onclick="selNet(this)"><div class="net-opt-icon" style="color:#28A0F0">◆</div><div class="net-opt-name">Arbitrum</div><div class="net-opt-type">L2 · EVM</div></div>
+        </div>
+      </div>
+      <div class="deploy-section">
+        <div class="deploy-section-title">Summary</div>
+        <div class="deploy-summary">
+          <div class="ds-row"><span>Contract</span><span>DeFiPool.sol</span></div>
+          <div class="ds-row"><span>Network</span><span class="bl">Base Mainnet</span></div>
+          <div class="ds-row"><span>Compiler</span><span>Solidity 0.8.24</span></div>
+          <div class="ds-row"><span>Optimizer</span><span>200 runs</span></div>
+          <div class="ds-row"><span>Audit</span><span class="ok">✓ Passed</span></div>
+          <div class="ds-row"><span>Est. gas</span><span>~$0.04</span></div>
+          <div class="ds-row"><span>Owner</span><span class="ok">Your wallet</span></div>
+        </div>
+      </div>
+      <button class="deploy-launch-btn" id="deploy-btn" onclick="handleDeploy()">🚀 Deploy to Base</button>
+      <div style="margin-top:10px;font-size:11px;color:var(--text3);text-align:center">Contract will deploy to your connected wallet</div>
+    </div>
+
+    <!-- AUDIT -->
+    <div class="audit-pane" id="rp-audit">
+      <div class="audit-score">
+        <div class="audit-score-val">98</div>
+        <div class="audit-score-lbl">Security score — Excellent</div>
+      </div>
+      <div class="audit-item"><span class="audit-ico">✅</span><div class="audit-msg"><strong>No reentrancy vulnerabilities.</strong> ReentrancyGuard correctly applied.</div><span class="audit-sev sev-ok">Pass</span></div>
+      <div class="audit-item"><span class="audit-ico">✅</span><div class="audit-msg"><strong>Access control secured.</strong> onlyOwner modifier on setFee().</div><span class="audit-sev sev-ok">Pass</span></div>
+      <div class="audit-item"><span class="audit-ico">✅</span><div class="audit-msg"><strong>Integer overflow protection.</strong> Solidity 0.8+ built-in checks.</div><span class="audit-sev sev-ok">Pass</span></div>
+      <div class="audit-item"><span class="audit-ico">ℹ️</span><div class="audit-msg"><strong>Fee cap suggestion:</strong> Consider emitting FeeChanged event when setFee() is called for transparency.</div><span class="audit-sev sev-info">Info</span></div>
+      <div class="audit-item"><span class="audit-ico">⚠️</span><div class="audit-msg"><strong>No slippage protection</strong> in addLiquidity(). Consider adding minOut parameter for MEV protection.</div><span class="audit-sev sev-warn">Low</span></div>
+      <div style="margin-top:14px">
+        <button class="deploy-launch-btn" onclick="switchRight(document.querySelector('.rp-tab:nth-child(2)'),'deploy')">View Deploy Options →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchPanel(btn,id){
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.ai-pane,.file-pane').forEach(p=>p.style.display='none');
+  const target=document.getElementById('pane-'+id);
+  if(target){target.style.display=id==='ai'?'flex':'block';}
+}
+
+function switchRight(btn,id){
+  document.querySelectorAll('.rp-tab').forEach(b=>b.classList.remove('active'));
+  if(btn&&btn.classList) btn.classList.add('active');
+  document.querySelectorAll('.preview-pane,.deploy-pane,.audit-pane').forEach(p=>p.classList.remove('active'));
+  const t=document.getElementById('rp-'+id);
+  if(t)t.classList.add('active');
+}
+
+function switchMainTab(btn,id){ document.querySelectorAll('.tb-tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+
+function setActiveFile(el){ document.querySelectorAll('.file-item').forEach(f=>f.classList.remove('active')); el.classList.add('active'); }
+
+function selNet(el){ document.querySelectorAll('.net-opt').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); }
+
+function setHint(el){ document.getElementById('ai-input').value=el.textContent; document.getElementById('ai-input').focus(); }
+
+function loadTemplate(name){
+  const msg=`Load the ${name} template`;
+  document.getElementById('ai-input').value=msg;
+  switchPanel(document.querySelector('.ptab'),'ai');
+  document.querySelector('.ptab').classList.add('active');
+  sendMessage();
+}
+
+const responses={
+  default:["I've updated the contract based on your request. The changes are highlighted in the editor. Run an audit to verify.","Done! Code updated. 0 errors, 0 warnings. Ready to deploy.","Generated! Review the highlighted lines. I've also updated the ABI in deploy.ts.","I've added that feature. The contract compiles successfully — audit score: 97/100."],
+};
+let msgCount=0;
+function sendMessage(){
+  const inp=document.getElementById('ai-input');
+  const val=inp.value.trim();
+  if(!val)return;
+  const msgs=document.getElementById('ai-messages');
+  // User msg
+  const um=document.createElement('div');um.className='ai-msg-item';
+  um.innerHTML=`<div class="ai-msg-role"><span class="dot u"></span>You</div><div class="ai-msg-bubble user">${val}</div>`;
+  msgs.appendChild(um);
+  inp.value='';
+  // Thinking
+  const th=document.createElement('div');th.className='ai-msg-item';
+  th.innerHTML=`<div class="ai-msg-role"><span class="dot"></span>AppToChain AI</div><div class="ai-thinking"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(th);
+  msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{
+    th.remove();
+    const am=document.createElement('div');am.className='ai-msg-item';
+    const r=responses.default[msgCount%responses.default.length];msgCount++;
+    am.innerHTML=`<div class="ai-msg-role"><span class="dot"></span>AppToChain AI</div><div class="ai-msg-bubble">${r}</div>`;
+    msgs.appendChild(am);msgs.scrollTop=msgs.scrollHeight;
+  },1400);
+}
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
+
+function runAudit(){ switchRight(document.querySelectorAll('.rp-tab')[2],'audit'); }
+
+function handleDeploy(){
+  const btn=document.getElementById('deploy-btn');
+  if(!btn)return;
+  btn.textContent='Deploying…';btn.disabled=true;
+  switchRight(document.querySelectorAll('.rp-tab')[1],'deploy');
+  setTimeout(()=>{
+    btn.textContent='✓ Deployed to Base!';btn.style.background='var(--green)';btn.style.color='var(--bg)';
+    setTimeout(()=>{btn.textContent='🚀 Deploy to Base';btn.disabled=false;btn.style.background='';btn.style.color='';},3000);
+  },2000);
+}
+
+function toggleLeft(){ document.getElementById('left-panel').classList.toggle('open'); }
+</script>
+</body>
+</html>
