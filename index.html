@@ -541,6 +541,7 @@ footer { border-top:1px solid var(--border); padding:52px 20px 36px; }
   .trust-logos { gap:12px; }
 }
 </style>
+<link rel="stylesheet" href="mobile.css">
 </head>
 <body>
 
@@ -568,6 +569,21 @@ footer { border-top:1px solid var(--border); padding:52px 20px 36px; }
     </div>
   </div>
 </nav>
+<div class="mob-drawer" id="mob-drawer">
+<a href="dashboard.html"><span class="mdi">🏠</span>Dashboard</a>
+<a href="builder.html"><span class="mdi">✦</span>AI Builder</a>
+<a href="token-deploy.html"><span class="mdi">🪙</span>Token Launchpad</a>
+<a href="audit.html"><span class="mdi">🛡</span>Security Audit</a>
+<a href="pricing.html"><span class="mdi">💳</span>Pricing</a>
+<a href="profile.html"><span class="mdi">👤</span>My Profile</a>
+<a href="domains.html"><span class="mdi">🌐</span>Domains</a>
+<a href="api-keys.html"><span class="mdi">🔑</span>API Keys</a>
+
+  <div class="mob-drawer-footer">
+    <a href="login.html" class="mob-df-login">Log in</a>
+    <a href="signup.html" class="mob-df-signup">Get started</a>
+  </div>
+</div>
 
 <!-- MOBILE MENU -->
 <div class="mob-menu" id="mob-menu">
@@ -1020,5 +1036,21 @@ document.querySelectorAll('.bento-cell,.plan,.uc-cell,.met,.net-cell,.dep-step')
   obs.observe(el);
 });
 </script>
+<div class="bottom-nav"><div class="bottom-nav-inner"><a href="dashboard.html" class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Dashboard</span></a><a href="builder.html" class="bn-item"><span class="bn-icon">✦</span><span class="bn-label">Builder</span></a><a href="token-deploy.html" class="bn-item"><span class="bn-icon">🪙</span><span class="bn-label">Tokens</span></a><a href="audit.html" class="bn-item"><span class="bn-icon">🛡</span><span class="bn-label">Audit</span></a><a href="pricing.html" class="bn-item"><span class="bn-icon">💳</span><span class="bn-label">Pricing</span></a></div></div>
+
+<script>
+function toggleMobMenu() {
+  var d = document.getElementById('mob-drawer');
+  if (d) d.classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  var drawer = document.getElementById('mob-drawer');
+  var btn = document.querySelector('.mob-menu-btn');
+  if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && btn && !btn.contains(e.target)) {
+    drawer.classList.remove('open');
+  }
+});
+</script>
+
 </body>
 </html>
