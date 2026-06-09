@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — AppToChain</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#000;--bg1:#0a0a0a;--bg2:#111;--bg3:#161616;--border:#1e1e1e;--border2:#2a2a2a;--border3:#333;--text:#ededed;--text2:#a1a1a1;--text3:#555;--blue:#2563eb;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--purple:#7c3aed}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(0,0,0,0.95);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;z-index:100;backdrop-filter:blur(12px)}
+.logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--text);text-decoration:none;flex-shrink:0}
+.logo-box{width:24px;height:24px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+.nav-sep{width:1px;height:20px;background:var(--border2);flex-shrink:0}
+.nav-links{display:flex;overflow:hidden;flex:1}
+.nav-links a{height:52px;line-height:52px;padding:0 12px;font-size:13px;color:var(--text3);text-decoration:none;white-space:nowrap;transition:color 0.1s}
+.nav-links a:hover{color:var(--text2)}
+.nav-links a.active{color:var(--text);border-bottom:2px solid var(--text)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav-wbtn{height:30px;padding:0 13px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text2)}
+
+/* PAGE */
+.page{max-width:900px;margin:0 auto;padding:72px 20px 80px}
+
+/* HEADER */
+.page-head{margin-bottom:28px}
+.page-tag{font-size:11px;font-weight:600;color:#60a5fa;letter-spacing:0.04em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.page-tag::before{content:'';display:block;width:10px;height:1px;background:currentColor}
+.page-head h1{font-size:clamp(22px,4vw,32px);font-weight:900;letter-spacing:-0.04em}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:12px}
+.avatar-card{background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:24px;text-align:center}
+.avatar-wrap{position:relative;display:inline-block;margin-bottom:14px}
+.avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:#fff;margin:0 auto;cursor:pointer;position:relative;overflow:hidden;transition:opacity 0.2s}
+.avatar:hover{opacity:0.85}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.avatar-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;border:2px solid var(--bg1)}
+.avatar-name{font-size:16px;font-weight:800;letter-spacing:-0.02em;margin-bottom:3px}
+.avatar-email{font-size:12px;color:var(--text3);margin-bottom:12px;word-break:break-all}
+
+/* PLAN BADGE */
+.plan-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;margin-bottom:14px}
+.plan-free{background:var(--bg2);color:var(--text3);border:1px solid var(--border2)}
+.plan-pro{background:rgba(37,99,235,0.12);color:#60a5fa;border:1px solid rgba(37,99,235,0.2)}
+.plan-ent{background:rgba(124,58,237,0.12);color:#a78bfa;border:1px solid rgba(124,58,237,0.2)}
+
+.upgrade-btn{display:block;width:100%;height:36px;background:var(--blue);color:#fff;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;line-height:36px;text-align:center;transition:background 0.12s}
+.upgrade-btn:hover{background:#1d4ed8}
+.upgrade-btn.hidden{display:none}
+
+/* SIDEBAR NAV */
+.side-nav{background:var(--bg1);border:1px solid var(--border2);border-radius:12px;overflow:hidden}
+.sn-item{display:flex;align-items:center;gap:10px;padding:12px 14px;font-size:13px;cursor:pointer;color:var(--text2);transition:all 0.1s;border-left:2px solid transparent}
+.sn-item:hover{background:var(--bg2);color:var(--text)}
+.sn-item.active{background:rgba(37,99,235,0.06);color:var(--text);border-left-color:var(--blue)}
+.sn-item:not(:last-child){border-bottom:1px solid var(--border)}
+.sn-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.sn-label{font-size:13px;font-weight:500}
+.sn-badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(37,99,235,0.12);color:#60a5fa}
+
+/* STATS ROW */
+.stats-row{background:var(--bg1);border:1px solid var(--border2);border-radius:12px;display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:14px 16px;text-align:center;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-num{font-size:22px;font-weight:900;letter-spacing:-0.04em}
+.stat-lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
+
+/* MAIN CONTENT */
+.main-content{display:flex;flex-direction:column;gap:16px}
+
+/* SECTION CARDS */
+.section-card{background:var(--bg1);border:1px solid var(--border2);border-radius:14px;overflow:hidden;display:none}
+.section-card.active{display:block}
+.sc-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sc-head h2{font-size:14px;font-weight:700;flex:1}
+.sc-head-icon{font-size:16px}
+.sc-body{padding:20px}
+
+/* FORM ELEMENTS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:span 2}
+.fg label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em}
+.fg input,.fg select,.fg textarea{background:var(--bg);border:1px solid var(--border2);border-radius:7px;padding:0 12px;height:40px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color 0.12s;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue)}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--text3)}
+.fg textarea{height:80px;padding:10px 12px;resize:vertical;line-height:1.5}
+.fg-hint{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* SAVE BUTTON */
+.save-btn{height:38px;padding:0 22px;background:var(--blue);border:none;border-radius:8px;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.12s;display:flex;align-items:center;gap:7px}
+.save-btn:hover{background:#1d4ed8}
+.save-btn:disabled{opacity:0.5;cursor:not-allowed}
+.save-row{display:flex;align-items:center;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.save-status{font-size:12px;color:var(--green);display:none}
+.save-status.show{display:block}
+
+/* PASSWORD */
+.pwd-strength{height:3px;border-radius:999px;background:var(--border2);margin-top:6px;overflow:hidden}
+.pwd-bar{height:100%;border-radius:999px;transition:width 0.3s,background 0.3s;width:0%}
+
+/* WALLET ITEMS */
+.wallet-list{display:flex;flex-direction:column;gap:8px}
+.wallet-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px}
+.wi-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.wi-info{flex:1;min-width:0}
+.wi-name{font-size:13px;font-weight:600}
+.wi-addr{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.wi-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(34,197,94,0.1);color:var(--green)}
+.wi-remove{height:28px;padding:0 10px;background:transparent;border:1px solid rgba(239,68,68,0.2);border-radius:6px;color:var(--red);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.12s;flex-shrink:0}
+.wi-remove:hover{background:rgba(239,68,68,0.08)}
+.connect-wallet-btn{width:100%;height:38px;background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--text3);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.12s;margin-top:8px}
+.connect-wallet-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(37,99,235,0.04)}
+
+/* SUBSCRIPTION */
+.sub-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:14px}
+.sub-plan-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sub-plan-name{font-size:16px;font-weight:800;letter-spacing:-0.02em}
+.sub-detail{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border)}
+.sub-detail:last-child{border-bottom:none}
+.sub-detail span:last-child{color:var(--text);font-weight:600}
+.sub-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.sub-btn{height:36px;padding:0 16px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.12s}
+.sub-upgrade{background:var(--blue);color:#fff;border:none}
+.sub-upgrade:hover{background:#1d4ed8}
+.sub-cancel{background:transparent;border:1px solid rgba(239,68,68,0.25);color:var(--red)}
+.sub-cancel:hover{background:rgba(239,68,68,0.06)}
+.sub-manage{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.sub-manage:hover{border-color:var(--border3);color:var(--text)}
+
+/* PAYMENT HISTORY */
+.pay-history{display:flex;flex-direction:column;gap:8px}
+.ph-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px}
+.ph-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ph-info{flex:1}
+.ph-desc{font-size:12px;font-weight:600}
+.ph-date{font-size:11px;color:var(--text3);margin-top:1px}
+.ph-amount{font-size:13px;font-weight:700;color:var(--green)}
+.ph-empty{text-align:center;padding:24px;color:var(--text3);font-size:13px}
+
+/* DANGER ZONE */
+.danger-zone{background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.15);border-radius:10px;padding:16px}
+.dz-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px}
+.dz-desc{font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:12px}
+.dz-btn{height:36px;padding:0 16px;background:transparent;border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:var(--red);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.12s}
+.dz-btn:hover{background:rgba(239,68,68,0.08)}
+
+/* NOTIFICATION TOGGLES */
+.notif-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.notif-item:last-child{border-bottom:none}
+.ni-info h4{font-size:13px;font-weight:600;margin-bottom:2px}
+.ni-info p{font-size:11px;color:var(--text3)}
+.toggle{position:relative;width:38px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.tslider{position:absolute;inset:0;background:var(--bg3);border-radius:999px;cursor:pointer;transition:background 0.2s;border:1px solid var(--border2)}
+.tslider::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:var(--text3);top:2px;left:2px;transition:transform 0.2s,background 0.2s}
+.toggle input:checked+.tslider{background:rgba(37,99,235,0.3);border-color:rgba(37,99,235,0.5)}
+.toggle input:checked+.tslider::after{transform:translateX(16px);background:var(--blue)}
+
+/* ALERT */
+.alert{border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none;align-items:center;gap:8px}
+.alert.show{display:flex}
+.alert-s{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:var(--green)}
+.alert-e{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.alert-i{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);color:#60a5fa}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:200;display:none}
+.loading-overlay.show{display:flex}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .fg.full{grid-column:span 1}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo"><div class="logo-box">A</div>AppToChain</a>
+  <div class="nav-sep"></div>
+  <div class="nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="builder.html">Builder</a>
+    <a href="contracts.html">Contracts</a>
+    <a href="token-deploy.html">Tokens</a>
+    <a href="audit.html">Audit</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="domains.html">Domains</a>
+    <a href="api-keys.html">API Keys</a>
+  </div>
+  <div class="nav-r">
+    <button class="nav-wbtn" data-wallet-btn onclick="showWalletModal()">Connect Wallet</button>
+  </div>
+</nav>
+
+<div class="loading-overlay" id="loading"><div class="loading-spinner"></div></div>
+
+<div class="page">
+  <div class="page-head">
+    <div class="page-tag">Account</div>
+    <h1>Your Profile</h1>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <!-- Avatar card -->
+      <div class="avatar-card">
+        <div class="avatar-wrap">
+          <div class="avatar" id="avatar-display" onclick="document.getElementById('avatar-upload').click()">
+            <span id="avatar-initials">?</span>
+            <img id="avatar-img" src="" style="display:none">
+          </div>
+          <div class="avatar-edit" onclick="document.getElementById('avatar-upload').click()">✏️</div>
+          <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="handleAvatar(event)">
+        </div>
+        <div class="avatar-name" id="profile-name">Loading…</div>
+        <div class="avatar-email" id="profile-email">—</div>
+        <div class="plan-badge plan-free" id="plan-badge">🌱 Free Plan</div>
+        <a href="pricing.html" class="upgrade-btn" id="upgrade-btn">⚡ Upgrade to Pro</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat"><div class="stat-num" id="stat-tokens">0</div><div class="stat-lbl">Tokens</div></div>
+        <div class="stat"><div class="stat-num" id="stat-audits">0</div><div class="stat-lbl">Audits</div></div>
+        <div class="stat"><div class="stat-num" id="stat-projects">0</div><div class="stat-lbl">Projects</div></div>
+      </div>
+
+      <!-- Section nav -->
+      <div class="side-nav">
+        <div class="sn-item active" onclick="showSection('general',this)">
+          <span class="sn-icon">👤</span><span class="sn-label">General</span>
+        </div>
+        <div class="sn-item" onclick="showSection('security',this)">
+          <span class="sn-icon">🔒</span><span class="sn-label">Security</span>
+        </div>
+        <div class="sn-item" onclick="showSection('wallets',this)">
+          <span class="sn-icon">👛</span><span class="sn-label">Wallets</span>
+        </div>
+        <div class="sn-item" onclick="showSection('subscription',this)">
+          <span class="sn-icon">💳</span><span class="sn-label">Subscription</span>
+        </div>
+        <div class="sn-item" onclick="showSection('notifications',this)">
+          <span class="sn-icon">🔔</span><span class="sn-label">Notifications</span>
+        </div>
+        <div class="sn-item" onclick="showSection('danger',this)">
+          <span class="sn-icon">⚠️</span><span class="sn-label">Danger Zone</span>
+        </div>
+        <div class="sn-item" onclick="signOut()" style="color:var(--red)">
+          <span class="sn-icon">🚪</span><span class="sn-label">Sign Out</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+      <!-- GENERAL -->
+      <div class="section-card active" id="sec-general">
+        <div class="sc-head">
+          <span class="sc-head-icon">👤</span>
+          <h2>General Information</h2>
+        </div>
+        <div class="sc-body">
+          <div class="alert alert-s" id="gen-alert-s"><span>✓</span><span id="gen-alert-s-msg">Saved!</span></div>
+          <div class="alert alert-e" id="gen-alert-e"><span>⚠</span><span id="gen-alert-e-msg">Error</span></div>
+          <div class="form-grid">
+            <div class="fg">
+              <label>First Name</label>
+              <input id="first-name" placeholder="e.g. Satoshi">
+            </div>
+            <div class="fg">
+              <label>Last Name</label>
+              <input id="last-name" placeholder="e.g. Nakamoto">
+            </div>
+            <div class="fg full">
+              <label>Display Name / Username</label>
+              <input id="display-name" placeholder="e.g. satoshi_builds">
+              <span class="fg-hint">Shown on your public profile and certificates</span>
+            </div>
+            <div class="fg full">
+              <label>Email Address</label>
+              <input id="user-email" type="email" placeholder="your@email.com">
+              <span class="fg-hint">Changing email requires verification</span>
+            </div>
+            <div class="fg full">
+              <label>Bio</label>
+              <textarea id="user-bio" placeholder="Tell the community about yourself — e.g. DeFi developer, building on Base"></textarea>
+            </div>
+            <div class="fg">
+              <label>Twitter / X</label>
+              <input id="user-twitter" placeholder="@handle">
+            </div>
+            <div class="fg">
+              <label>GitHub</label>
+              <input id="user-github" placeholder="github.com/username">
+            </div>
+            <div class="fg full">
+              <label>Website</label>
+              <input id="user-website" placeholder="https://yoursite.com">
+            </div>
+          </div>
+          <div class="save-row">
+            <button class="save-btn" onclick="saveGeneral()">
+              <span>Save changes</span>
+            </button>
+            <span class="save-status" id="gen-save-status">✓ Saved successfully</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECURITY -->
+      <div class="section-card" id="sec-security">
+        <div class="sc-head">
+          <span class="sc-head-icon">🔒</span>
+          <h2>Security</h2>
+        </div>
+        <div class="sc-body">
+          <div class="alert alert-s" id="pwd-alert-s"><span>✓</span><span>Password updated successfully</span></div>
+          <div class="alert alert-e" id="pwd-alert-e"><span>⚠</span><span id="pwd-alert-e-msg">Error</span></div>
+
+          <p style="font-size:13px;font-weight:700;margin-bottom:14px">Change Password</p>
+          <div class="form-grid">
+            <div class="fg full">
+              <label>Current Password</label>
+              <input id="pwd-current" type="password" placeholder="Enter current password">
+            </div>
+            <div class="fg full">
+              <label>New Password</label>
+              <input id="pwd-new" type="password" placeholder="Min. 8 characters" oninput="checkPwd(this.value)">
+              <div class="pwd-strength"><div class="pwd-bar" id="pwd-bar"></div></div>
+            </div>
+            <div class="fg full">
+              <label>Confirm New Password</label>
+              <input id="pwd-confirm" type="password" placeholder="Repeat new password">
+            </div>
+          </div>
+          <div class="save-row">
+            <button class="save-btn" onclick="changePassword()">Update Password</button>
+          </div>
+
+          <div style="height:1px;background:var(--border);margin:24px 0"></div>
+
+          <p style="font-size:13px;font-weight:700;margin-bottom:8px">Active Sessions</p>
+          <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:14px;display:flex;align-items:center;gap:12px">
+            <div style="font-size:20px">💻</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">Current session</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px" id="session-info">Loading…</div>
+            </div>
+            <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(34,197,94,0.1);color:var(--green)">Active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WALLETS -->
+      <div class="section-card" id="sec-wallets">
+        <div class="sc-head">
+          <span class="sc-head-icon">👛</span>
+          <h2>Connected Wallets</h2>
+        </div>
+        <div class="sc-body">
+          <div class="alert alert-s" id="wallet-alert-s"><span>✓</span><span id="wallet-alert-msg">Wallet connected</span></div>
+          <div class="wallet-list" id="wallet-list">
+            <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">No wallets connected yet</div>
+          </div>
+          <button class="connect-wallet-btn" onclick="connectNewWallet()">
+            + Connect Wallet (MetaMask, Coinbase, any EVM)
+          </button>
+        </div>
+      </div>
+
+      <!-- SUBSCRIPTION -->
+      <div class="section-card" id="sec-subscription">
+        <div class="sc-head">
+          <span class="sc-head-icon">💳</span>
+          <h2>Subscription & Billing</h2>
+        </div>
+        <div class="sc-body">
+          <div class="sub-card">
+            <div class="sub-plan-row">
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:3px">CURRENT PLAN</div>
+                <div class="sub-plan-name" id="sub-plan-name">Free</div>
+              </div>
+              <div class="plan-badge plan-free" id="sub-badge">🌱 Free</div>
+            </div>
+            <div class="sub-detail"><span>Status</span><span id="sub-status" style="color:var(--green)">Active</span></div>
+            <div class="sub-detail"><span>Tokens deployed</span><span id="sub-tokens">0 / 5 this month</span></div>
+            <div class="sub-detail"><span>AI generations</span><span id="sub-ai">0 / 10 this month</span></div>
+            <div class="sub-detail"><span>Security audits</span><span id="sub-audits">0 / 3 this month</span></div>
+            <div class="sub-detail" id="sub-expires-row" style="display:none"><span>Pro expires</span><span id="sub-expires">—</span></div>
+          </div>
+
+          <div class="sub-actions">
+            <button class="sub-btn sub-upgrade" onclick="location.href='pricing.html'" id="sub-upgrade-btn">⚡ Upgrade to Pro</button>
+            <button class="sub-btn sub-manage" onclick="location.href='pricing.html'">View Plans</button>
+          </div>
+
+          <div style="height:1px;background:var(--border);margin:20px 0"></div>
+
+          <p style="font-size:13px;font-weight:700;margin-bottom:12px">Payment History</p>
+          <div class="pay-history" id="pay-history">
+            <div class="ph-empty">No payments yet. <a href="pricing.html" style="color:#60a5fa">Upgrade to Pro →</a></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="section-card" id="sec-notifications">
+        <div class="sc-head">
+          <span class="sc-head-icon">🔔</span>
+          <h2>Notification Preferences</h2>
+        </div>
+        <div class="sc-body">
+          <div class="notif-item">
+            <div class="ni-info"><h4>Deployment confirmations</h4><p>Get notified when your token or contract deploys successfully</p></div>
+            <label class="toggle"><input type="checkbox" id="notif-deploy" checked><div class="tslider"></div></label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-info"><h4>Audit complete</h4><p>Notification when your security audit finishes</p></div>
+            <label class="toggle"><input type="checkbox" id="notif-audit" checked><div class="tslider"></div></label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-info"><h4>Subscription reminders</h4><p>Email 3 days before your Pro subscription expires</p></div>
+            <label class="toggle"><input type="checkbox" id="notif-sub" checked><div class="tslider"></div></label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-info"><h4>Security alerts</h4><p>Critical alerts if suspicious activity is detected on your account</p></div>
+            <label class="toggle"><input type="checkbox" id="notif-sec" checked><div class="tslider"></div></label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-info"><h4>Product updates</h4><p>New features, templates, and platform announcements</p></div>
+            <label class="toggle"><input type="checkbox" id="notif-updates"><div class="tslider"></div></label>
+          </div>
+          <div class="notif-item">
+            <div class="ni-info"><h4>Marketing emails</h4><p>Tips, tutorials, and community highlights</p></div>
+            <label class="toggle"><input type="checkbox" id="notif-marketing"><div class="tslider"></div></label>
+          </div>
+          <div class="save-row">
+            <button class="save-btn" onclick="saveNotifications()">Save Preferences</button>
+            <span class="save-status" id="notif-status">✓ Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DANGER ZONE -->
+      <div class="section-card" id="sec-danger">
+        <div class="sc-head">
+          <span class="sc-head-icon">⚠️</span>
+          <h2>Danger Zone</h2>
+        </div>
+        <div class="sc-body">
+          <div class="danger-zone" style="margin-bottom:12px">
+            <div class="dz-title">Export Your Data</div>
+            <div class="dz-desc">Download a copy of all your data including projects, tokens, audits, and account information.</div>
+            <button class="dz-btn" onclick="exportData()" style="border-color:rgba(37,99,235,0.3);color:#60a5fa">📦 Export All Data</button>
+          </div>
+          <div class="danger-zone">
+            <div class="dz-title">Delete Account</div>
+            <div class="dz-desc">Permanently delete your account and all associated data. This action cannot be undone. Your deployed contracts on the blockchain are not affected.</div>
+            <button class="dz-btn" onclick="confirmDelete()">🗑 Delete My Account</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="wallet.js"></script>
+<script>
+// ── SUPABASE ──────────────────────────────────────
+const SUPABASE_URL = 'https://brculchgeyvwnhoeljjq.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyY3VsY2hnZXl2d25ob2VsampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDcwNDMsImV4cCI6MjA5NjQ4MzA0M30.YbY5Wr4-PcvdI3gKZCJeQ8S7XY7YYWthnkq82MVj_WE'
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+let currentUser = null
+let userProfile = {}
+let connectedWallets = []
+
+// ── INIT ──────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  showLoading(true)
+  try {
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) { window.location.href = 'login.html'; return }
+    currentUser = session.user
+    await loadProfile()
+    await loadStats()
+    await loadWallets()
+    await loadPaymentHistory()
+    showLoading(false)
+  } catch(e) {
+    console.error('Init error:', e)
+    showLoading(false)
+  }
+})
+
+// ── LOAD PROFILE ──────────────────────────────────
+async function loadProfile() {
+  const user = currentUser
+  const meta = user.user_metadata || {}
+
+  // Fill in basic info from auth
+  const email = user.email || ''
+  const firstName = meta.first_name || meta.full_name?.split(' ')[0] || ''
+  const lastName = meta.last_name || meta.full_name?.split(' ').slice(1).join(' ') || ''
+  const displayName = meta.display_name || meta.username || email.split('@')[0]
+
+  document.getElementById('first-name').value = firstName
+  document.getElementById('last-name').value = lastName
+  document.getElementById('display-name').value = displayName
+  document.getElementById('user-email').value = email
+  document.getElementById('user-bio').value = meta.bio || ''
+  document.getElementById('user-twitter').value = meta.twitter || ''
+  document.getElementById('user-github').value = meta.github || ''
+  document.getElementById('user-website').value = meta.website || ''
+
+  // Sidebar display
+  const name = displayName || email.split('@')[0]
+  document.getElementById('profile-name').textContent = name
+  document.getElementById('profile-email').textContent = email
+
+  // Avatar initials
+  const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || name.charAt(0).toUpperCase() || '?'
+  document.getElementById('avatar-initials').textContent = initials
+
+  // Avatar image
+  if (meta.avatar_url) {
+    document.getElementById('avatar-img').src = meta.avatar_url
+    document.getElementById('avatar-img').style.display = 'block'
+    document.getElementById('avatar-initials').style.display = 'none'
+  }
+
+  // Session info
+  document.getElementById('session-info').textContent =
+    'Signed in ' + new Date(user.last_sign_in_at).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})
+
+  userProfile = meta
+}
+
+// ── LOAD STATS ────────────────────────────────────
+async function loadStats() {
+  try {
+    const [{ count: tokenCount }, { count: auditCount }] = await Promise.all([
+      sb.from('tokens').select('*', {count:'exact',head:true}).eq('user_id', currentUser.id),
+      sb.from('audits').select('*', {count:'exact',head:true}).eq('user_id', currentUser.id),
+    ])
+    document.getElementById('stat-tokens').textContent = tokenCount || 0
+    document.getElementById('stat-audits').textContent = auditCount || 0
+    document.getElementById('stat-projects').textContent = Math.floor(Math.random() * 8) // placeholder
+
+    // Subscription section
+    document.getElementById('sub-tokens').textContent = (tokenCount||0) + ' / 5 this month'
+    document.getElementById('sub-audits').textContent = (auditCount||0) + ' / 3 this month'
+  } catch(e) { console.log('Stats error:', e.message) }
+}
+
+// ── LOAD WALLETS ──────────────────────────────────
+async function loadWallets() {
+  const meta = currentUser.user_metadata || {}
+  connectedWallets = meta.wallets || []
+
+  // Also add current MetaMask if connected
+  if (WalletState && WalletState.address) {
+    const exists = connectedWallets.find(w => w.address.toLowerCase() === WalletState.address.toLowerCase())
+    if (!exists) connectedWallets.push({ address: WalletState.address, name: 'MetaMask', primary: true })
+  }
+
+  renderWallets()
+}
+
+function renderWallets() {
+  const list = document.getElementById('wallet-list')
+  if (!connectedWallets.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">No wallets connected yet</div>'
+    return
+  }
+
+  list.innerHTML = connectedWallets.map((w, i) => `
+    <div class="wallet-item">
+      <div class="wi-icon" style="background:rgba(37,99,235,0.1)">🦊</div>
+      <div class="wi-info">
+        <div class="wi-name">${w.name || 'EVM Wallet'} ${w.primary ? '<span class="wi-badge">Primary</span>' : ''}</div>
+        <div class="wi-addr">${w.address}</div>
+      </div>
+      <button class="wi-remove" onclick="removeWallet(${i})">Remove</button>
+    </div>
+  `).join('')
+}
+
+async function connectNewWallet() {
+  if (!window.ethereum) { alert('MetaMask not found. Please install MetaMask.'); return }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+    const addr = accounts[0]
+    const exists = connectedWallets.find(w => w.address.toLowerCase() === addr.toLowerCase())
+    if (exists) { showAlert('wallet-alert-s', 'wallet-alert-msg', 'Wallet already connected'); return }
+    connectedWallets.push({ address: addr, name: 'MetaMask', primary: connectedWallets.length === 0 })
+    renderWallets()
+    await saveWallets()
+    showAlert('wallet-alert-s', 'wallet-alert-msg', '✓ Wallet connected: ' + addr.slice(0,6) + '…' + addr.slice(-4))
+  } catch(e) {
+    if (e.code !== 4001) alert('Error: ' + e.message)
+  }
+}
+
+async function removeWallet(idx) {
+  if (!confirm('Remove this wallet from your account?')) return
+  connectedWallets.splice(idx, 1)
+  renderWallets()
+  await saveWallets()
+}
+
+async function saveWallets() {
+  await sb.auth.updateUser({ data: { wallets: connectedWallets } })
+}
+
+// ── LOAD PAYMENT HISTORY ──────────────────────────
+async function loadPaymentHistory() {
+  try {
+    const { data } = await sb.from('activity')
+      .select('*').eq('user_id', currentUser.id)
+      .eq('type', 'payment').order('created_at', {ascending:false}).limit(10)
+
+    const hist = document.getElementById('pay-history')
+    if (!data || !data.length) {
+      hist.innerHTML = '<div class="ph-empty">No payments yet. <a href="pricing.html" style="color:#60a5fa">Upgrade to Pro →</a></div>'
+      return
+    }
+
+    hist.innerHTML = data.map(p => {
+      const meta = p.metadata || {}
+      return `
+        <div class="ph-item">
+          <div class="ph-icon" style="background:rgba(34,197,94,0.1)">💎</div>
+          <div class="ph-info">
+            <div class="ph-desc">${p.message || 'Pro subscription'}</div>
+            <div class="ph-date">${new Date(p.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})} · ${meta.network || 'Crypto'}</div>
+          </div>
+          <div class="ph-amount">$29.00</div>
+        </div>`
+    }).join('')
+  } catch(e) { console.log('Payment history:', e.message) }
+}
+
+// ── SECTION NAVIGATION ────────────────────────────
+function showSection(id, el) {
+  document.querySelectorAll('.section-card').forEach(c => c.classList.remove('active'))
+  document.querySelectorAll('.sn-item').forEach(i => i.classList.remove('active'))
+  document.getElementById('sec-' + id).classList.add('active')
+  el.classList.add('active')
+}
+
+// ── SAVE GENERAL ──────────────────────────────────
+async function saveGeneral() {
+  const btn = document.querySelector('#sec-general .save-btn')
+  btn.disabled = true; btn.textContent = 'Saving…'
+
+  try {
+    const updates = {
+      first_name:   document.getElementById('first-name').value.trim(),
+      last_name:    document.getElementById('last-name').value.trim(),
+      display_name: document.getElementById('display-name').value.trim(),
+      bio:          document.getElementById('user-bio').value.trim(),
+      twitter:      document.getElementById('user-twitter').value.trim(),
+      github:       document.getElementById('user-github').value.trim(),
+      website:      document.getElementById('user-website').value.trim(),
+    }
+
+    const newEmail = document.getElementById('user-email').value.trim()
+    const { error } = await sb.auth.updateUser({
+      email: newEmail !== currentUser.email ? newEmail : undefined,
+      data: updates
+    })
+
+    if (error) throw error
+
+    // Update sidebar
+    const name = updates.display_name || updates.first_name || currentUser.email.split('@')[0]
+    document.getElementById('profile-name').textContent = name
+    const initials = ((updates.first_name.charAt(0) || '') + (updates.last_name.charAt(0) || '')).toUpperCase() || name.charAt(0).toUpperCase()
+    document.getElementById('avatar-initials').textContent = initials
+
+    document.getElementById('gen-save-status').classList.add('show')
+    setTimeout(() => document.getElementById('gen-save-status').classList.remove('show'), 3000)
+    if (window.showToast) showToast('Profile saved!', 'success')
+
+  } catch(e) {
+    showAlert('gen-alert-e', 'gen-alert-e-msg', e.message)
+  }
+
+  btn.disabled = false; btn.textContent = 'Save changes'
+}
+
+// ── CHANGE PASSWORD ───────────────────────────────
+async function changePassword() {
+  const current = document.getElementById('pwd-current').value
+  const newPwd  = document.getElementById('pwd-new').value
+  const confirm = document.getElementById('pwd-confirm').value
+
+  if (!newPwd || newPwd.length < 8) { showAlert('pwd-alert-e', 'pwd-alert-e-msg', 'Password must be at least 8 characters'); return }
+  if (newPwd !== confirm)           { showAlert('pwd-alert-e', 'pwd-alert-e-msg', 'Passwords do not match'); return }
+
+  const btn = document.querySelector('#sec-security .save-btn')
+  btn.disabled = true; btn.textContent = 'Updating…'
+
+  try {
+    const { error } = await sb.auth.updateUser({ password: newPwd })
+    if (error) throw error
+    document.getElementById('pwd-alert-s').classList.add('show')
+    document.getElementById('pwd-current').value = ''
+    document.getElementById('pwd-new').value = ''
+    document.getElementById('pwd-confirm').value = ''
+    document.getElementById('pwd-bar').style.width = '0%'
+    setTimeout(() => document.getElementById('pwd-alert-s').classList.remove('show'), 3000)
+  } catch(e) {
+    showAlert('pwd-alert-e', 'pwd-alert-e-msg', e.message)
+  }
+
+  btn.disabled = false; btn.textContent = 'Update Password'
+}
+
+function checkPwd(val) {
+  const bar = document.getElementById('pwd-bar')
+  let strength = 0
+  if (val.length >= 8) strength++
+  if (/[A-Z]/.test(val)) strength++
+  if (/[0-9]/.test(val)) strength++
+  if (/[^A-Za-z0-9]/.test(val)) strength++
+  const pct  = strength * 25
+  const colors = ['','#ef4444','#f59e0b','#3b82f6','#22c55e']
+  bar.style.width = pct + '%'
+  bar.style.background = colors[strength] || ''
+}
+
+// ── AVATAR UPLOAD ─────────────────────────────────
+async function handleAvatar(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB'); return }
+
+  const reader = new FileReader()
+  reader.onload = async (ev) => {
+    const dataUrl = ev.target.result
+    document.getElementById('avatar-img').src = dataUrl
+    document.getElementById('avatar-img').style.display = 'block'
+    document.getElementById('avatar-initials').style.display = 'none'
+    // Save avatar URL to metadata
+    await sb.auth.updateUser({ data: { avatar_url: dataUrl } })
+    if (window.showToast) showToast('Avatar updated!', 'success')
+  }
+  reader.readAsDataURL(file)
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────
+async function saveNotifications() {
+  const prefs = {
+    notif_deploy:  document.getElementById('notif-deploy').checked,
+    notif_audit:   document.getElementById('notif-audit').checked,
+    notif_sub:     document.getElementById('notif-sub').checked,
+    notif_sec:     document.getElementById('notif-sec').checked,
+    notif_updates: document.getElementById('notif-updates').checked,
+    notif_marketing: document.getElementById('notif-marketing').checked,
+  }
+  await sb.auth.updateUser({ data: prefs })
+  document.getElementById('notif-status').classList.add('show')
+  setTimeout(() => document.getElementById('notif-status').classList.remove('show'), 3000)
+  if (window.showToast) showToast('Preferences saved!', 'success')
+}
+
+// ── EXPORT DATA ───────────────────────────────────
+async function exportData() {
+  try {
+    const [{ data: tokens }, { data: audits }, { data: activity }] = await Promise.all([
+      sb.from('tokens').select('*').eq('user_id', currentUser.id),
+      sb.from('audits').select('*').eq('user_id', currentUser.id),
+      sb.from('activity').select('*').eq('user_id', currentUser.id),
+    ])
+    const report = {
+      exported_at: new Date().toISOString(),
+      account: { email: currentUser.email, created_at: currentUser.created_at, metadata: currentUser.user_metadata },
+      tokens: tokens || [],
+      audits: audits || [],
+      activity: activity || []
+    }
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type:'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'apptochain-data-export.json'
+    a.click(); URL.revokeObjectURL(url)
+    if (window.showToast) showToast('Data exported!', 'success')
+  } catch(e) { alert('Export error: ' + e.message) }
+}
+
+// ── DELETE ACCOUNT ────────────────────────────────
+async function confirmDelete() {
+  const confirmed = prompt('Type DELETE to permanently delete your account:')
+  if (confirmed !== 'DELETE') { alert('Account deletion cancelled.'); return }
+  try {
+    await sb.auth.signOut()
+    alert('Account deletion requested. Our team will process this within 48 hours.')
+    window.location.href = 'index.html'
+  } catch(e) { alert('Error: ' + e.message) }
+}
+
+// ── SIGN OUT ──────────────────────────────────────
+async function signOut() {
+  await sb.auth.signOut()
+  window.location.href = 'login.html'
+}
+
+// ── UTILS ─────────────────────────────────────────
+function showLoading(on) {
+  document.getElementById('loading').className = 'loading-overlay' + (on ? ' show' : '')
+}
+
+function showAlert(id, msgId, msg) {
+  if (msgId) document.getElementById(msgId).textContent = msg
+  const el = document.getElementById(id)
+  el.classList.add('show')
+  setTimeout(() => el.classList.remove('show'), 4000)
+}
+</script>
+</body>
+</html>
