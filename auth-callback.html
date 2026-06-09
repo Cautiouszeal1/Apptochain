@@ -7,81 +7,128 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#000;color:#ededed;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+body{font-family:Inter,sans-serif;background:#000;color:#ededed;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:20px}
 .spinner{width:44px;height:44px;border:3px solid #1e1e1e;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.logo{font-size:28px;font-weight:900;margin-bottom:8px}
 p{font-size:14px;color:#555}
+.status{font-size:13px;color:#a1a1a1;margin-top:4px}
 </style>
 </head>
 <body>
+<div class="logo">AppToChain</div>
 <div class="spinner"></div>
 <p>Completing sign in…</p>
+<div class="status" id="status"></div>
 <script>
-const SUPABASE_URL = 'https://brculchgeyvwnhoeljjq.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyY3VsY2hnZXl2d25ob2VsampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDcwNDMsImV4cCI6MjA5NjQ4MzA0M30.YbY5Wr4-PcvdI3gKZCJeQ8S7XY7YYWthnkq82MVj_WE'
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+var sb = supabase.createClient(
+  'https://brculchgeyvwnhoeljjq.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyY3VsY2hnZXl2d25ob2VsampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDcwNDMsImV4cCI6MjA5NjQ4MzA0M30.YbY5Wr4-PcvdI3gKZCJeQ8S7XY7YYWthnkq82MVj_WE'
+)
 
-async function handleCallback() {
+function setStatus(msg) {
+  document.getElementById('status').textContent = msg
+}
+
+function goToDashboard() {
+  setStatus('Success! Redirecting…')
+  window.location.replace('https://apptochain.vercel.app/dashboard.html')
+}
+
+function goToLogin(msg) {
+  setStatus(msg || 'Redirecting to login…')
+  setTimeout(function() {
+    window.location.replace('https://apptochain.vercel.app/login.html')
+  }, 1500)
+}
+
+async function handle() {
   try {
-    const hash = window.location.hash
-    const query = window.location.search
-    const hashParams = new URLSearchParams(hash.slice(1))
-    const queryParams = new URLSearchParams(query)
+    setStatus('Checking authentication…')
 
-    const accessToken  = hashParams.get('access_token')
-    const refreshToken = hashParams.get('refresh_token')
-    const code         = queryParams.get('code')
-    const errorMsg     = queryParams.get('error_description') || hashParams.get('error_description')
-    const type         = hashParams.get('type') || queryParams.get('type')
+    // Get all URL params
+    var hash = window.location.hash || ''
+    var search = window.location.search || ''
+    var hashP = new URLSearchParams(hash.replace('#',''))
+    var searchP = new URLSearchParams(search)
 
-    // If there's an error in the URL
-    if (errorMsg) {
-      window.location.href = 'login.html?error=' + encodeURIComponent(errorMsg)
+    var accessToken  = hashP.get('access_token')
+    var refreshToken = hashP.get('refresh_token')
+    var code         = searchP.get('code')
+    var errorDesc    = searchP.get('error_description') || hashP.get('error_description')
+    var errorCode    = searchP.get('error')
+
+    setStatus('Found params: ' + (accessToken ? 'token ' : '') + (code ? 'code ' : '') + (errorCode ? 'error' : ''))
+
+    // Error in URL
+    if (errorCode || errorDesc) {
+      goToLogin(errorDesc || errorCode)
       return
     }
 
-    // Case 1: access_token in hash (OAuth or magic link)
-    if (accessToken && refreshToken) {
-      const { error } = await sb.auth.setSession({
+    // Case 1: Has access_token in hash (implicit flow)
+    if (accessToken) {
+      setStatus('Setting session from token…')
+      var result = await sb.auth.setSession({
         access_token: accessToken,
-        refresh_token: refreshToken
+        refresh_token: refreshToken || ''
       })
-      if (error) throw error
-      window.location.href = 'dashboard.html'
+      if (result.error) throw result.error
+      goToDashboard()
       return
     }
 
-    // Case 2: code in query string (PKCE flow - OAuth + email confirmation)
+    // Case 2: Has code in query (PKCE flow — Google/GitHub use this)
     if (code) {
-      const { error } = await sb.auth.exchangeCodeForSession(code)
-      if (error) throw error
-      window.location.href = 'dashboard.html'
+      setStatus('Exchanging code for session…')
+      var result2 = await sb.auth.exchangeCodeForSession(code)
+      if (result2.error) throw result2.error
+      goToDashboard()
       return
     }
 
-    // Case 3: already have a session
-    const { data: { session } } = await sb.auth.getSession()
-    if (session) {
-      window.location.href = 'dashboard.html'
+    // Case 3: Check if already signed in
+    setStatus('Checking existing session…')
+    var sessionResult = await sb.auth.getSession()
+    if (sessionResult.data && sessionResult.data.session) {
+      goToDashboard()
       return
     }
 
-    // No auth found - go back to login
-    window.location.href = 'login.html'
+    // Case 4: Listen for auth state change (fallback)
+    setStatus('Waiting for authentication…')
+    sb.auth.onAuthStateChange(function(event, session) {
+      if (event === 'SIGNED_IN' && session) {
+        goToDashboard()
+      }
+    })
+
+    // Timeout after 8 seconds
+    setTimeout(function() {
+      sb.auth.getSession().then(function(r) {
+        if (r.data && r.data.session) {
+          goToDashboard()
+        } else {
+          goToLogin('Authentication timed out. Please try again.')
+        }
+      })
+    }, 8000)
 
   } catch(e) {
-    console.error('Auth callback error:', e)
-    // Still try to redirect to dashboard in case session was set
-    const { data: { session } } = await sb.auth.getSession()
-    if (session) {
-      window.location.href = 'dashboard.html'
-    } else {
-      window.location.href = 'login.html'
-    }
+    console.error('Auth error:', e)
+    // Last attempt - check session
+    try {
+      var r = await sb.auth.getSession()
+      if (r.data && r.data.session) {
+        goToDashboard()
+        return
+      }
+    } catch(e2) {}
+    goToLogin('Error: ' + (e.message || 'Unknown error'))
   }
 }
 
-handleCallback()
+handle()
 </script>
 </body>
 </html>

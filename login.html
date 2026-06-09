@@ -138,7 +138,14 @@ const SUPABASE_URL = 'https://brculchgeyvwnhoeljjq.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyY3VsY2hnZXl2d25ob2VsampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDcwNDMsImV4cCI6MjA5NjQ4MzA0M30.YbY5Wr4-PcvdI3gKZCJeQ8S7XY7YYWthnkq82MVj_WE'
 
 const { createClient } = supabase
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
+  }
+})
 
 // Auto redirect if already logged in
 ;(async () => {
@@ -214,7 +221,10 @@ async function oauthGoogle() {
   document.getElementById('btn-g').disabled = true
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: 'https://apptochain.vercel.app/auth-callback.html'}
+    options: {
+      redirectTo: 'https://apptochain.vercel.app/auth-callback.html',
+      skipBrowserRedirect: false
+    }
   })
   if (error) { err(error.message); document.getElementById('btn-g').disabled = false }
 }
@@ -225,7 +235,10 @@ async function oauthGitHub() {
   document.getElementById('btn-gh').disabled = true
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'github',
-    options: { redirectTo: 'https://apptochain.vercel.app/auth-callback.html'}
+    options: {
+      redirectTo: 'https://apptochain.vercel.app/auth-callback.html',
+      skipBrowserRedirect: false
+    }
   })
   if (error) { err(error.message); document.getElementById('btn-gh').disabled = false }
 }

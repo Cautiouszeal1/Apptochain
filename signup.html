@@ -239,10 +239,14 @@ async function doSignup() {
     return
   }
 
-  // Show confirm email screen
-  document.getElementById('confirm-email').textContent = email
-  document.getElementById('form-view').style.display = 'none'
-  document.getElementById('confirm-view').classList.add('show')
+  // Sign in immediately after signup and go to dashboard
+  const { error: signInErr } = await sb.auth.signInWithPassword({ email, password: pw })
+  if (signInErr) {
+    // If auto sign-in fails, still redirect (email confirm may be required)
+    window.location.href = 'dashboard.html'
+  } else {
+    window.location.href = 'dashboard.html'
+  }
 }
 
 async function oauthGoogle() {
