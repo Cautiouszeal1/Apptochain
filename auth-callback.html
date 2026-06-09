@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signing in — AppToChain</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#000;color:#ededed;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.spinner{width:44px;height:44px;border:3px solid #1e1e1e;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+p{font-size:14px;color:#555}
+</style>
+</head>
+<body>
+<div class="spinner"></div>
+<p>Completing sign in…</p>
+<script>
+const sb = supabase.createClient(
+  'https://brculchgeyvwnhoeljjq.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyY3VsY2hnZXl2d25ob2VsampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDcwNDMsImV4cCI6MjA5NjQ4MzA0M30.YbY5Wr4-PcvdI3gKZCJeQ8S7XY7YYWthnkq82MVj_WE'
+)
+
+async function handleCallback() {
+  try {
+    // Handle the OAuth callback
+    const { data, error } = await sb.auth.getSession()
+    
+    if (error) throw error
+    
+    if (data.session) {
+      // Logged in successfully
+      window.location.href = 'dashboard.html'
+    } else {
+      // Try to exchange the code for a session
+      const hashParams = new URLSearchParams(window.location.hash.slice(1))
+      const queryParams = new URLSearchParams(window.location.search)
+      
+      const accessToken = hashParams.get('access_token')
+      const refreshToken = hashParams.get('refresh_token')
+      const code = queryParams.get('code')
+      
+      if (accessToken) {
+        await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        window.location.href = 'dashboard.html'
+      } else if (code) {
+        await sb.auth.exchangeCodeForSession(code)
+        window.location.href = 'dashboard.html'
+      } else {
+        window.location.href = 'login.html'
+      }
+    }
+  } catch(e) {
+    console.error('Auth callback error:', e)
+    window.location.href = 'login.html?error=' + encodeURIComponent(e.message)
+  }
+}
+
+handleCallback()
+</script>
+</body>
+</html>

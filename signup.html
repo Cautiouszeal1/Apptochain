@@ -225,8 +225,7 @@ async function doSignup() {
     password: pw,
     options: {
       data: { full_name: `${fname} ${lname}`.trim(), first_name: fname, last_name: lname },
-      emailRedirectTo: window.location.origin + '/apptochain/dashboard.html'
-    }
+      emailRedirectTo: 'https://apptochain.vercel.app/auth-callback.html'}
   })
 
   setLoading(false)
@@ -251,7 +250,7 @@ async function oauthGoogle() {
   document.getElementById('btn-g').disabled = true
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin + '/apptochain/dashboard.html' }
+    options: { redirectTo: 'https://apptochain.vercel.app/auth-callback.html'}
   })
   if (error) { showErr(error.message); document.getElementById('btn-g').disabled = false }
 }
@@ -261,7 +260,7 @@ async function oauthGitHub() {
   document.getElementById('btn-gh').disabled = true
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'github',
-    options: { redirectTo: window.location.origin + '/apptochain/dashboard.html' }
+    options: { redirectTo: 'https://apptochain.vercel.app/auth-callback.html'}
   })
   if (error) { showErr(error.message); document.getElementById('btn-gh').disabled = false }
 }
