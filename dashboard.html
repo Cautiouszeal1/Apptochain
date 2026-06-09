@@ -202,6 +202,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   .stats-grid{grid-template-columns:1fr 1fr}
 }
 </style>
+<link rel="stylesheet" href="mobile.css">
 </head>
 <body>
 
@@ -217,6 +218,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <a href="contracts.html">Contracts</a>
     <a href="token-deploy.html">Tokens</a>
     <a href="audit.html">Audit</a>
+    <a href="pricing.html">Pricing</a>
     <a href="domains.html">Domains</a>
     <a href="api-keys.html">API Keys</a>
   </div>
@@ -783,5 +785,21 @@ window.updateAllWalletUIs = function() {
 // ── INIT ─────────────────────────────────────────
 initDashboard()
 </script>
+<div class="bottom-nav"><div class="bottom-nav-inner"><a href="dashboard.html" class="bn-item active"><span class="bn-icon">🏠</span><span class="bn-label">Dashboard</span></a><a href="builder.html" class="bn-item"><span class="bn-icon">✦</span><span class="bn-label">Builder</span></a><a href="token-deploy.html" class="bn-item"><span class="bn-icon">🪙</span><span class="bn-label">Tokens</span></a><a href="audit.html" class="bn-item"><span class="bn-icon">🛡</span><span class="bn-label">Audit</span></a><a href="pricing.html" class="bn-item"><span class="bn-icon">💳</span><span class="bn-label">Pricing</span></a></div></div>
+
+<script>
+function toggleMobMenu() {
+  var d = document.getElementById('mob-drawer');
+  if (d) d.classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  var drawer = document.getElementById('mob-drawer');
+  var btn = document.querySelector('.mob-menu-btn');
+  if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && btn && !btn.contains(e.target)) {
+    drawer.classList.remove('open');
+  }
+});
+</script>
+
 </body>
 </html>
