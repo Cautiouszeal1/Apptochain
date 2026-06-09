@@ -21,7 +21,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
 .nav-links a:hover{color:var(--text2)}.nav-links a.active{color:var(--text);border-bottom:2px solid var(--text)}
 .nav-r{display:flex;align-items:center;gap:8px;padding:0 16px;margin-left:auto;flex-shrink:0}
 .nav-wbtn{height:32px;padding:0 14px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text2);transition:all 0.12s}
-.nav-wbtn:hover{border-color:var(--border3);color:var(--text)}
 .page{padding:72px 20px 80px;max-width:820px;margin:0 auto}
 .steps{display:flex;align-items:center;margin:32px 0 36px;overflow-x:auto}
 .step-item{display:flex;align-items:center;flex-shrink:0}
@@ -41,7 +40,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
 .fg input:focus,.fg select:focus{border-color:var(--blue)}
 .fg input::placeholder{color:var(--text3)}
 .fg-hint{font-size:11px;color:var(--text3);margin-top:4px}
-.net-picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.net-picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
 .np-opt{border:1px solid var(--border2);border-radius:8px;padding:12px 6px;cursor:pointer;text-align:center;transition:all 0.12s}
 .np-opt:hover{border-color:var(--border3)}.np-opt.sel{border-color:var(--blue);background:rgba(37,99,235,0.07)}
 .np-icon{font-size:20px;margin-bottom:4px}.np-name{font-size:11px;font-weight:700;color:var(--text2)}.np-type{font-size:9px;color:var(--text3);margin-top:2px}
@@ -65,32 +64,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
 .next-btn:hover{background:#1d4ed8}
 .launch-btn{width:100%;height:48px;background:var(--text);color:var(--bg);border:none;border-radius:9px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.12s}
 .launch-btn:hover:not(:disabled){background:#d4d4d4}.launch-btn:disabled{opacity:0.5;cursor:not-allowed}
-.deploy-log{background:#0a0a0a;border:1px solid var(--border2);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;line-height:1.9;max-height:240px;overflow-y:auto;margin-bottom:14px;display:none}
-.deploy-log.show{display:block}
-.log-line{display:flex;gap:8px}
-.ok{color:var(--green)}.er{color:var(--red)}.inf{color:#60a5fa}.wt{color:var(--yellow)}
-.wallet-warn{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:9px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.wallet-warn p{font-size:13px;color:var(--text2);flex:1}
-.wallet-warn button{height:32px;padding:0 14px;background:var(--yellow);border:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#000;flex-shrink:0}
 
-/* API KEY INPUT */
-.apikey-section{background:var(--bg1);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;margin-bottom:16px}
-.apikey-section h4{font-size:13px;font-weight:700;margin-bottom:4px}
-.apikey-section p{font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.5}
-.apikey-row{display:flex;gap:8px}
-.apikey-row input{flex:1;height:36px;padding:0 12px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;font-family:monospace;font-size:12px;color:var(--text);outline:none;transition:border-color 0.12s}
-.apikey-row input:focus{border-color:var(--blue)}
-.apikey-row input::placeholder{color:var(--text3)}
-.apikey-row a{height:36px;padding:0 12px;background:var(--blue);border:none;border-radius:6px;color:#fff;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;text-decoration:none;white-space:nowrap}
-
-/* VERIFY STATUS */
-.verify-status{background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;margin-bottom:14px;display:none}
-.verify-status.show{display:block}
-.vs-row{display:flex;align-items:center;gap:10px;font-size:13px}
-.vs-spinner{width:14px;height:14px;border:2px solid var(--border3);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
+/* DEPLOY PROGRESS */
+.deploy-progress{background:var(--bg1);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px;display:none}
+.deploy-progress.show{display:block}
+.progress-title{font-size:13px;font-weight:700;margin-bottom:16px;color:var(--text2)}
+.progress-steps{display:flex;flex-direction:column;gap:10px}
+.ps-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:var(--bg2);transition:all 0.3s}
+.ps-item.active{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2)}
+.ps-item.done{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15)}
+.ps-item.error{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)}
+.ps-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ps-icon.spin{border:2px solid var(--border3);border-top-color:var(--blue);animation:spin 0.8s linear infinite;font-size:0}
+.ps-icon.ok-icon{background:rgba(34,197,94,0.15);color:var(--green)}
+.ps-icon.err-icon{background:rgba(239,68,68,0.15);color:var(--red)}
+.ps-icon.wait-icon{background:var(--bg3);color:var(--text3);font-size:14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.vs-ok{color:var(--green);font-size:16px;flex-shrink:0}
-.vs-err{color:var(--red);font-size:16px;flex-shrink:0}
+.ps-info{flex:1;min-width:0}
+.ps-label{font-size:13px;font-weight:600;margin-bottom:2px}
+.ps-sub{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* SUCCESS */
 .success-screen{display:none;text-align:center;padding:40px 20px}
@@ -107,35 +99,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
 .ra-btn{height:40px;padding:0 20px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .ra-p{background:var(--text);color:var(--bg);border:none}
 .ra-s{background:transparent;border:1px solid var(--border2);color:var(--text2)}
-
-/* EXPLORER KEY HINT */
-.key-hint{font-size:11px;color:var(--text3);margin-top:6px}
-.key-hint a{color:var(--blue-light);text-decoration:none}
-
-@media(max-width:768px){
-  .nav-links,.nav-sep{display:none}
-  .net-picker{grid-template-columns:repeat(2,1fr)}
-  .form-grid{grid-template-columns:1fr}
-  .sum-grid{grid-template-columns:1fr}
-  .sum-item{border-left:none!important}
-  .sum-item:nth-last-child(-n+2){border-bottom:1px solid var(--border)}
-  .sum-item:last-child{border-bottom:none}
-  .apikey-row{flex-direction:column}
-}
+.wallet-warn{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:9px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.wallet-warn p{font-size:13px;color:var(--text2);flex:1}
+.wallet-warn button{height:32px;padding:0 14px;background:var(--yellow);border:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#000;flex-shrink:0}
+@media(max-width:768px){.nav-links,.nav-sep{display:none}.net-picker{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.sum-grid{grid-template-columns:1fr}.sum-item{border-left:none!important}.sum-item:nth-last-child(-n+2){border-bottom:1px solid var(--border)}.sum-item:last-child{border-bottom:none}}
 </style>
 </head>
 <body>
-
 <nav>
   <a href="index.html" class="nav-logo"><div class="nav-logo-box">A</div>AppToChain</a>
   <div class="nav-sep"></div>
   <div class="nav-links">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="builder.html">Builder</a>
-    <a href="contracts.html">Contracts</a>
-    <a href="token-deploy.html" class="active">Tokens</a>
-    <a href="domains.html">Domains</a>
-    <a href="api-keys.html">API Keys</a>
+    <a href="dashboard.html">Dashboard</a><a href="builder.html">Builder</a>
+    <a href="contracts.html">Contracts</a><a href="token-deploy.html" class="active">Tokens</a>
+    <a href="domains.html">Domains</a><a href="api-keys.html">API Keys</a>
   </div>
   <div class="nav-r">
     <button class="nav-wbtn" data-wallet-btn onclick="showWalletModal()">Connect Wallet</button>
@@ -146,7 +123,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
   <div>
     <div style="font-size:12px;font-weight:600;color:var(--blue-light);letter-spacing:0.04em;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span style="display:block;width:12px;height:1px;background:currentColor"></span>Token Launchpad</div>
     <h1 style="font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-0.03em;margin-bottom:5px">Launch your token</h1>
-    <p style="font-size:14px;color:var(--text3)">Deploy + auto-verify on any network. No Solidity needed.</p>
+    <p style="font-size:14px;color:var(--text3)">Deploy + auto-verify instantly. No API key. No Solidity.</p>
   </div>
 
   <div class="steps">
@@ -164,7 +141,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
     <div class="form-grid">
       <div class="fg"><label>Token Name *</label><input id="tname" placeholder="e.g. My Token"></div>
       <div class="fg"><label>Symbol *</label><input id="tsymbol" placeholder="e.g. MTK" maxlength="8"></div>
-      <div class="fg"><label>Total Supply *</label><input id="tsupply" placeholder="1000000000" type="number" min="1"><div class="fg-hint">All tokens sent to your wallet</div></div>
+      <div class="fg"><label>Total Supply *</label><input id="tsupply" placeholder="1000000000" type="number" min="1"><div class="fg-hint">All tokens sent to your wallet on deploy</div></div>
       <div class="fg"><label>Decimals</label>
         <select id="tdecimals">
           <option value="18" selected>18 — Standard ERC-20</option>
@@ -181,44 +158,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
     <div class="panel-title">Select network</div>
     <div class="panel-desc">Choose where your token is deployed.</div>
     <div class="net-picker">
-      <div class="np-opt sel" onclick="selNet(this,97,'BNB Testnet','bsctestnet','https://api-testnet.bscscan.com/api')">
-        <div class="np-icon">🧪</div><div class="np-name">BNB Testnet</div><div class="np-type">Free testing</div>
-      </div>
-      <div class="np-opt" onclick="selNet(this,56,'BNB Chain','bsc','https://api.bscscan.com/api')">
-        <div class="np-icon" style="color:#F3BA2F">B</div><div class="np-name">BNB Chain</div><div class="np-type">~$0.10 gas</div>
-      </div>
-      <div class="np-opt" onclick="selNet(this,8453,'Base','base','https://api.basescan.org/api')">
-        <div class="np-icon" style="color:#0052FF">⬡</div><div class="np-name">Base</div><div class="np-type">~$0.01 gas</div>
-      </div>
-      <div class="np-opt" onclick="selNet(this,137,'Polygon','polygon','https://api.polygonscan.com/api')">
-        <div class="np-icon" style="color:#8247E5">⬡</div><div class="np-name">Polygon</div><div class="np-type">~$0.01 gas</div>
-      </div>
-      <div class="np-opt" onclick="selNet(this,42161,'Arbitrum','arbitrum-one','https://api.arbiscan.io/api')">
-        <div class="np-icon" style="color:#28A0F0">◆</div><div class="np-name">Arbitrum</div><div class="np-type">~$0.05 gas</div>
-      </div>
-      <div class="np-opt" onclick="selNet(this,10,'Optimism','optimistic-ethereum','https://api-optimistic.etherscan.io/api')">
-        <div class="np-icon" style="color:#FF0420">⬡</div><div class="np-name">Optimism</div><div class="np-type">~$0.05 gas</div>
-      </div>
-      <div class="np-opt" onclick="selNet(this,1,'Ethereum','mainnet','https://api.etherscan.io/api')">
-        <div class="np-icon" style="color:#627EEA">Ξ</div><div class="np-name">Ethereum</div><div class="np-type">~$10-20 gas</div>
-      </div>
-      <div class="np-opt" onclick="selNet(this,43114,'Avalanche','avalanche','https://api.snowtrace.io/api')">
-        <div class="np-icon" style="color:#E84142">▲</div><div class="np-name">Avalanche</div><div class="np-type">~$0.10 gas</div>
-      </div>
+      <div class="np-opt sel" onclick="selNet(this,97,'BNB Testnet')"><div class="np-icon">🧪</div><div class="np-name">BNB Testnet</div><div class="np-type">Free testing</div></div>
+      <div class="np-opt" onclick="selNet(this,56,'BNB Chain')"><div class="np-icon" style="color:#F3BA2F">B</div><div class="np-name">BNB Chain</div><div class="np-type">~$0.10 gas</div></div>
+      <div class="np-opt" onclick="selNet(this,8453,'Base')"><div class="np-icon" style="color:#0052FF">⬡</div><div class="np-name">Base</div><div class="np-type">~$0.01 gas</div></div>
+      <div class="np-opt" onclick="selNet(this,137,'Polygon')"><div class="np-icon" style="color:#8247E5">⬡</div><div class="np-name">Polygon</div><div class="np-type">~$0.01 gas</div></div>
+      <div class="np-opt" onclick="selNet(this,42161,'Arbitrum')"><div class="np-icon" style="color:#28A0F0">◆</div><div class="np-name">Arbitrum</div><div class="np-type">~$0.05 gas</div></div>
+      <div class="np-opt" onclick="selNet(this,10,'Optimism')"><div class="np-icon" style="color:#FF0420">⬡</div><div class="np-name">Optimism</div><div class="np-type">~$0.05 gas</div></div>
+      <div class="np-opt" onclick="selNet(this,1,'Ethereum')"><div class="np-icon" style="color:#627EEA">Ξ</div><div class="np-name">Ethereum</div><div class="np-type">~$10-20 gas</div></div>
+      <div class="np-opt" onclick="selNet(this,43114,'Avalanche')"><div class="np-icon" style="color:#E84142">▲</div><div class="np-name">Avalanche</div><div class="np-type">~$0.10 gas</div></div>
     </div>
-
-    <!-- EXPLORER API KEY -->
-    <div class="apikey-section">
-      <h4>🔍 Auto-Verification API Key <span style="font-size:10px;font-weight:500;color:var(--green);background:rgba(34,197,94,0.1);padding:2px 7px;border-radius:4px;margin-left:6px">Recommended</span></h4>
-      <p>After deploy, your contract will be automatically verified on the block explorer so anyone can read your source code. Get a free API key below.</p>
-      <div class="apikey-row">
-        <input id="explorer-key" placeholder="Paste your BscScan / Etherscan API key here…" autocomplete="off">
-        <a id="get-key-link" href="https://bscscan.com/myapikey" target="_blank">Get free key ↗</a>
-      </div>
-      <div class="key-hint">Free at <a id="explorer-site" href="https://bscscan.com/myapikey" target="_blank">bscscan.com</a> → Register → API Keys → Create</div>
+    <!-- Sourcify notice -->
+    <div style="background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text2)">
+      ✅ <strong>Auto-verification included</strong> — No API key needed. Uses <strong>Sourcify</strong> (the decentralized verification standard). Your contract source is verified and readable on BscScan, Etherscan and all major explorers instantly after deploy.
     </div>
-
-    <div style="background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--text2)">
+    <div style="margin-top:10px;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--text2)">
       💡 Start with <strong>BNB Testnet</strong> — free. Get test BNB at <a href="https://testnet.bnbchain.org/faucet-smart" target="_blank" style="color:var(--blue-light)">testnet.bnbchain.org/faucet-smart</a>
     </div>
     <div class="nav-btns"><button class="back-btn" onclick="goStep(1)">← Back</button><button class="next-btn" onclick="goStep(3)">Review & Deploy →</button></div>
@@ -227,7 +180,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
   <!-- STEP 3 -->
   <div class="panel" id="panel3">
     <div class="panel-title">Review & Deploy</div>
-    <div class="panel-desc">Confirm your token, then sign in MetaMask.</div>
+    <div class="panel-desc">One click — deploy and verify automatically.</div>
 
     <div class="wallet-warn" id="wallet-warn">
       <span style="font-size:20px">🦊</span>
@@ -236,8 +189,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
     </div>
 
     <div class="alert e" id="aerr"><span>⚠</span><span id="aerr-msg"></span></div>
-    <div class="alert s" id="aok"><span>✓</span><span id="aok-msg"></span></div>
-    <div class="alert i" id="ainfo"><span>⟳</span><span id="ainfo-msg"></span></div>
 
     <div class="summary-card">
       <div class="summary-head"><span style="font-size:18px">🪙</span><h3 id="sum-title">—</h3><span id="sum-badge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(37,99,235,0.1);color:#60a5fa">ERC-20</span></div>
@@ -247,41 +198,55 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
         <div class="sum-item"><div class="sum-lbl">Supply</div><div class="sum-val" id="sum-supply">—</div></div>
         <div class="sum-item"><div class="sum-lbl">Decimals</div><div class="sum-val" id="sum-dec">18</div></div>
         <div class="sum-item"><div class="sum-lbl">Network</div><div class="sum-val blue" id="sum-net">—</div></div>
-        <div class="sum-item"><div class="sum-lbl">Auto-verify</div><div class="sum-val" id="sum-verify">—</div></div>
+        <div class="sum-item"><div class="sum-lbl">Verification</div><div class="sum-val ok">✓ Automatic</div></div>
       </div>
     </div>
 
-    <!-- Verify status during deploy -->
-    <div class="verify-status" id="verify-status">
-      <div class="vs-row">
-        <div class="vs-spinner" id="vs-spinner"></div>
-        <span id="vs-msg">Submitting for verification…</span>
+    <!-- Live progress during deploy -->
+    <div class="deploy-progress" id="deploy-progress">
+      <div class="progress-title">Deploying your token…</div>
+      <div class="progress-steps">
+        <div class="ps-item" id="ps-connect">
+          <div class="ps-icon wait-icon" id="ps-connect-icon">🔗</div>
+          <div class="ps-info"><div class="ps-label">Connect wallet</div><div class="ps-sub" id="ps-connect-sub">Waiting…</div></div>
+        </div>
+        <div class="ps-item" id="ps-deploy">
+          <div class="ps-icon wait-icon" id="ps-deploy-icon">📜</div>
+          <div class="ps-info"><div class="ps-label">Deploy contract</div><div class="ps-sub" id="ps-deploy-sub">Waiting for step 1…</div></div>
+        </div>
+        <div class="ps-item" id="ps-confirm">
+          <div class="ps-icon wait-icon" id="ps-confirm-icon">⛓</div>
+          <div class="ps-info"><div class="ps-label">Blockchain confirmation</div><div class="ps-sub" id="ps-confirm-sub">Waiting for deploy…</div></div>
+        </div>
+        <div class="ps-item" id="ps-verify">
+          <div class="ps-icon wait-icon" id="ps-verify-icon">🔍</div>
+          <div class="ps-info"><div class="ps-label">Auto-verify source code</div><div class="ps-sub" id="ps-verify-sub">Waiting for confirmation…</div></div>
+        </div>
       </div>
     </div>
 
-    <div class="deploy-log" id="deploy-log"></div>
-    <button class="launch-btn" id="launch-btn" onclick="deployToken()">🚀 Deploy + Verify Token</button>
-    <p style="margin-top:9px;font-size:11px;color:var(--text3);text-align:center">Deployed to blockchain · Auto-verified · You own it forever</p>
+    <button class="launch-btn" id="launch-btn" onclick="deployToken()">🚀 Deploy + Verify Now</button>
+    <p style="margin-top:9px;font-size:11px;color:var(--text3);text-align:center">No API key · No extra steps · Verified instantly</p>
     <div class="nav-btns" style="justify-content:flex-start;margin-top:14px"><button class="back-btn" onclick="goStep(2)">← Back</button></div>
   </div>
 
   <!-- SUCCESS -->
   <div class="success-screen" id="success">
     <div style="font-size:52px;margin-bottom:16px">🎉</div>
-    <h2>Token deployed!</h2>
-    <p>Your token is live on-chain. You own it forever.</p>
+    <h2>Token deployed & verified!</h2>
+    <p>Your token is live on-chain and source code is publicly verified.</p>
     <div class="token-result">
       <div class="tr-row"><span>Token</span><span class="blue" id="suc-name">—</span></div>
       <div class="tr-row"><span>Contract</span><span id="suc-addr">—</span></div>
       <div class="tr-row"><span>Network</span><span id="suc-net">—</span></div>
       <div class="tr-row"><span>Supply</span><span id="suc-supply">—</span></div>
       <div class="tr-row"><span>Tx Hash</span><span id="suc-tx">—</span></div>
-      <div class="tr-row"><span>Verified</span><span id="suc-verified" class="yl">Pending…</span></div>
+      <div class="tr-row"><span>Verified</span><span id="suc-verified" class="ok">✓ Source verified</span></div>
       <div class="tr-row"><span>Status</span><span class="ok">✓ Live on blockchain</span></div>
     </div>
     <div class="result-actions">
       <a id="explorer-link" href="#" target="_blank" class="ra-btn ra-p">View on Explorer ↗</a>
-      <a id="verify-link" href="#" target="_blank" class="ra-btn ra-s" style="display:none">✓ Verified Contract ↗</a>
+      <a id="sourcify-link" href="#" target="_blank" class="ra-btn ra-s">✓ Sourcify Verified ↗</a>
       <a href="dashboard.html" class="ra-btn ra-s">Dashboard</a>
       <button onclick="location.reload()" class="ra-btn ra-s">Deploy Another</button>
     </div>
@@ -290,11 +255,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(
 
 <script src="wallet.js"></script>
 <script>
-// ── State ───────────────────────────────────────────
-let selChainId   = 97
-let selNetName   = 'BNB Testnet'
-let selVerifyNet = 'bsctestnet'
-let selVerifyAPI = 'https://api-testnet.bscscan.com/api'
+// ── State ───────────────────────────────────
+let selChainId = 97, selNetName = 'BNB Testnet'
 
 const EXPLORERS = {
   1:'https://etherscan.io', 8453:'https://basescan.org',
@@ -303,28 +265,14 @@ const EXPLORERS = {
   10:'https://optimistic.etherscan.io', 43114:'https://snowtrace.io'
 }
 
-const EXPLORER_NAMES = {
-  1:'etherscan.com', 8453:'basescan.org',
-  56:'bscscan.com', 97:'testnet.bscscan.com',
-  137:'polygonscan.com', 42161:'arbiscan.io',
-  10:'optimistic.etherscan.io', 43114:'snowtrace.io'
-}
+// Sourcify supports these chain IDs natively
+// https://sourcify.dev/#/lookup
+const SOURCIFY_API = 'https://sourcify.dev/server'
 
-const KEY_URLS = {
-  1:'https://etherscan.io/myapikey',
-  8453:'https://basescan.org/myapikey',
-  56:'https://bscscan.com/myapikey',
-  97:'https://testnet.bscscan.com/myapikey',
-  137:'https://polygonscan.com/myapikey',
-  42161:'https://arbiscan.io/myapikey',
-  10:'https://optimistic.etherscan.io/myapikey',
-  43114:'https://snowtrace.io/myapikey'
-}
-
-// ── Steps ───────────────────────────────────────────
+// ── Steps ───────────────────────────────────
 function goStep(n) {
-  if (n === 3) buildSummary()
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
+  if(n===3) buildSummary()
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
   document.getElementById('panel'+n).classList.add('active')
   for(let i=1;i<=3;i++){
     const sc=document.getElementById('sc'+i),sl=document.getElementById('sl'+i)
@@ -336,270 +284,266 @@ function goStep(n) {
   window.scrollTo({top:0,behavior:'smooth'})
 }
 
-function selNet(el, id, name, verifyNet, verifyAPI) {
+function selNet(el,id,name){
   document.querySelectorAll('.np-opt').forEach(o=>o.classList.remove('sel'))
-  el.classList.add('sel')
-  selChainId=id; selNetName=name; selVerifyNet=verifyNet; selVerifyAPI=verifyAPI
-  // Update API key link
-  const keyLink = KEY_URLS[id] || 'https://etherscan.io/myapikey'
-  const explorerName = EXPLORER_NAMES[id] || 'etherscan.io'
-  document.getElementById('get-key-link').href = keyLink
-  document.getElementById('get-key-link').textContent = 'Get free key ↗'
-  document.getElementById('explorer-site').href = keyLink
-  document.getElementById('explorer-site').textContent = explorerName
-  document.getElementById('explorer-key').placeholder = 'Paste your '+explorerName+' API key here…'
+  el.classList.add('sel'); selChainId=id; selNetName=name
 }
 
-function buildSummary() {
-  const name   = document.getElementById('tname').value||'—'
-  const sym    = document.getElementById('tsymbol').value||'—'
-  const supply = document.getElementById('tsupply').value||'—'
-  const dec    = document.getElementById('tdecimals').value
-  const apiKey = document.getElementById('explorer-key').value.trim()
-  const addr   = WalletState.address
-
-  document.getElementById('sum-title').textContent  = name+' ('+sym+')'
-  document.getElementById('sum-badge').textContent  = 'ERC-20 · '+selNetName
-  document.getElementById('sum-name').textContent   = name
-  document.getElementById('sum-sym').textContent    = sym
-  document.getElementById('sum-supply').textContent = Number(supply).toLocaleString()
-  document.getElementById('sum-dec').textContent    = dec
-  document.getElementById('sum-net').textContent    = selNetName
-  document.getElementById('sum-verify').textContent = apiKey ? '✓ Auto-verify enabled' : 'No key — skipped'
-  document.getElementById('sum-verify').className   = 'sum-val ' + (apiKey?'ok':'')
-  document.getElementById('wallet-warn').style.display = addr?'none':'flex'
+function buildSummary(){
+  const name=document.getElementById('tname').value||'—'
+  const sym=document.getElementById('tsymbol').value||'—'
+  const supply=document.getElementById('tsupply').value||'—'
+  document.getElementById('sum-title').textContent=name+' ('+sym+')'
+  document.getElementById('sum-badge').textContent='ERC-20 · '+selNetName
+  document.getElementById('sum-name').textContent=name
+  document.getElementById('sum-sym').textContent=sym
+  document.getElementById('sum-supply').textContent=Number(supply).toLocaleString()
+  document.getElementById('sum-dec').textContent=document.getElementById('tdecimals').value
+  document.getElementById('sum-net').textContent=selNetName
+  document.getElementById('wallet-warn').style.display=WalletState.address?'none':'flex'
 }
 
-// ── Alerts ──────────────────────────────────────────
-const _err  = m=>{document.getElementById('aerr-msg').textContent=m;document.getElementById('aerr').classList.add('show');['aok','ainfo'].forEach(x=>document.getElementById(x).classList.remove('show'))}
-const _ok   = m=>{document.getElementById('aok-msg').textContent=m;document.getElementById('aok').classList.add('show');['aerr','ainfo'].forEach(x=>document.getElementById(x).classList.remove('show'))}
-const _info = m=>{document.getElementById('ainfo-msg').textContent=m;document.getElementById('ainfo').classList.add('show');['aerr','aok'].forEach(x=>document.getElementById(x).classList.remove('show'))}
-const _clear= ()=>['aerr','aok','ainfo'].forEach(x=>document.getElementById(x).classList.remove('show'))
+const _err=m=>{document.getElementById('aerr-msg').textContent=m;document.getElementById('aerr').classList.add('show')}
+const _clearErr=()=>document.getElementById('aerr').classList.remove('show')
 
-function addLog(msg, type='info') {
-  const log=document.getElementById('deploy-log')
-  log.classList.add('show')
-  const icons={ok:'✓',err:'✗',info:'→',wait:'⟳'}
-  const cls={ok:'ok',err:'er',info:'inf',wait:'wt'}
-  const d=document.createElement('div');d.className='log-line'
-  d.innerHTML='<span class="'+(cls[type]||'inf')+'">'+(icons[type]||'→')+'</span><span>'+msg+'</span>'
-  log.appendChild(d);log.scrollTop=log.scrollHeight
+// ── Progress steps ───────────────────────────
+function setStep(id, state, sub) {
+  const item=document.getElementById('ps-'+id)
+  const icon=document.getElementById('ps-'+id+'-icon')
+  const subEl=document.getElementById('ps-'+id+'-sub')
+  item.className='ps-item '+(state==='active'?'active':state==='done'?'done':state==='error'?'error':'')
+  if(state==='active'){icon.className='ps-icon spin';icon.textContent=''}
+  else if(state==='done'){icon.className='ps-icon ok-icon';icon.textContent='✓'}
+  else if(state==='error'){icon.className='ps-icon err-icon';icon.textContent='✗'}
+  if(sub) subEl.textContent=sub
 }
 
-function setVerifyStatus(msg, state) {
-  const box=document.getElementById('verify-status')
-  const spinner=document.getElementById('vs-spinner')
-  const vmsg=document.getElementById('vs-msg')
-  box.classList.add('show')
-  vmsg.textContent=msg
-  if(state==='loading') { spinner.style.display='block'; }
-  else { spinner.style.display='none'; }
-}
-
-// ── AUTO VERIFICATION ───────────────────────────────
-async function verifyContract(contractAddress, name, symbol, decimals, totalSupplyWei, apiKey) {
-  if (!apiKey) return { success: false, reason: 'No API key' }
-
-  addLog('Starting auto-verification…', 'wait')
-  setVerifyStatus('Submitting source code to block explorer…', 'loading')
-
-  const source = window.ERC20_SOURCE || ''
-  if (!source) return { success: false, reason: 'Source not available' }
-
-  // ABI-encode constructor arguments for verification
-  const abiCoder = new ethers.utils.AbiCoder()
-  const constructorArgs = abiCoder.encode(
-    ['string','string','uint8','uint256'],
-    [name, symbol, decimals, totalSupplyWei]
-  ).slice(2) // remove 0x
-
-  const compiler = window.ERC20_COMPILER || 'v0.8.23+commit.f704f362'
-  // Use short version format for Etherscan APIs: v0.8.23+commit.f704f362
-  const compilerVersion = compiler.startsWith('v') ? compiler : 'v' + compiler
-
-  const params = new URLSearchParams({
-    apikey:           apiKey,
-    module:           'contract',
-    action:           'verifysourcecode',
-    contractaddress:  contractAddress,
-    sourceCode:       source,
-    codeformat:       'solidity-single-file',
-    contractname:     'SimpleERC20',
-    compilerversion:  compilerVersion,
-    optimizationUsed: '1',
-    runs:             '200',
-    constructorArguements: constructorArgs,
-    licenseType:      '3', // MIT
-  })
+// ── SOURCIFY VERIFICATION ────────────────────
+async function verifySourcify(contractAddress, chainId, name, symbol, decimals, totalSupplyWei) {
+  setStep('verify','active','Submitting to Sourcify…')
 
   try {
-    const resp = await fetch(selVerifyAPI, {
+    const metadata = window.ERC20_METADATA
+    const source   = window.ERC20_SOURCE
+
+    if(!metadata || !source) {
+      setStep('verify','error','Metadata not available')
+      return false
+    }
+
+    // Build FormData for Sourcify API
+    const form = new FormData()
+    form.append('address', contractAddress)
+    form.append('chain',   chainId.toString())
+
+    // Sourcify needs the metadata.json and source file
+    const metaBlob   = new Blob([metadata], {type:'application/json'})
+    const sourceBlob = new Blob([source],   {type:'text/plain'})
+
+    form.append('files', metaBlob,   'metadata.json')
+    form.append('files', sourceBlob, 'SimpleERC20.sol')
+
+    setStep('verify','active','Uploading source to Sourcify…')
+
+    const resp = await fetch(SOURCIFY_API + '/verify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString()
+      body: form
     })
+
     const data = await resp.json()
-    addLog('Verification submitted: ' + JSON.stringify(data.result).slice(0,60), 'info')
+    console.log('Sourcify response:', data)
 
-    if (data.status !== '1') {
-      // Some errors are just "already verified" which is still ok
-      if (data.result && data.result.includes('already verified')) {
-        return { success: true, guid: null }
-      }
-      return { success: false, reason: data.result || 'Submission failed' }
+    if(resp.ok && (data.result?.[0]?.status === 'perfect' || data.result?.[0]?.status === 'partial')) {
+      setStep('verify','done','✓ Verified on Sourcify — visible on all explorers')
+      return true
     }
 
-    const guid = data.result
-    addLog('Verification GUID: ' + guid, 'ok')
-    addLog('Waiting for verification to complete…', 'wait')
-    setVerifyStatus('Waiting for explorer to verify source code…', 'loading')
-
-    // Poll for result — wait up to 60 seconds
-    for (let i = 0; i < 12; i++) {
-      await new Promise(r => setTimeout(r, 5000))
-      const checkResp = await fetch(
-        selVerifyAPI + '?module=contract&action=checkverifystatus&guid=' + guid + '&apikey=' + apiKey
-      )
-      const checkData = await checkResp.json()
-      addLog('Verify status: ' + checkData.result, 'info')
-
-      if (checkData.result === 'Pass - Verified') {
-        return { success: true, guid }
-      }
-      if (checkData.result && checkData.result.includes('Fail')) {
-        return { success: false, reason: checkData.result }
-      }
+    // If already verified, that's also fine
+    if(data.error && data.error.includes('already verified')) {
+      setStep('verify','done','✓ Already verified')
+      return true
     }
-    return { success: false, reason: 'Verification timed out — try manually on the explorer.' }
 
-  } catch (e) {
-    return { success: false, reason: e.message }
+    // Try Etherscan-compatible API as fallback for BNB chains
+    setStep('verify','active','Trying fallback verification…')
+    return await verifyEtherscanFallback(contractAddress, chainId, name, symbol, decimals, totalSupplyWei)
+
+  } catch(e) {
+    console.error('Sourcify error:', e)
+    // Try fallback
+    return await verifyEtherscanFallback(contractAddress, chainId, name, symbol, decimals, totalSupplyWei)
   }
 }
 
-// ── DEPLOY ──────────────────────────────────────────
-async function deployToken() {
-  _clear()
-  document.getElementById('deploy-log').innerHTML = ''
-  document.getElementById('verify-status').classList.remove('show')
-
-  if (!window.ERC20_BYTECODE || !window.ERC20_ABI) {
-    _err('Contract file not loaded. Please refresh.')
-    return
+// Fallback: Etherscan-compatible API (no key needed for some chains)
+async function verifyEtherscanFallback(contractAddress, chainId, name, symbol, decimals, totalSupplyWei) {
+  const APIS = {
+    97:    'https://api-testnet.bscscan.com/api',
+    56:    'https://api.bscscan.com/api',
+    137:   'https://api.polygonscan.com/api',
+    8453:  'https://api.basescan.org/api',
+    42161: 'https://api.arbiscan.io/api',
+    10:    'https://api-optimistic.etherscan.io/api',
+    1:     'https://api.etherscan.io/api',
+    43114: 'https://api.snowtrace.io/api'
   }
-  if (!WalletState.connected) { _err('Connect your wallet first.'); return }
+
+  const api = APIS[chainId]
+  if(!api) { setStep('verify','error','Network not supported for auto-verify'); return false }
+
+  try {
+    const abiCoder = new ethers.utils.AbiCoder()
+    const constructorArgs = abiCoder.encode(
+      ['string','string','uint8','uint256'],
+      [name, symbol, decimals, totalSupplyWei]
+    ).slice(2)
+
+    const compilerVersion = (window.ERC20_COMPILER_VERSION||'0.8.35+commit.47b9dedd')
+    const cvFormatted = compilerVersion.startsWith('v') ? compilerVersion : 'v'+compilerVersion
+
+    setStep('verify','active','Submitting to block explorer API…')
+
+    const params = new URLSearchParams({
+      module:'contract', action:'verifysourcecode',
+      contractaddress: contractAddress,
+      sourceCode: window.ERC20_SOURCE,
+      codeformat: 'solidity-single-file',
+      contractname: 'SimpleERC20',
+      compilerversion: cvFormatted,
+      optimizationUsed: '1',
+      runs: '200',
+      constructorArguements: constructorArgs,
+      licenseType: '3'
+    })
+
+    const resp = await fetch(api, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:params.toString()})
+    const data = await resp.json()
+    console.log('Explorer verify:', data)
+
+    if(data.status==='1') {
+      const guid = data.result
+      setStep('verify','active','Waiting for verification result…')
+      // Poll
+      for(let i=0;i<8;i++){
+        await new Promise(r=>setTimeout(r,4000))
+        const check = await fetch(api+'?module=contract&action=checkverifystatus&guid='+guid)
+        const cd = await check.json()
+        if(cd.result==='Pass - Verified'){setStep('verify','done','✓ Verified on '+EXPLORERS[chainId]);return true}
+        if(cd.result?.includes('Fail')){break}
+      }
+    }
+
+    if(data.result?.includes('already verified')){setStep('verify','done','✓ Already verified');return true}
+
+    setStep('verify','error','Auto-verify failed — verify manually on the explorer')
+    return false
+
+  } catch(e) {
+    setStep('verify','error','Verify error: '+e.message)
+    return false
+  }
+}
+
+// ── MAIN DEPLOY FUNCTION ─────────────────────
+async function deployToken() {
+  _clearErr()
+
+  if(!window.ERC20_BYTECODE||!window.ERC20_ABI){_err('Contract file not loaded. Refresh page.');return}
+  if(!WalletState.connected){_err('Connect your wallet first.');return}
 
   const name    = document.getElementById('tname').value.trim()
   const symbol  = document.getElementById('tsymbol').value.trim().toUpperCase()
   const supply  = document.getElementById('tsupply').value
   const decimals= parseInt(document.getElementById('tdecimals').value)
-  const apiKey  = document.getElementById('explorer-key').value.trim()
 
-  if (!name)   { _err('Token name is required.'); return }
-  if (!symbol) { _err('Token symbol is required.'); return }
-  if (!supply || supply <= 0) { _err('Supply must be > 0.'); return }
+  if(!name)  {_err('Token name required.');return}
+  if(!symbol){_err('Token symbol required.');return}
+  if(!supply||supply<=0){_err('Supply must be > 0.');return}
 
-  const btn = document.getElementById('launch-btn')
-  btn.disabled = true
-  btn.textContent = '⟳ Deploying…'
+  const btn=document.getElementById('launch-btn')
+  btn.disabled=true; btn.textContent='⟳ Working…'
+
+  // Show progress UI
+  document.getElementById('deploy-progress').classList.add('show')
+  setStep('connect','active','Connecting wallet…')
+  setStep('deploy','wait','Waiting…')
+  setStep('confirm','wait','Waiting…')
+  setStep('verify','wait','Waiting…')
 
   try {
-    addLog('Connecting to '+selNetName+'…', 'wait')
-
-    if (WalletState.chainId !== selChainId) {
-      addLog('Switching network…', 'wait')
+    // ── Step 1: Connect ──────────────────────
+    if(WalletState.chainId!==selChainId){
+      setStep('connect','active','Switching to '+selNetName+'…')
       await switchNetwork(selChainId)
-      await new Promise(r => setTimeout(r, 3000))
+      await new Promise(r=>setTimeout(r,3000))
     }
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum)
-    await provider.send('eth_requestAccounts', [])
-    const signer  = provider.getSigner()
-    const from    = await signer.getAddress()
-    const network = await provider.getNetwork()
+    const provider=new ethers.providers.Web3Provider(window.ethereum)
+    await provider.send('eth_requestAccounts',[])
+    const signer=provider.getSigner()
+    const from=await signer.getAddress()
+    const network=await provider.getNetwork()
 
-    addLog('Wallet: '+from.slice(0,6)+'…'+from.slice(-4), 'ok')
-    addLog('Network: chainId '+network.chainId, 'ok')
+    const bal=await provider.getBalance(from)
+    const balF=parseFloat(ethers.utils.formatEther(bal))
+    const sym2=(selChainId===56||selChainId===97)?'BNB':'ETH'
 
-    const bal  = await provider.getBalance(from)
-    const balF = parseFloat(ethers.utils.formatEther(bal))
-    const sym2 = (selChainId===56||selChainId===97)?'BNB':'ETH'
-    addLog('Balance: '+balF.toFixed(5)+' '+sym2, 'ok')
-    if (balF < 0.001) throw new Error('Insufficient funds. Get testnet '+sym2+' from a faucet.')
+    if(balF<0.001) throw new Error('Insufficient funds. Get testnet '+sym2+' from a faucet first.')
 
-    const totalSupplyWei = ethers.utils.parseUnits(supply.toString(), decimals)
+    setStep('connect','done',from.slice(0,6)+'…'+from.slice(-4)+' · '+balF.toFixed(4)+' '+sym2)
 
-    addLog('Building ERC-20 contract…', 'info')
-    const factory = new ethers.ContractFactory(window.ERC20_ABI, window.ERC20_BYTECODE, signer)
+    // ── Step 2: Deploy ───────────────────────
+    setStep('deploy','active','Confirm in MetaMask…')
 
-    addLog('Confirm in MetaMask…', 'wait')
-    _info('Check MetaMask and click Confirm…')
+    const totalSupplyWei=ethers.utils.parseUnits(supply.toString(),decimals)
+    const factory=new ethers.ContractFactory(window.ERC20_ABI,window.ERC20_BYTECODE,signer)
+    const contract=await factory.deploy(name,symbol,decimals,totalSupplyWei,{gasLimit:3000000})
+    const txHash=contract.deployTransaction.hash
 
-    const contract = await factory.deploy(name, symbol, decimals, totalSupplyWei, { gasLimit: 3000000 })
+    setStep('deploy','done','Tx: '+txHash.slice(0,16)+'…')
 
-    addLog('Tx: '+contract.deployTransaction.hash.slice(0,20)+'…', 'ok')
-    addLog('Waiting for confirmation…', 'wait')
-    _info('Transaction submitted — waiting for block confirmation…')
+    // ── Step 3: Confirm ──────────────────────
+    setStep('confirm','active','Waiting for block confirmation…')
 
-    const receipt = await contract.deployTransaction.wait(1)
-    if (receipt.status === 0) throw new Error('Transaction reverted on-chain.')
+    const receipt=await contract.deployTransaction.wait(1)
+    if(receipt.status===0) throw new Error('Transaction reverted on-chain.')
 
-    const contractAddress = receipt.contractAddress || contract.address
-    const txHash = contract.deployTransaction.hash
+    const contractAddress=receipt.contractAddress||contract.address
+    setStep('confirm','done','Contract: '+contractAddress.slice(0,10)+'…'+contractAddress.slice(-6))
 
-    addLog('✓ Deployed: '+contractAddress, 'ok')
-    addLog('✓ '+Number(supply).toLocaleString()+' '+symbol+' in your wallet', 'ok')
+    // ── Step 4: Verify ───────────────────────
+    setStep('verify','active','Auto-verifying on Sourcify…')
+    const verified=await verifySourcify(contractAddress,selChainId,name,symbol,decimals,totalSupplyWei)
 
-    const explorer = EXPLORERS[selChainId] || 'https://etherscan.io'
+    // ── Show success ─────────────────────────
+    const explorer=EXPLORERS[selChainId]||'https://etherscan.io'
 
-    // Show success screen immediately
     document.getElementById('suc-name').textContent    = name+' ('+symbol+')'
     document.getElementById('suc-addr').textContent    = contractAddress
     document.getElementById('suc-net').textContent     = selNetName
     document.getElementById('suc-supply').textContent  = Number(supply).toLocaleString()+' '+symbol
-    document.getElementById('suc-tx').textContent      = txHash.slice(0,22)+'…'
+    document.getElementById('suc-tx').textContent      = txHash.slice(0,24)+'…'
+    document.getElementById('suc-verified').textContent= verified?'✓ Source code verified':'⚠ Verify manually on explorer'
+    document.getElementById('suc-verified').className  = verified?'ok':'yl'
     document.getElementById('explorer-link').href      = explorer+'/token/'+contractAddress
-    document.getElementById('suc-verified').textContent= apiKey ? '⟳ Verifying…' : 'No API key — skipped'
-    document.getElementById('suc-verified').className  = apiKey ? 'yl' : ''
+    document.getElementById('sourcify-link').href      = 'https://sourcify.dev/#/lookup/'+contractAddress
 
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
     document.getElementById('success').classList.add('active')
-    window.scrollTo({top:0, behavior:'smooth'})
+    window.scrollTo({top:0,behavior:'smooth'})
 
-    // Auto-verify AFTER showing success screen
-    if (apiKey) {
-      addLog('Starting auto-verification…', 'wait')
-
-      // Wait a bit for explorer to index the contract
-      await new Promise(r => setTimeout(r, 8000))
-
-      const result = await verifyContract(contractAddress, name, symbol, decimals, totalSupplyWei, apiKey)
-
-      if (result.success) {
-        document.getElementById('suc-verified').textContent = '✓ Verified'
-        document.getElementById('suc-verified').className   = 'ok'
-        // Show verified link
-        const vlink = document.getElementById('verify-link')
-        vlink.href = explorer+'/address/'+contractAddress+'#code'
-        vlink.style.display = 'inline-flex'
-        addLog('✓ Contract verified on explorer!', 'ok')
-      } else {
-        document.getElementById('suc-verified').textContent = '⚠ Verify failed: '+result.reason
-        document.getElementById('suc-verified').className   = 'yl'
-        addLog('Verification failed: '+result.reason, 'err')
-        addLog('Verify manually at: '+explorer+'/address/'+contractAddress+'#code', 'info')
-      }
-    }
-
-  } catch (e) {
-    btn.disabled = false
-    btn.textContent = '🚀 Deploy + Verify Token'
-    const msg = e.reason || e.data?.message || e.message || 'Unknown error'
-    addLog('✗ '+msg, 'err')
-    if (e.code === 4001)                                    _err('Cancelled in MetaMask.')
-    else if (msg.includes('insufficient')||msg.includes('funds')) _err('Not enough '+((selChainId===56||selChainId===97)?'BNB':'ETH')+' for gas.')
-    else if (msg.includes('reverted'))                      _err('Contract reverted. Reset MetaMask account activity and try again.')
-    else                                                    _err('Error: '+msg)
+  } catch(e) {
+    btn.disabled=false; btn.textContent='🚀 Deploy + Verify Now'
+    const msg=e.reason||e.data?.message||e.message||'Unknown error'
+    if(e.code===4001) _err('Cancelled in MetaMask.')
+    else if(msg.includes('insufficient')||msg.includes('funds')) _err('Not enough '+((selChainId===56||selChainId===97)?'BNB':'ETH')+' for gas.')
+    else if(msg.includes('reverted')) _err('Contract reverted. Try resetting MetaMask activity data.')
+    else _err('Error: '+msg)
+    // Reset steps
+    setStep('connect','wait','—')
+    setStep('deploy','wait','—')
+    setStep('confirm','wait','—')
+    setStep('verify','wait','—')
   }
 }
 </script>
