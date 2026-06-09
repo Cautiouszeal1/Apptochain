@@ -276,7 +276,7 @@ contract MyContract {
             <div class="ao-opt sel" onclick="toggleOpt(this)"><div class="ao-chk"><div class="ao-chk-inner"></div></div><div><div class="ao-label">Integer Overflow</div><div class="ao-sub">Math safety</div></div></div>
             <div class="ao-opt sel" onclick="toggleOpt(this)"><div class="ao-chk"><div class="ao-chk-inner"></div></div><div><div class="ao-label">Logic Errors</div><div class="ao-sub">Business logic bugs</div></div></div>
             <div class="ao-opt sel" onclick="toggleOpt(this)"><div class="ao-chk"><div class="ao-chk-inner"></div></div><div><div class="ao-label">Gas Optimization</div><div class="ao-sub">Efficiency issues</div></div></div>
-            <div class="ao-opt sel" onclick="toggleOpt(this)"><div class="ao-chk"><div class="ao-chk-inner"></div></div><div><div class="ao-label">AI Analysis</div><div class="ao-sub">Claude deep review</div></div></div>
+            <div class="ao-opt sel" onclick="toggleOpt(this)"><div class="ao-chk"><div class="ao-chk-inner"></div></div><div><div class="ao-label">AI Analysis</div><div class="ao-sub">Deep security review</div></div></div>
           </div>
 
           <button class="run-btn" id="run-btn" onclick="runAudit()">🔍 Run Security Audit</button>
@@ -289,7 +289,7 @@ contract MyContract {
         <div class="ap-steps">
           <div class="ap-step" id="ap1"><div class="ap-icon wait" id="ap1-icon">📋</div><div class="ap-info"><div class="ap-lbl">Parsing contract structure</div><div class="ap-sub" id="ap1-sub">Waiting…</div></div></div>
           <div class="ap-step" id="ap2"><div class="ap-icon wait" id="ap2-icon">🔍</div><div class="ap-info"><div class="ap-lbl">Static analysis (40+ checks)</div><div class="ap-sub" id="ap2-sub">Waiting…</div></div></div>
-          <div class="ap-step" id="ap3"><div class="ap-icon wait" id="ap3-icon">✦</div><div class="ap-info"><div class="ap-lbl">AI deep analysis (Claude)</div><div class="ap-sub" id="ap3-sub">Waiting…</div></div></div>
+          <div class="ap-step" id="ap3"><div class="ap-icon wait" id="ap3-icon">✦</div><div class="ap-info"><div class="ap-lbl">AI deep analysis</div><div class="ap-sub" id="ap3-sub">Waiting…</div></div></div>
           <div class="ap-step" id="ap4"><div class="ap-icon wait" id="ap4-icon">📊</div><div class="ap-info"><div class="ap-lbl">Generating report</div><div class="ap-sub" id="ap4-sub">Waiting…</div></div></div>
         </div>
       </div>
@@ -330,7 +330,7 @@ contract MyContract {
           <div class="cert-preview-inner">
             <div class="cert-logo">🏆</div>
             <div class="cert-title">SECURITY AUDIT CERTIFICATE</div>
-            <div class="cert-sub">AppToChain · Powered by Claude AI</div>
+            <div class="cert-sub">AppToChain Security</div>
             <div class="cert-score-preview" id="cert-score-preview">Score: —</div>
             <div class="cert-details">
               <div><strong id="cert-name-preview">Project</strong>Name</div>
@@ -904,7 +904,7 @@ async function runAudit() {
 
   apSet(2,'done',`${findings.length} issues found: ${critical} critical · ${high} high · ${medium} medium`)
 
-  apSet(3,'active','Running AI deep analysis via Claude…')
+  apSet(3,'active','Running deep security analysis…')
 
   const aiAnalysis = await getAIAnalysis(code, projectName)
   apSet(3,'done','AI analysis complete · Business logic reviewed')
@@ -1076,7 +1076,7 @@ async function generatePDF() {
 
     doc.setFontSize(7)
     doc.setTextColor(100,120,180)
-    doc.text('Powered by Claude AI · blockchain.apptochain.xyz', W/2, 39, {align:'center'})
+    doc.text('blockchain.apptochain.xyz', W/2, 39, {align:'center'})
 
     // Certificate title
     doc.setFontSize(22)
