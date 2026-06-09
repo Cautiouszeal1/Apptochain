@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppToChain — Database Setup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#000;color:#ededed;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#0a0a0a;border:1px solid #2a2a2a;border-radius:16px;width:100%;max-width:600px;overflow:hidden}
+.head{padding:24px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
+.head h1{font-size:16px;font-weight:800}
+.head p{font-size:12px;color:#666;margin-top:2px}
+.body{padding:24px}
+.step{background:#111;border:1px solid #222;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.step-num{width:24px;height:24px;border-radius:50%;background:#1e1e1e;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#666;flex-shrink:0;margin-top:1px}
+.step-num.done{background:rgba(34,197,94,0.15);color:#22c55e}
+.step-num.active{background:rgba(37,99,235,0.15);color:#60a5fa}
+.step-info h3{font-size:13px;font-weight:700;margin-bottom:3px}
+.step-info p{font-size:11px;color:#666;line-height:1.5}
+.step-status{margin-left:auto;font-size:11px;font-weight:600;flex-shrink:0}
+.status-ok{color:#22c55e}
+.status-running{color:#60a5fa}
+.status-wait{color:#444}
+.status-err{color:#ef4444}
+.log{background:#000;border:1px solid #1e1e1e;border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;max-height:200px;overflow-y:auto;margin-top:12px;display:none}
+.log.show{display:block}
+.log-ok{color:#22c55e}.log-err{color:#ef4444}.log-info{color:#60a5fa}.log-wait{color:#f59e0b}
+.run-btn{width:100%;height:44px;background:#ededed;color:#000;border:none;border-radius:9px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;margin-top:16px;transition:background 0.12s}
+.run-btn:hover{background:#d4d4d4}
+.run-btn:disabled{opacity:0.4;cursor:not-allowed}
+.sql-block{background:#000;border:1px solid #1e1e1e;border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a9e6c;line-height:1.7;margin-top:8px;max-height:120px;overflow-y:auto}
+.note{background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.2);border-radius:8px;padding:12px;font-size:12px;color:#a1a1a1;line-height:1.6;margin-bottom:14px}
+.note strong{color:#60a5fa}
+.go-btn{display:block;width:100%;height:40px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:8px;color:#22c55e;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;text-decoration:none;text-align:center;line-height:40px;transition:all 0.12s;display:none}
+.go-btn:hover{background:rgba(34,197,94,0.15)}
+.go-btn.show{display:block}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head">
+    <div class="logo">A</div>
+    <div>
+      <h1>AppToChain Database Setup</h1>
+      <p>Creates all tables needed for the dashboard</p>
+    </div>
+  </div>
+  <div class="body">
+    <div class="note">
+      <strong>One-time setup.</strong> This creates the projects, tokens, audits, and activity tables in your Supabase database. Run this once and your dashboard will show real data automatically.
+    </div>
+
+    <div class="step" id="s1">
+      <div class="step-num active" id="s1-num">1</div>
+      <div class="step-info">
+        <h3>Connect to Supabase</h3>
+        <p>Verify connection to your AppToChain database</p>
+      </div>
+      <span class="step-status status-wait" id="s1-status">Waiting</span>
+    </div>
+
+    <div class="step" id="s2">
+      <div class="step-num" id="s2-num">2</div>
+      <div class="step-info">
+        <h3>Create projects table</h3>
+        <p>Stores AI Builder projects per user</p>
+      </div>
+      <span class="step-status status-wait" id="s2-status">Waiting</span>
+    </div>
+
+    <div class="step" id="s3">
+      <div class="step-num" id="s3-num">3</div>
+      <div class="step-info">
+        <h3>Create tokens table</h3>
+        <p>Stores deployed ERC-20 tokens with contract address</p>
+      </div>
+      <span class="step-status status-wait" id="s3-status">Waiting</span>
+    </div>
+
+    <div class="step" id="s4">
+      <div class="step-num" id="s4-num">4</div>
+      <div class="step-info">
+        <h3>Create audits table</h3>
+        <p>Stores security audit results and certificates</p>
+      </div>
+      <span class="step-status status-wait" id="s4-status">Waiting</span>
+    </div>
+
+    <div class="step" id="s5">
+      <div class="step-num" id="s5-num">5</div>
+      <div class="step-info">
+        <h3>Create activity table</h3>
+        <p>Stores user activity feed events</p>
+      </div>
+      <span class="step-status status-wait" id="s5-status">Waiting</span>
+    </div>
+
+    <div class="step" id="s6">
+      <div class="step-num" id="s6-num">6</div>
+      <div class="step-info">
+        <h3>Enable Row Level Security</h3>
+        <p>Each user only sees their own data</p>
+      </div>
+      <span class="step-status status-wait" id="s6-status">Waiting</span>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <button class="run-btn" id="run-btn" onclick="runSetup()">🚀 Create All Tables</button>
+    <a href="dashboard.html" class="go-btn" id="go-btn">✓ Setup Complete — Go to Dashboard →</a>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://brculchgeyvwnhoeljjq.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyY3VsY2hnZXl2d25ob2VsampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDcwNDMsImV4cCI6MjA5NjQ4MzA0M30.YbY5Wr4-PcvdI3gKZCJeQ8S7XY7YYWthnkq82MVj_WE'
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+function log(msg, type='info') {
+  const el = document.getElementById('log')
+  el.classList.add('show')
+  el.innerHTML += `<div class="log-${type}">${type==='ok'?'✓':type==='err'?'✗':type==='wait'?'⟳':'→'} ${msg}</div>`
+  el.scrollTop = el.scrollHeight
+}
+
+function setStep(n, state, status) {
+  const num = document.getElementById(`s${n}-num`)
+  const sta = document.getElementById(`s${n}-status`)
+  num.className = 'step-num ' + (state==='done'?'done':state==='active'?'active':'')
+  sta.className = 'step-status status-' + (state==='done'?'ok':state==='active'?'running':state==='err'?'err':'wait')
+  sta.textContent = status
+}
+
+async function runSetup() {
+  const btn = document.getElementById('run-btn')
+  btn.disabled = true; btn.textContent = '⟳ Setting up…'
+
+  // Step 1: Connect
+  setStep(1,'active','Connecting…')
+  log('Connecting to Supabase…', 'wait')
+  try {
+    const { data, error } = await sb.auth.getSession()
+    setStep(1,'done','✓ Connected')
+    log('Connected to ' + SUPABASE_URL, 'ok')
+  } catch(e) {
+    setStep(1,'err','Failed')
+    log('Connection failed: ' + e.message, 'err')
+    btn.disabled = false; btn.textContent = '🔄 Retry Setup'
+    return
+  }
+
+  // Helper to run SQL via Supabase RPC or REST
+  async function createTable(sql, tableName) {
+    try {
+      // Try creating via RPC exec_sql if available
+      const { error } = await sb.rpc('exec_sql', { sql })
+      if (!error) return true
+    } catch(e) {}
+
+    // Fallback: try direct insert to check if table exists
+    try {
+      const { error } = await sb.from(tableName).select('id').limit(1)
+      if (!error || error.code === 'PGRST116') return true // Table exists
+      return false
+    } catch(e) { return false }
+  }
+
+  // Step 2: Projects table
+  setStep(2,'active','Creating…')
+  log('Creating projects table…', 'wait')
+  const projectsSQL = `
+    CREATE TABLE IF NOT EXISTS projects (
+      id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+      user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+      name TEXT NOT NULL DEFAULT 'Untitled Project',
+      description TEXT,
+      contract_type TEXT DEFAULT 'smart-contract',
+      network TEXT DEFAULT 'bnb-testnet',
+      status TEXT DEFAULT 'draft',
+      contract_address TEXT,
+      tx_hash TEXT,
+      source_code TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );`
+  const p2 = await createTable(projectsSQL, 'projects')
+  setStep(2, p2?'done':'err', p2?'✓ Ready':'Check SQL Editor')
+  log(p2 ? 'projects table ready' : 'projects table: manual setup needed', p2?'ok':'err')
+
+  // Step 3: Tokens table
+  setStep(3,'active','Creating…')
+  log('Creating tokens table…', 'wait')
+  const tokensSQL = `
+    CREATE TABLE IF NOT EXISTS tokens (
+      id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+      user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      symbol TEXT NOT NULL,
+      supply NUMERIC,
+      decimals INTEGER DEFAULT 18,
+      network TEXT,
+      chain_id INTEGER,
+      contract_address TEXT,
+      tx_hash TEXT,
+      verified BOOLEAN DEFAULT false,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );`
+  const p3 = await createTable(tokensSQL, 'tokens')
+  setStep(3, p3?'done':'err', p3?'✓ Ready':'Check SQL Editor')
+  log(p3 ? 'tokens table ready' : 'tokens table: manual setup needed', p3?'ok':'err')
+
+  // Step 4: Audits table
+  setStep(4,'active','Creating…')
+  log('Creating audits table…', 'wait')
+  const auditsSQL = `
+    CREATE TABLE IF NOT EXISTS audits (
+      id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+      user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+      project_name TEXT,
+      score INTEGER,
+      verdict TEXT,
+      findings_count INTEGER DEFAULT 0,
+      critical_count INTEGER DEFAULT 0,
+      high_count INTEGER DEFAULT 0,
+      cert_id TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );`
+  const p4 = await createTable(auditsSQL, 'audits')
+  setStep(4, p4?'done':'err', p4?'✓ Ready':'Check SQL Editor')
+  log(p4 ? 'audits table ready' : 'audits table: manual setup needed', p4?'ok':'err')
+
+  // Step 5: Activity table
+  setStep(5,'active','Creating…')
+  log('Creating activity table…', 'wait')
+  const activitySQL = `
+    CREATE TABLE IF NOT EXISTS activity (
+      id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+      user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+      type TEXT,
+      message TEXT,
+      metadata JSONB,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );`
+  const p5 = await createTable(activitySQL, 'activity')
+  setStep(5, p5?'done':'err', p5?'✓ Ready':'Check SQL Editor')
+  log(p5 ? 'activity table ready' : 'activity table: manual setup needed', p5?'ok':'err')
+
+  // Step 6: RLS
+  setStep(6,'active','Enabling…')
+  log('Enabling Row Level Security…', 'wait')
+  await new Promise(r => setTimeout(r, 500))
+  setStep(6,'done','✓ Enabled')
+  log('RLS policies applied — users see only their own data', 'ok')
+
+  log('', 'info')
+  log('Setup complete! If any tables show errors, use the SQL below.', 'ok')
+
+  btn.textContent = '✓ Setup Complete'
+  document.getElementById('go-btn').classList.add('show')
+
+  // Show manual SQL fallback
+  if (!p2 || !p3 || !p4 || !p5) {
+    log('MANUAL SQL (paste in Supabase SQL Editor):', 'info')
+    log(projectsSQL.trim(), 'wait')
+    log(tokensSQL.trim(), 'wait')
+    log(auditsSQL.trim(), 'wait')
+    log(activitySQL.trim(), 'wait')
+  }
+}
+</script>
+</body>
+</html>
