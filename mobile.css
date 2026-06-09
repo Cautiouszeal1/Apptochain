@@ -1,3 +1,15 @@
+/* HIDE MOBILE ELEMENTS ON DESKTOP */
+.mob-drawer { display:none !important }
+.bottom-nav { display:none !important }
+.mob-menu-btn { display:none !important }
+
+/* ONLY show on mobile */
+@media(max-width:768px) {
+  .mob-drawer.open { display:flex !important }
+  .bottom-nav { display:block !important }
+  .mob-menu-btn { display:flex !important }
+}
+
 /* ═══════════════════════════════════════════════════════
    AppToChain — Global Mobile Optimization
    Import this in every page: <link rel="stylesheet" href="mobile.css">
