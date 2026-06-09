@@ -659,250 +659,255 @@ function apSet(n, state, sub) {
 
 // ══════════════════════════════════════════════════
 //  PROFESSIONAL AUDIT ENGINE
-//  Tools used by exchanges: Slither-style, MythX-style,
-//  Echidna-style, Certik-style, PeckShield-style checks
+//  Slither · MythX · Echidna · CertiK · PeckShield
 // ══════════════════════════════════════════════════
 function runStaticAnalysis(code) {
   const findings = []
   const lines = code.split('\n')
-  const lower = code.toLowerCase()
 
   const has = s => code.includes(s)
   const hasR = r => r.test(code)
-  const findLine = s => {
-    if(!s) return null
-    const idx = lines.findIndex(l => l.includes(s.trim()))
-    return idx > -1 ? idx+1 : null
+
+  function findLine(snippet) {
+    if (!snippet) return null
+    const idx = lines.findIndex(l => l.includes(snippet.trim()))
+    return idx > -1 ? idx + 1 : null
   }
-  const push = (id,severity,title,desc,snippet,fix,tool) =>
-    findings.push({id,severity,title,desc,code:snippet,fix,line:findLine(snippet),tool:tool||'AppToChain'})
+
+  function push(id, severity, title, desc, snippet, fix, tool) {
+    findings.push({ id, severity, title, desc, code: snippet, fix, line: findLine(snippet), tool: tool || 'AppToChain' })
+  }
 
   const pragma = code.match(/pragma solidity\s+[\^~>=]*([\d.]+)/)?.[1]
   const isOld = pragma && parseFloat(pragma) < 0.8
-  const isVeryOld = pragma && parseFloat(pragma) < 0.6
 
-  // ── SLITHER-STYLE: Control Flow & State ─────────────────────
-  // SWC-107: Reentrancy
-  const extCallIdx = code.indexOf('.call{value:')
-  const hasExtCall = extCallIdx > -1 || has('.call.value(') || has('.send(') || has('.transfer(')
-  const hasGuard = has('nonReentrant') || has('_reentrancyGuard') || has('ReentrancyGuard') || has('_locked')
-  const stateAfterCall = (() => {
-    if (extCallIdx === -1) return false
-    const afterCall = code.slice(extCallIdx, extCallIdx + 200)
-    return afterCall.includes('-=') || afterCall.includes('= false') || afterCall.includes('delete ')
-  })()
-  if (hasExtCall && !hasGuard) push('SWC-107','critical',
-    '[SWC-107] Reentrancy Attack Vector',
-    'External call detected without reentrancy protection. An attacker can recursively call back into your contract before state updates complete, draining all funds. This is responsible for over $600M in DeFi losses including The DAO hack.',
-    '.call{value:',
-    'Apply Checks-Effects-Interactions pattern: update all state BEFORE external calls. Add OpenZeppelin ReentrancyGuard: import "@openzeppelin/contracts/security/ReentrancyGuard.sol" and use nonReentrant modifier.',
-    'Slither/MythX')
+  // ── SLITHER: Reentrancy (SWC-107) ──────────────
+  const hasExtCall = has('.call{value:') || has('.call.value(') || has('.send(')
+  const hasGuard = has('nonReentrant') || has('ReentrancyGuard') || has('_locked')
+  if (hasExtCall && !hasGuard) {
+    push('SWC-107', 'critical',
+      '[SWC-107] Reentrancy Attack Vector',
+      'External ETH call found without reentrancy protection. An attacker can recursively re-enter your contract before state updates complete, draining all funds. Responsible for over $600M in DeFi losses including The DAO hack.',
+      '.call{value:',
+      'Apply Checks-Effects-Interactions: update ALL state before external calls. Add OpenZeppelin ReentrancyGuard and use the nonReentrant modifier on all functions that make external calls.',
+      'Slither/MythX')
+  }
 
-  // SWC-115: tx.origin auth
-  if (has('tx.origin')) push('SWC-115','high',
-    '[SWC-115] tx.origin Authentication Bypass',
-    'tx.origin returns the original EOA that started the transaction chain. A phishing contract can trick your users into calling it, and tx.origin will still return their address, bypassing your access control completely.',
-    'tx.origin',
-    'Replace tx.origin with msg.sender for authentication. If you need to distinguish EOA from contract, use msg.sender == tx.origin as an additional check, not the primary authentication mechanism.',
-    'Slither')
+  // ── SLITHER: tx.origin (SWC-115) ───────────────
+  if (has('tx.origin')) {
+    push('SWC-115', 'high',
+      '[SWC-115] tx.origin Authentication Bypass',
+      'tx.origin returns the original EOA that started the call chain. A malicious contract can trick users into calling it, bypassing your access control since tx.origin still returns the user's address.',
+      'tx.origin',
+      'Replace tx.origin with msg.sender for all authentication. msg.sender returns the direct caller which is what you actually want to check.',
+      'Slither')
+  }
 
-  // SWC-106: Unprotected selfdestruct
+  // ── SLITHER: Selfdestruct (SWC-106) ────────────
   if (has('selfdestruct') || has('suicide(')) {
     const selfLine = findLine('selfdestruct')
-    const hasOwnerCheck = lines.slice(Math.max(0,(selfLine||0)-5), (selfLine||0)+1).some(l =>
-      l.includes('onlyOwner') || l.includes('msg.sender ==') || l.includes('require('))
-    push('SWC-106', hasOwnerCheck?'medium':'critical',
-      '[SWC-106] Selfdestruct Usage',
-      hasOwnerCheck
-        ? 'Contract contains selfdestruct with access control. While protected, selfdestruct is deprecated in Solidity 0.8.18+ (EIP-6049). If called, all contract ETH is forcibly sent to target address and code is deleted permanently.'
-        : 'UNPROTECTED selfdestruct found! Any caller can permanently destroy this contract and force-send all ETH to an arbitrary address. This is a critical vulnerability.',
+    const nearbyLines = lines.slice(Math.max(0, (selfLine || 1) - 5), (selfLine || 1) + 1)
+    const hasCheck = nearbyLines.some(l => l.includes('onlyOwner') || l.includes('require(') || l.includes('msg.sender =='))
+    push('SWC-106', hasCheck ? 'medium' : 'critical',
+      '[SWC-106] Selfdestruct Detected',
+      hasCheck
+        ? 'Contract has selfdestruct with access control. While protected, selfdestruct is deprecated since EIP-6049. If called, all ETH is force-sent to an address and the contract code is permanently deleted.'
+        : 'CRITICAL: Unprotected selfdestruct! Any caller can permanently destroy this contract and steal all ETH.',
       'selfdestruct',
-      'Remove selfdestruct entirely and use an upgradeable proxy pattern. If needed, gate with multi-sig: require(msg.sender == owner && confirmedByMultisig, "Not authorized").',
+      'Remove selfdestruct entirely. Use upgradeable proxy patterns instead. If needed, require multi-sig approval with a timelock before executing.',
       'Slither/MythX')
   }
 
-  // SWC-112: Delegatecall to untrusted callee
+  // ── SLITHER: Delegatecall (SWC-112) ────────────
   if (has('delegatecall')) {
-    const isHardcoded = hasR(/delegatecall\([^)]*0x[0-9a-fA-F]{40}/)
-    push('SWC-112', isHardcoded?'medium':'critical',
+    push('SWC-112', 'critical',
       '[SWC-112] Delegatecall Risk',
-      'delegatecall executes external code in the storage context of your contract. If the target address is user-controlled or upgradeable without proper checks, an attacker can overwrite any storage slot including the owner address.',
+      'delegatecall executes external code in the storage context of your contract. If the target is user-controlled, an attacker can overwrite any storage slot including the owner address.',
       'delegatecall',
-      'Only delegatecall to immutable, audited implementation contracts. Use OpenZeppelin's TransparentUpgradeableProxy or UUPS pattern. Never delegatecall to user-supplied addresses.',
+      'Only delegatecall to immutable, audited implementation contracts. Use OpenZeppelin UUPS or TransparentUpgradeableProxy. Never delegatecall to user-supplied addresses.',
       'Slither/MythX')
   }
 
-  // ── MYTHX-STYLE: Arithmetic & Data ──────────────────────────
-  // SWC-101: Integer overflow/underflow
-  if (isOld) push('SWC-101','high',
-    '[SWC-101] Integer Overflow/Underflow',
-    `Solidity ${pragma} has no built-in overflow protection. Adding 1 to uint256 max (2^256-1) wraps to 0. This can allow attackers to bypass balance checks. The infamous BEC token hack exploited this to mint 10^58 tokens.`,
-    `pragma solidity ^${pragma}`,
-    'Upgrade to Solidity ^0.8.0 which has built-in overflow checks. For older versions, use SafeMath library: using SafeMath for uint256. All arithmetic operations will then revert on overflow.',
-    'MythX/Manticore')
+  // ── MYTHX: Integer Overflow (SWC-101) ──────────
+  if (isOld) {
+    push('SWC-101', 'high',
+      '[SWC-101] Integer Overflow/Underflow',
+      'Solidity ' + pragma + ' has no built-in overflow protection. Arithmetic can wrap around silently. The BEC token hack exploited this to create 10^58 tokens from nothing.',
+      'pragma solidity ^' + pragma,
+      'Upgrade to Solidity ^0.8.0 which has built-in overflow protection. For older versions, use OpenZeppelin SafeMath library for all arithmetic operations.',
+      'MythX/Manticore')
+  }
 
-  // SWC-129: Typecasting truncation
-  if (hasR(/uint8\s*\(|uint16\s*\(|uint32\s*\(/) && hasR(/uint256/)) push('SWC-129','low',
-    '[SWC-129] Dangerous Type Casting',
-    'Downcasting from larger to smaller integer types (e.g. uint256 to uint8) can silently truncate values. If the value exceeds the target type's range, high-order bits are silently dropped leading to incorrect calculations.',
-    null,
-    'Add explicit bounds checking before downcasting: require(value <= type(uint8).max, "Value exceeds uint8"). Use OpenZeppelin SafeCast library for safe conversions.',
-    'MythX')
+  // ── MYTHX: DoS via failed transfer (SWC-128) ───
+  if (has('require(') && has('.transfer(')) {
+    push('SWC-128', 'medium',
+      '[SWC-128] DoS via Failed Transfer',
+      'Using .transfer() inside a loop or with require() means one failed transfer blocks all subsequent payments. A malicious contract can grief by always reverting on receive.',
+      '.transfer(',
+      'Use a pull-payment pattern: store balances in a mapping and let users call withdraw() themselves. This way one failed transfer does not block others.',
+      'MythX')
+  }
 
-  // SWC-128: DoS with failed call
-  if (has('require(') && has('.transfer(')) push('SWC-128','medium',
-    '[SWC-128] DoS via Revert in Loop',
-    'If .transfer() is called inside a loop and one recipient is a contract that reverts on receive, the entire loop fails, permanently locking all pending payments. This is a common griefing attack vector.',
-    '.transfer(',
-    'Use a pull-payment pattern: let users withdraw their own funds. Store balances in a mapping and let each user call a withdraw() function. This way one failed transfer does not affect others.',
-    'MythX')
-
-  // ── ECHIDNA-STYLE: Invariant Violations ─────────────────────
-  // Supply invariant check
+  // ── ECHIDNA: Supply Invariant ───────────────────
   if (has('totalSupply') && has('balanceOf') && has('mint') && !has('totalSupply +=') && !has('totalSupply+=')) {
-    push('INV-001','medium',
+    push('INV-001', 'medium',
       '[INV-001] Supply Invariant Risk',
-      'Contract has totalSupply and mint function but may not properly track the invariant: sum(balanceOf[all]) == totalSupply. If totalSupply is not updated on every mint/burn, this invariant breaks and creates phantom tokens.',
+      'Contract has totalSupply and mint function but totalSupply may not be updated. The invariant sum(all balances) == totalSupply could be violated, creating accounting inconsistencies.',
       'function mint',
-      'Ensure every mint increments totalSupply: totalSupply += amount. Every burn decrements it: totalSupply -= amount. Consider adding an invariant check function for testing.',
+      'Ensure every mint increments totalSupply: totalSupply += amount. Every burn decrements it: totalSupply -= amount. Add invariant tests with Echidna or Foundry.',
       'Echidna')
   }
 
-  // Zero address invariant
-  if ((has('transfer(') || has('mint(')) && !hasR(/require\([^)]*!= address\(0\)/)) push('INV-002','medium',
-    '[INV-002] Zero Address Invariant Violation',
-    'No zero-address (0x000...000) validation found. Transferring tokens to address(0) permanently burns them without proper burn accounting. Setting owner to address(0) permanently bricks the contract.',
-    null,
-    'Add zero-address checks to all transfer and ownership functions: require(to != address(0), "ERC20: transfer to the zero address"); require(newOwner != address(0), "Owner cannot be zero address");',
-    'Echidna')
-
-  // ── CERTIK-STYLE: Centralization Risk ───────────────────────
-  // Centralization risk
-  const ownerPowers = []
-  if (has('function mint') && (has('onlyOwner') || has('msg.sender == owner'))) ownerPowers.push('mint')
-  if (has('function pause') || has('function setPaused')) ownerPowers.push('pause')
-  if (has('function setFee') || has('function updateFee')) ownerPowers.push('change fees')
-  if (has('function withdraw') && has('onlyOwner')) ownerPowers.push('withdraw all funds')
-  if (has('selfdestruct')) ownerPowers.push('destroy contract')
-  if (ownerPowers.length >= 3) push('CEN-001','medium',
-    '[CEN-001] High Centralization Risk (CertiK)',
-    `The owner/admin has extensive powers: ${ownerPowers.join(', ')}. A compromised or malicious owner can cause severe damage. This is a common reason exchanges reject token listings. CertiK categorizes this as centralized control.`,
-    null,
-    'Implement a multi-sig ownership (Gnosis Safe). Add timelocks on sensitive operations. Use a DAO/governance model for major changes. Renounce dangerous privileges after launch if possible.',
-    'CertiK')
-
-  // Privileged functions without timelock
-  if ((has('function setFee') || has('function updateTax') || has('function changeMax')) && !has('timelock') && !has('TimeLock')) {
-    push('CEN-002','medium',
-      '[CEN-002] Missing Timelock on Privileged Functions (PeckShield)',
-      'Fee/tax/limit setter functions without a timelock allow the owner to rug-pull or front-run users by changing parameters instantly. PeckShield flags this in all exchange listing audits.',
+  // ── ECHIDNA: Zero Address ───────────────────────
+  const hasTransfer = has('function transfer') || has('function mint')
+  const hasZeroCheck = hasR(/require\([^)]*address\(0\)/)
+  if (hasTransfer && !hasZeroCheck) {
+    push('INV-002', 'medium',
+      '[INV-002] Missing Zero Address Validation',
+      'No zero-address (0x000...000) checks found. Sending tokens to address(0) permanently burns them without proper accounting. Setting owner to address(0) permanently bricks the contract.',
       null,
-      'Add a 24-48 hour timelock to all fee/limit changes. Implement a two-step process: schedule() then execute() with a delay. This gives users time to exit before unfavorable changes take effect.',
+      'Add require(to != address(0), "Zero address") before all transfers and ownership changes.',
+      'Echidna')
+  }
+
+  // ── CERTIK: Centralization Risk ─────────────────
+  const powers = []
+  if (has('function mint') && (has('onlyOwner') || has('msg.sender == owner'))) powers.push('mint tokens')
+  if (has('function pause') || has('function setPaused')) powers.push('pause contract')
+  if (has('function withdraw') && has('onlyOwner')) powers.push('withdraw all funds')
+  if (has('selfdestruct')) powers.push('destroy contract')
+  if (has('blacklist') || has('isBlacklisted')) powers.push('blacklist addresses')
+  if (powers.length >= 3) {
+    push('CEN-001', 'medium',
+      '[CEN-001] High Centralization Risk (CertiK)',
+      'Owner has extensive privileged powers: ' + powers.join(', ') + '. A compromised or malicious owner can cause severe damage. CertiK categorizes this as centralized control and major exchanges flag it.',
+      null,
+      'Implement Gnosis Safe multi-sig ownership. Add 48-hour timelocks on sensitive operations. Consider DAO governance for major changes. Document all owner powers publicly.',
+      'CertiK')
+  }
+
+  // ── CERTIK: Missing Timelock ────────────────────
+  const hasSetter = has('function setFee') || has('function updateTax') || has('function changeMax') || has('function setRate')
+  const hasTimelock = has('timelock') || has('TimeLock') || has('_delay') || has('schedule(')
+  if (hasSetter && !hasTimelock) {
+    push('CEN-002', 'medium',
+      '[CEN-002] No Timelock on Fee/Rate Functions (PeckShield)',
+      'Fee or rate setter functions have no timelock. Owner can rug-pull or front-run users by changing parameters instantly. PeckShield flags this in all exchange listing audits.',
+      null,
+      'Add a minimum 24-48 hour delay between scheduling and executing parameter changes. Implement a two-step process and emit events when changes are scheduled.',
       'PeckShield')
   }
 
-  // ── PECKSHIELD-STYLE: DeFi-Specific ─────────────────────────
-  // Price manipulation / flash loan
-  if (has('balanceOf(address(this))') || has('getReserves') || has('price()')) push('PEK-001','medium',
-    '[PEK-001] Flash Loan Price Manipulation (PeckShield)',
-    'Contract reads on-chain spot price or balance directly. Flash loans can manipulate spot prices within a single transaction. PeckShield has documented dozens of attacks on protocols using spot price as oracle.',
-    'balanceOf(address(this))',
-    'Use Chainlink price feeds or TWAP (Time-Weighted Average Price) oracles instead of spot price. Add a 30-minute TWAP to make flash loan manipulation economically unfeasible.',
-    'PeckShield')
-
-  // Sandwich attack via slippage
-  if ((has('swap') || has('addLiquidity')) && !has('amountOutMin') && !has('minAmountOut') && !has('slippage')) {
-    push('PEK-002','medium',
-      '[PEK-002] Sandwich Attack / Missing Slippage (PeckShield)',
-      'Swap/liquidity functions without slippage protection are vulnerable to sandwich attacks. MEV bots can front-run and back-run user transactions, extracting value on every trade.',
-      null,
-      'Add minimum output amount parameters (amountOutMin) to all swap functions. Let users specify acceptable slippage. Default to 0.5% max slippage. Reject transactions where actual output < minimum.',
+  // ── PECKSHIELD: Flash Loan Oracle ──────────────
+  if (has('balanceOf(address(this))') || (has('getReserves') && !has('TWAP'))) {
+    push('PEK-001', 'medium',
+      '[PEK-001] Flash Loan Price Manipulation Risk (PeckShield)',
+      'Contract reads spot price or balance directly. Flash loans can manipulate spot prices within a single transaction. PeckShield has documented dozens of attacks on protocols using spot price as oracle.',
+      'balanceOf(address(this))',
+      'Use Chainlink price feeds or TWAP (Time-Weighted Average Price) oracles. A 30-minute TWAP makes flash loan price manipulation economically unfeasible.',
       'PeckShield')
   }
 
-  // ── COMPILER & CODE QUALITY ──────────────────────────────────
-  if (!has('SPDX-License-Identifier')) push('COD-001','info',
-    'Missing SPDX License Identifier',
-    'No SPDX license identifier found. Required by Solidity compiler since 0.6.8. Without it, compiler warns and the source code has unclear licensing status which complicates open-source compliance.',
-    null,
-    'Add // SPDX-License-Identifier: MIT (or your chosen license) as the very first line of your contract file.',
-    'Solidity Compiler')
+  // ── PECKSHIELD: Sandwich / Slippage ────────────
+  const hasSwap = has('function swap') || has('swapExact') || has('addLiquidity')
+  const hasSlippage = has('amountOutMin') || has('minAmountOut') || has('slippage') || has('deadline')
+  if (hasSwap && !hasSlippage) {
+    push('PEK-002', 'medium',
+      '[PEK-002] Missing Slippage Protection (PeckShield)',
+      'Swap functions without minimum output parameters are vulnerable to sandwich attacks. MEV bots can front-run and back-run every trade, extracting value from users on each transaction.',
+      null,
+      'Add amountOutMin parameter to all swap functions. Let users specify maximum acceptable slippage (0.1-1%). Reject transactions where actual output < minimum expected output.',
+      'PeckShield')
+  }
 
-  if (hasR(/pragma solidity\s+\^/)) push('COD-002','info',
-    'Floating Pragma Version',
-    'Using ^ allows compilation with any compatible version. Different compiler versions can produce different bytecode and have different bugs. For production, use a fixed version to ensure deterministic builds.',
-    'pragma solidity ^',
-    'Lock to a specific version: pragma solidity 0.8.20; Use the same version in your deployment scripts and verify tools.',
-    'Slither')
+  // ── CODE QUALITY ────────────────────────────────
+  if (!has('SPDX-License-Identifier')) {
+    push('COD-001', 'info',
+      'Missing SPDX License Identifier',
+      'No SPDX license identifier found. Required by Solidity compiler since 0.6.8. Without it, the compiler emits a warning and the code has unclear open-source licensing status.',
+      null,
+      'Add // SPDX-License-Identifier: MIT as the very first line of your Solidity file.',
+      'Solidity Compiler')
+  }
 
-  // Missing events
-  const hasMint = has('function mint')
-  const hasBurn = has('function burn')
-  const hasEmitMint = has('emit Mint') || (has('emit Transfer') && has('address(0)'))
-  if (hasMint && !hasEmitMint) push('COD-003','low',
-    'Missing Mint/Burn Events',
-    'Mint/burn functions found without corresponding events. Off-chain tools, block explorers, and DeFi aggregators rely on events to track supply changes. Missing events break token tracking across the ecosystem.',
-    'function mint',
-    'Emit events on every state change: emit Mint(to, amount), emit Burn(from, amount), emit Transfer(address(0), to, amount) for mints.',
-    'Slither')
+  if (hasR(/pragma solidity\s+\^/)) {
+    push('COD-002', 'info',
+      'Floating Pragma Version',
+      'Using ^ allows compilation with any compatible version. Different compiler versions can produce different bytecode. For production, pin to a specific version for deterministic builds.',
+      'pragma solidity ^',
+      'Pin to a specific version for production: pragma solidity 0.8.20; Match this version in all deployment scripts and verification tools.',
+      'Slither')
+  }
 
-  // Unbounded loops
-  if (hasR(/for\s*\([^)]+\.length/)) push('COD-004','medium',
-    'Unbounded Loop — DoS Risk',
-    'Loop iterates over a storage array whose size is not bounded. As the array grows, gas cost increases linearly. Eventually the function will exceed the block gas limit (~30M gas on ETH) and become permanently uncallable.',
-    'for (',
-    'Add a maximum iteration limit. Implement pagination: process items in batches of fixed size. Use mappings instead of arrays where possible. Consider off-chain processing with on-chain settlement.',
-    'Slither/Echidna')
+  if (has('function mint') && !has('emit Transfer') && !has('emit Mint')) {
+    push('COD-003', 'low',
+      'Missing Mint/Transfer Events',
+      'Mint function found without Transfer or Mint events. Block explorers, DeFi aggregators, and token trackers rely on events to monitor supply changes.',
+      'function mint',
+      'Emit Transfer(address(0), to, amount) or Mint(to, amount) in every mint function. Emit Transfer(from, address(0), amount) in every burn function.',
+      'Slither')
+  }
 
-  // ── ADVANCED: Business Logic ─────────────────────────────────
-  // Fee-on-transfer token issues
-  if (has('tax') || has('fee') || (has('_taxFee') || has('_liquidityFee'))) push('BIZ-001','low',
-    'Fee-on-Transfer Token',
-    'Contract appears to implement transfer fees/taxes. Fee-on-transfer tokens cause accounting issues in DeFi protocols. Many AMMs and lending protocols incorrectly assume received amount equals sent amount, leading to loss of funds or protocol insolvency.',
-    null,
-    'If listing on DEXs: notify them of fee mechanism and provide documentation. Consider using _transfer with fee logic separate from transfer() interface. Test with major DEX contracts before mainnet launch.',
-    'AppToChain')
+  if (hasR(/for\s*\([^)]+\.length/)) {
+    push('COD-004', 'medium',
+      'Unbounded Loop — DoS Risk',
+      'Loop iterates over a storage array without a size limit. As the array grows, gas cost grows linearly. Eventually the function will exceed the block gas limit and become permanently uncallable.',
+      'for (',
+      'Add a maximum per-transaction limit. Process in batches. Use mappings instead of arrays where possible. Emit events for historical data instead of storing it on-chain.',
+      'Slither/Echidna')
+  }
 
-  // Blacklist/whitelist centralization
-  if (has('blacklist') || has('blacklisted') || has('isBlacklisted')) push('BIZ-002','low',
-    'Blacklist Mechanism Detected',
-    'Contract has token blacklisting functionality. While sometimes legitimate, blacklisting is a red flag for exchanges as it allows the owner to freeze any holder's funds. Binance and major CEXs require disclosure of this functionality.',
-    'blacklist',
-    'If blacklisting is required (regulatory compliance), document it clearly. Add a timelock and multi-sig requirement. Publish the blacklist policy publicly. This will be flagged in all exchange listing audits.',
-    'CertiK/AppToChain')
+  // ── BUSINESS LOGIC ──────────────────────────────
+  if (has('tx.origin') || (has('owner') && !has('Ownable') && !has('onlyOwner') && has('function mint'))) {
+    push('BIZ-001', 'low',
+      'Non-Standard Access Control Pattern',
+      'Contract uses custom access control instead of established patterns. Custom implementations are more prone to bugs and harder for auditors to verify.',
+      null,
+      'Use OpenZeppelin Ownable or AccessControl. These are battle-tested, well-documented and auditors immediately recognize them.',
+      'AppToChain')
+  }
 
-  // Hidden minting via proxy
-  if (has('proxy') || has('implementation') || has('upgradeable')) push('BIZ-003','info',
-    'Upgradeable/Proxy Pattern',
-    'Contract uses upgradeable proxy pattern. While enabling fixes, upgradeability means the owner can change contract logic after deployment, potentially introducing malicious code. This requires higher trust in the team.',
-    null,
-    'If using upgradeability: implement a 48-hour timelock on upgrades, require multi-sig approval, publish upgrade proposals publicly before execution. Consider a transparent proxy with a locked admin key.',
-    'CertiK')
+  if (has('blacklist') || has('isBlacklisted') || has('_blacklist')) {
+    push('BIZ-002', 'low',
+      'Blacklist Mechanism Detected',
+      'Contract has token blacklisting. While sometimes legitimate for compliance, blacklisting allows the owner to freeze any holder's funds. Binance and major CEXs require full disclosure of this.',
+      'blacklist',
+      'Document the blacklist policy clearly in your whitepaper and token contract. Add multi-sig and timelock to blacklist additions. Most exchanges will flag this in listing reviews.',
+      'CertiK/AppToChain')
+  }
 
-  // ── GAS OPTIMIZATION ─────────────────────────────────────────
-  if (hasR(/string\s+public\s+(?!constant)/)) push('GAS-001','info',
-    'Gas: String State Variables',
-    'Public string variables cost significant gas. Reading them in loops is expensive. Consider using bytes32 for short strings (< 32 chars) which are more gas-efficient.',
-    null,
-    'Use bytes32 instead of string for short fixed-length strings: bytes32 public constant NAME = "MyToken". Only use string for variable-length data that exceeds 32 bytes.',
-    'AppToChain/Slither')
+  if (has('proxy') || has('implementation') || (has('upgradeable') || has('Upgradeable'))) {
+    push('BIZ-003', 'info',
+      'Upgradeable Contract Pattern',
+      'Contract uses proxy/upgradeable pattern. While enabling fixes, upgradeability means owner can change logic after deployment. This requires higher trust and scrutiny from investors.',
+      null,
+      'If using upgradeability: implement 48-hour timelock on upgrades, require multi-sig approval, publish all upgrade proposals publicly before execution.',
+      'CertiK')
+  }
 
-  if (hasR(/uint8|uint16|uint32/) && !hasR(/struct|mapping.*uint8/)) push('GAS-002','info',
-    'Gas: Suboptimal Integer Packing',
-    'Using uint8/uint16/uint32 outside of packed structs can actually cost MORE gas than uint256 due to EVM word-size operations. The EVM works in 32-byte (256-bit) words natively.',
-    null,
-    'Use uint256 for standalone variables. Only use smaller types inside structs where packing applies: struct Config { uint128 fee; uint64 lockTime; uint64 maxAmount; } This packs into one 256-bit slot.',
-    'AppToChain')
+  // ── GAS OPTIMIZATION ────────────────────────────
+  if (hasR(/string\s+public\s+(?!constant)/) && !hasR(/string\s+public\s+constant/)) {
+    push('GAS-001', 'info',
+      'Gas: Mutable String State Variables',
+      'Mutable string state variables cost more gas than bytes32 for short strings. String operations in Solidity are expensive due to dynamic sizing.',
+      null,
+      'For short fixed strings (under 32 bytes), use bytes32: bytes32 public constant NAME = "MyToken". Only use string for user-supplied variable-length data.',
+      'AppToChain/Slither')
+  }
 
-  if (has('storage') && hasR(/function.*view.*storage/)) push('GAS-003','info',
-    'Gas: Unnecessary Storage Reads',
-    'Multiple reads from the same storage variable in one transaction each cost 2100 gas (cold) or 100 gas (warm). Caching storage variables in memory can save significant gas on hot paths.',
-    null,
-    'Cache storage reads: uint256 _balance = balanceOf[msg.sender]; then use _balance throughout the function instead of repeatedly reading balanceOf[msg.sender].',
-    'AppToChain')
+  if (has('storage') && hasR(/balanceOf\[msg\.sender\].*
+.*balanceOf\[msg\.sender\]/)) {
+    push('GAS-002', 'info',
+      'Gas: Repeated Storage Reads',
+      'Reading the same storage variable multiple times in one function wastes gas. Each SLOAD costs 100-2100 gas depending on whether it is warm or cold.',
+      null,
+      'Cache storage reads in local memory variables: uint256 balance = balanceOf[msg.sender]; then use balance throughout the function.',
+      'AppToChain')
+  }
 
   return findings
 }
+
 
 // ══════════════════════════════════════════════════
 //  AI ANALYSIS VIA CLAUDE API
