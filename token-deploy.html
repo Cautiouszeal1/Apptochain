@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Token Launchpad — AppToChain</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <script src="erc20.js"></script>
 <style>
@@ -532,6 +533,9 @@ async function deployToken() {
     document.getElementById('explorer-link').href      = explorer+'/token/'+contractAddress
     document.getElementById('sourcify-link').href      = 'https://sourcify.dev/#/lookup/'+contractAddress
 
+    // Save token to Supabase
+    await saveTokenToDB(name, symbol, supply, decimals, contractAddress, txHash)
+
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
     document.getElementById('success').classList.add('active')
     window.scrollTo({top:0,behavior:'smooth'})
@@ -549,6 +553,49 @@ async function deployToken() {
     setStep('confirm','wait','—')
     setStep('verify','wait','—')
   }
+}
+
+// ── SAVE TO SUPABASE ────────────────────────────
+async function saveTokenToDB(name, symbol, supply, decimals, contractAddress, txHash) {
+  try {
+    const sb = window._sb || initSB()
+    if (!sb) return
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) return
+
+    // Save token record
+    await sb.from('tokens').insert({
+      user_id: session.user.id,
+      name, symbol,
+      supply: parseFloat(supply),
+      decimals,
+      network: selNetName,
+      chain_id: selChainId,
+      contract_address: contractAddress,
+      tx_hash: txHash,
+      verified: true
+    })
+
+    // Log activity
+    await sb.from('activity').insert({
+      user_id: session.user.id,
+      type: 'token',
+      message: `Token <strong>${name} (${symbol})</strong> deployed on ${selNetName}`,
+      metadata: { contract: contractAddress, network: selNetName }
+    })
+  } catch(e) { console.log('DB save skipped:', e.message) }
+}
+
+function initSB() {
+  try {
+    if (!window.supabase) return null
+    const sb = window.supabase.createClient(
+      'https://brculchgeyvwnhoeljjq.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyY3VsY2hnZXl2d25ob2VsampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDcwNDMsImV4cCI6MjA5NjQ4MzA0M30.YbY5Wr4-PcvdI3gKZCJeQ8S7XY7YYWthnkq82MVj_WE'
+    )
+    window._sb = sb
+    return sb
+  } catch(e) { return null }
 }
 </script>
 </body>
