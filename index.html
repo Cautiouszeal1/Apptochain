@@ -1752,30 +1752,58 @@ async function ensureBscChain(provider){
 }
 async function connectInjected(){
   const status = document.getElementById('wallet-status');
-  if(!window.ethereum){ status.textContent = 'No browser wallet found. Install MetaMask, Trust Wallet, or use WalletConnect instead.'; return; }
-  try{
-    status.textContent = 'Requesting connection…';
-    const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-    await ensureBscChain(window.ethereum);
-    onWalletConnected(accounts[0]);
-  }catch(err){ status.textContent = 'Connection rejected or failed.'; }
-}
-async function connectWalletConnect(){
-  const status = document.getElementById('wallet-status');
-  if(!window.EthereumProvider){ status.textContent = 'WalletConnect library failed to load — check your connection.'; return; }
-  if(WALLETCONNECT_PROJECT_ID === 'YOUR_WALLETCONNECT_PROJECT_ID'){
-    status.textContent = 'WalletConnect needs a free project ID from cloud.walletconnect.com — add it to WALLETCONNECT_PROJECT_ID in the code. Browser wallet works now without it.';
+  if(!window.ethereum){
+    const isMobile = /Mobile|Android|iPhone/.test(navigator.userAgent);
+    if(isMobile){
+      const here = location.host + location.pathname;
+      status.innerHTML = `No wallet detected in this browser. Open this site inside your wallet's browser:<br><br>
+        <a href="https://metamask.app.link/dapp/${here}" style="color:var(--brass); text-decoration:underline;">Open in MetaMask</a><br>
+        <a href="https://link.trustwallet.com/open_url?coin_id=20000714&url=${encodeURIComponent(location.href)}" style="color:var(--brass); text-decoration:underline;">Open in Trust Wallet</a><br><br>
+        Once the site opens inside the wallet app, tap Connect wallet again — it will detect the wallet and connect.`;
+    }else{
+      status.textContent = 'No browser wallet found. Install the MetaMask, Trust, or OKX extension, then reload this page.';
+    }
     return;
   }
   try{
-    status.textContent = 'Opening QR code…';
-    const provider = await window.EthereumProvider.init({
+    status.textContent = 'Requesting connection… check your wallet popup.';
+    const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+    await ensureBscChain(window.ethereum);
+    onWalletConnected(accounts[0]);
+  }catch(err){
+    status.textContent = 'Connection rejected or failed' + (err && err.message ? ': ' + err.message : '.');
+  }
+}
+function getWCProvider(){
+  // UMD global name varies between library builds — check all known shapes
+  const g = window.EthereumProvider || window['@walletconnect/ethereum-provider'];
+  if(!g) return null;
+  if(typeof g.init === 'function') return g;
+  if(g.EthereumProvider && typeof g.EthereumProvider.init === 'function') return g.EthereumProvider;
+  if(g.default && typeof g.default.init === 'function') return g.default;
+  return null;
+}
+async function connectWalletConnect(){
+  const status = document.getElementById('wallet-status');
+  if(WALLETCONNECT_PROJECT_ID === 'YOUR_WALLETCONNECT_PROJECT_ID'){
+    status.innerHTML = `WalletConnect needs a project ID (free, 2 minutes):<br>
+      1. Go to <b>cloud.reown.com</b> and sign in<br>
+      2. Create a project → copy its Project ID<br>
+      3. In index.html find <span class="mono">WALLETCONNECT_PROJECT_ID</span>, paste the ID, push to GitHub — Vercel redeploys automatically.<br><br>
+      Meanwhile: use <b>Browser wallet</b> above — on mobile it gives you links that open this site inside your wallet app, which connects without any ID.`;
+    return;
+  }
+  const WC = getWCProvider();
+  if(!WC){ status.textContent = 'WalletConnect library failed to load — check your connection and reload the page.'; return; }
+  try{
+    status.textContent = 'Opening wallet list…';
+    const provider = await WC.init({
       projectId: WALLETCONNECT_PROJECT_ID, chains:[BSC_CHAIN.hex], showQrModal:true,
       rpcMap:{ [BSC_CHAIN.hex]: BSC_CHAIN.rpc }
     });
     await provider.connect();
     onWalletConnected(provider.accounts[0]);
-  }catch(err){ status.textContent = 'WalletConnect session failed or was cancelled.'; }
+  }catch(err){ status.textContent = 'WalletConnect session failed or was cancelled' + (err && err.message ? ': ' + err.message : '.'); }
 }
 async function onWalletConnected(address){
   connectedAddress = address;
