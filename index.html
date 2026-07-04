@@ -2130,19 +2130,22 @@ async function callClaude(messages){
     messages,
     tools: [{ type:'web_search_20250305', name:'web_search' }],
   });
-  let lastErr = null;
+  const errors = [];
   for(const url of AI_ENDPOINTS){
     try{
       const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body });
+      let data = null;
+      try{ data = await res.json(); }catch(e){ throw new Error('HTTP ' + res.status + ' (no JSON — endpoint missing?)'); }
+      if(data.error) throw new Error((data.error.message || data.error) + ' [HTTP ' + res.status + ']');
       if(!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      if(data.error) throw new Error(data.error.message || 'API error');
       const text = (data.content||[]).map(b => b.type==='text' ? b.text : '').filter(Boolean).join('\n').trim();
       if(text) return text;
       throw new Error('empty response');
-    }catch(e){ lastErr = e; }
+    }catch(e){ errors.push(url.replace('https://','').split('/')[0] + (url.startsWith('/')?url:'') + ': ' + e.message); }
   }
-  throw lastErr || new Error('all endpoints failed');
+  const err = new Error(errors.join(' | '));
+  err.detail = errors;
+  throw err;
 }
 
 async function sendAI(){
@@ -2165,7 +2168,7 @@ async function sendAI(){
     aiHistory.push({ role:'assistant', content: clean });
   }catch(e){
     hideTyping();
-    addAIMsg('bot', "I couldn't reach the AI service. If this site is deployed on Vercel, make sure the /api/chat function is set up with your ANTHROPIC_API_KEY (see README). Then try again.");
+    addAIMsg('bot', "Couldn't reach the AI service. Diagnostic details:\n\n" + (e.detail ? e.detail.join('\n') : e.message) + "\n\nShare this message with support to pinpoint the fix.");
   }
   aiBusy = false;
   document.getElementById('ai-send').disabled = false;
