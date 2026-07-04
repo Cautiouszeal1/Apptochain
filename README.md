@@ -1,11 +1,17 @@
 # AppToChain Agents
 
-On-chain monitoring agents for BNB Smart Chain — no-code rule engine, real-time alerts, tokenomics, whitepaper, and pitch deck. Single-file static site.
+On-chain monitoring agents for BNB Smart Chain — no-code rule engine, live alerts, tokenomics, whitepaper, pitch deck, and a live web-connected AI assistant. Static site + one serverless function.
 
 ## Deploy
-Static site, zero build step. Push to GitHub, import in Vercel, done.
+1. Push this folder to GitHub (index.html, api/chat.js, README.md)
+2. Import in Vercel — framework "Other", no build command
+3. Vercel → Project → Settings → Environment Variables → add ANTHROPIC_API_KEY
+   (get one at console.anthropic.com → API Keys). Redeploy.
 
-## Before going live
-- `WALLETCONNECT_PROJECT_ID` in index.html — free ID from cloud.walletconnect.com (enables mobile WalletConnect)
-- `EMAILJS_CONFIG` in index.html — optional, enables email alerts
-- User database is per-device on static hosting; wire Supabase for a global cross-user DB and admin-only access
+## Config inside index.html
+- WALLETCONNECT_PROJECT_ID — free ID from cloud.reown.com (enables WalletConnect QR)
+- EMAILJS_CONFIG — optional, enables email alerts
+
+## Notes
+- The AI assistant calls /api/chat (the included serverless function) which holds your API key server-side — the key is never exposed to visitors.
+- User database is per-device on static hosting; wire Supabase for a global cross-user DB.
