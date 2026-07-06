@@ -258,6 +258,10 @@
   .wp-body h3{font-family:var(--mono); font-size:14px; color:var(--brass); margin:22px 0 10px;}
   .wp-body h3:first-child{margin-top:0;}
   .wp-body p{color:var(--sub); font-size:13.5px; line-height:1.75; margin-bottom:12px;}
+  .wp-table{width:100%; border-collapse:collapse; font-size:12px; margin:6px 0 14px;}
+  .wp-table th{text-align:left; font-family:var(--mono); font-size:10.5px; letter-spacing:0.05em; color:var(--sub); text-transform:uppercase; padding:7px 8px; border-bottom:1px solid var(--line);}
+  .wp-table td{padding:7px 8px; border-bottom:1px solid var(--line); color:var(--text); white-space:nowrap;}
+  .wp-table tr:last-child td{border-bottom:none;}
 
   .deck-shell{max-width:860px; margin:0 auto;}
   .deck-viewport{background:var(--panel); border:1px solid var(--line); border-radius:16px; min-height:400px; padding:44px 48px; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden;}
@@ -442,29 +446,54 @@
     <div class="wp-shell reveal">
       <div class="wp-toc">
         <div class="wp-toc-title">CONTENTS</div>
-        <a onclick="wpScroll('wp-1')">1. The problem</a>
-        <a onclick="wpScroll('wp-2')">2. The agent model</a>
-        <a onclick="wpScroll('wp-3')">3. Architecture</a>
-        <a onclick="wpScroll('wp-4')">4. $APTC token</a>
-        <a onclick="wpScroll('wp-5')">5. Security model</a>
-        <a onclick="wpScroll('wp-6')">6. Roadmap</a>
+        <a onclick="wpScroll('wp-0')">Abstract</a>
+        <a onclick="wpScroll('wp-1')">1. Introduction</a>
+        <a onclick="wpScroll('wp-2')">2. Problem statement</a>
+        <a onclick="wpScroll('wp-3')">3. The AppToChain solution</a>
+        <a onclick="wpScroll('wp-4')">4. Technology &amp; architecture</a>
+        <a onclick="wpScroll('wp-5')">5. Tokenomics</a>
+        <a onclick="wpScroll('wp-6')">6. Token utility</a>
+        <a onclick="wpScroll('wp-7')">7. Security &amp; custody</a>
+        <a onclick="wpScroll('wp-8')">8. Roadmap</a>
+        <a onclick="wpScroll('wp-9')">9. Legal disclaimer</a>
         <button class="btn btn-sm" style="width:100%; margin-top:14px;" onclick="downloadWhitepaperPDF()">Download PDF</button>
         <button class="btn btn-sm btn-ghost" style="width:100%; margin-top:8px;" onclick="downloadWhitepaper()">Download .md</button>
       </div>
       <div class="wp-body" id="wp-body">
-        <h3 id="wp-1">1. The problem</h3>
-        <p>On-chain activity never pauses, but people do. Funds move at 4 a.m., approvals get signed by mistake, LP positions drift out of range, vesting cliffs pass unnoticed. Existing tools either demand engineering effort (custom bots, node infrastructure) or offer generic notifications with no logic behind them. The gap: programmable vigilance without programming.</p>
-        <h3 id="wp-2">2. The agent model</h3>
-        <p>An AppToChain agent is a rule set bound to an on-chain target. Rules combine live metrics — native balance, token balance, balance delta, market price, gas — with comparison operators under AND/OR logic. When rules fire, the agent transitions to an alert state and dispatches through every configured channel: Telegram, webhook, desktop push. Quiet hours suppress noise without pausing evaluation.</p>
-        <p>Five agent archetypes ship at launch: Wallet Monitor, Suspicious Activity, Trade Executor, Treasury Guardian, and Position Monitor. All share the same rule engine, so improvements compound across every agent type.</p>
-        <h3 id="wp-3">3. Architecture</h3>
-        <p>Phase one runs client-side: direct RPC reads against BNB Smart Chain (balance, gas, eth_call for BEP-20 state) with market data from public price APIs. Phase two moves evaluation to a persistent worker layer, so agents run whether or not a browser is open, with transaction-level indexing for approval and contract-interaction detection. Phase three introduces delegated execution: session-scoped signing keys with hard caps, enabling Trade Executor and Treasury Guardian to act, not just alert. Custody for treasury operations is designed around Gnosis Safe rather than platform-held keys.</p>
-        <h3 id="wp-4">4. $APTC token</h3>
-        <p>$APTC is the platform's metering and governance asset on BNB Smart Chain. Total supply is fixed at 1,000,000,000. Agent execution beyond the free tier, elevated polling frequency, and priority alert routing are paid in $APTC. Staking unlocks capacity tiers. A portion of platform fees funds quarterly buy-back-and-burn. Governance weight is proportional to staked balance, voting on new agent archetypes, supported chains, and fee parameters. Allocation: 30% community &amp; rewards, 20% liquidity, 15% team (24-month linear vest, 6-month cliff), 15% ecosystem treasury, 10% public sale, 5% partners &amp; advisors, 5% reserve.</p>
-        <h3 id="wp-5">5. Security model</h3>
-        <p>The platform is non-custodial by default: monitoring requires only public addresses, never keys. Wallet connection is used for identity and convenience, not custody. When delegated execution ships, it will use scoped session keys with per-transaction and aggregate caps, revocable at any time, and treasury actions will always settle through user-owned multisigs. Account security includes TOTP two-factor authentication and per-user session logs with device and location visibility.</p>
-        <h3 id="wp-6">6. Roadmap</h3>
-        <p>Q3 2026 — public beta on BSC, five agent types, Telegram and webhook alerts. Q4 2026 — persistent worker layer, transaction indexing, $APTC token generation event. Q1 2027 — delegated execution for Trade Executor, Gnosis Safe treasury integration. Q2 2027 — Solana support, agent marketplace where builders publish rule templates and earn $APTC on installs.</p>
+        <h3 id="wp-0">Abstract</h3>
+        <p>AppToChain Agents is a no-code platform for programmable on-chain vigilance on BNB Smart Chain. Users compose rule-based agents that monitor wallets, tokens, treasuries, and positions in real time, alerting through Telegram, webhooks, and desktop channels — and, in later phases, executing pre-approved actions. The platform is metered and governed by the $APTC token, a fixed-supply BEP-20 asset. This paper describes the problem space, system architecture, token economy, security model, and delivery roadmap.</p>
+        <h3 id="wp-1">1. Introduction</h3>
+        <p>Value on public blockchains moves continuously, but the humans responsible for that value cannot watch continuously. Between DAO treasuries, team vesting schedules, liquidity positions, and personal holdings, the surface area requiring attention has outgrown manual monitoring. AppToChain's thesis: vigilance should be programmable by anyone, not just teams that can afford custom bot infrastructure.</p>
+        <h3 id="wp-2">2. Problem statement</h3>
+        <p>Three structural gaps persist in current tooling. First, accessibility: effective monitoring today requires engineering effort — custom scripts, node access, and maintenance. Second, expressiveness: consumer notification tools offer static thresholds with no compound logic. Third, actionability: alerts without an execution path still require a human to wake up, open a wallet, and act — often too late.</p>
+        <h3 id="wp-3">3. The AppToChain solution</h3>
+        <p>An AppToChain agent binds a rule set to an on-chain target. Rules combine live metrics — native balance, BEP-20 token balance, balance delta, market price, and network gas — through comparison operators under AND/OR logic. Five agent archetypes ship at launch: Wallet Monitor, Suspicious Activity, Trade Executor, Treasury Guardian, and Position Monitor, all sharing one rule engine. When rules fire, agents dispatch alerts across every configured channel, with per-agent quiet hours suppressing noise without pausing evaluation.</p>
+        <h3 id="wp-4">4. Technology &amp; architecture</h3>
+        <p>Phase one operates client-side via direct JSON-RPC reads against BNB Smart Chain (balances, gas, eth_call for token state) with market data from public price APIs. Phase two introduces a persistent worker layer so agents run continuously, independent of any open browser, with transaction-level indexing enabling approval and contract-interaction detection. Phase three adds delegated execution: session-scoped signing keys with hard per-transaction and aggregate caps, revocable at any time. Treasury operations are designed to settle exclusively through user-owned multisig contracts (Gnosis Safe) — the platform never takes custody.</p>
+        <h3 id="wp-5">5. Tokenomics</h3>
+        <p>$APTC is a BEP-20 token on BNB Smart Chain with a fixed total supply of 1,000,000,000. No further minting is possible; a share of platform fees funds a quarterly buy-back-and-burn, making net supply deflationary with usage.</p>
+        <table class="wp-table">
+          <thead><tr><th>Allocation</th><th>%</th><th>Tokens</th><th>TGE unlock</th><th>Vesting</th></tr></thead>
+          <tbody>
+            <tr><td>Community &amp; rewards</td><td>30%</td><td>300,000,000</td><td>5%</td><td>36-month linear emission</td></tr>
+            <tr><td>Liquidity</td><td>20%</td><td>200,000,000</td><td>50%</td><td>Remainder over 12 months</td></tr>
+            <tr><td>Team</td><td>15%</td><td>150,000,000</td><td>0%</td><td>6-month cliff, 24-month linear</td></tr>
+            <tr><td>Ecosystem treasury</td><td>15%</td><td>150,000,000</td><td>10%</td><td>30-month linear</td></tr>
+            <tr><td>Public sale</td><td>10%</td><td>100,000,000</td><td>25%</td><td>6-month linear</td></tr>
+            <tr><td>Partners &amp; advisors</td><td>5%</td><td>50,000,000</td><td>0%</td><td>3-month cliff, 12-month linear</td></tr>
+            <tr><td>Reserve</td><td>5%</td><td>50,000,000</td><td>0%</td><td>Locked 12 months minimum</td></tr>
+          </tbody>
+        </table>
+        <p>Status: the $APTC contract is not yet deployed. Parameters above constitute the launch plan; final values publish with the verified contract address on BscScan.</p>
+        <h3 id="wp-6">6. Token utility</h3>
+        <p>$APTC meters and governs the platform. Agent execution beyond the free tier, elevated polling frequency, and priority alert routing are paid in $APTC. Staking unlocks capacity tiers — more concurrent agents and faster checks. Governance weight is proportional to staked balance, voting on new agent archetypes, supported chains, and fee parameters. Fee revenue funds the quarterly burn described above.</p>
+        <h3 id="wp-7">7. Security &amp; custody</h3>
+        <p>The platform is non-custodial by default: monitoring requires only public addresses, never private keys. Wallet connection serves identity and convenience, not custody. Delegated execution, when introduced, uses scoped session keys with hard caps and instant revocation. Account security includes TOTP two-factor authentication and per-user session logs with device and location visibility. Smart contracts will undergo independent audit before the token generation event, with reports published publicly.</p>
+        <h3 id="wp-8">8. Roadmap</h3>
+        <p>Q3 2026 — public beta on BSC: five agent types, rule engine v1, Telegram/webhook/desktop alerts. Q4 2026 — persistent worker layer, transaction indexing, contract audit, and $APTC token generation event with DEX liquidity. Q1 2027 — delegated execution for Trade Executor and Gnosis Safe treasury integration. Q2 2027 — Solana support and an agent marketplace where builders publish rule templates and earn $APTC on installs.</p>
+        <h3 id="wp-9">9. Legal disclaimer</h3>
+        <p>This document is for informational purposes only and does not constitute an offer to sell or a solicitation to buy securities in any jurisdiction. $APTC is designed as a utility token for platform access and governance; it confers no equity, dividend, or profit-sharing rights. Digital assets carry significant risk, including total loss. Nothing herein is financial, legal, or tax advice. Forward-looking statements — including roadmap items and token parameters — are plans, not guarantees, and may change. Prospective participants should conduct independent due diligence and consult professional advisors before any participation.</p>
+      
       </div>
     </div>
   </section>
@@ -817,6 +846,15 @@
       <div style="font-size:18px; width:22px; text-align:center;">📱</div>
       <div><div style="font-size:13px; font-weight:600;">WalletConnect</div><div style="font-size:11px; color:var(--sub);">Scan with any mobile wallet</div></div>
     </div>
+    <div class="wallet-choice" onclick="toggleWatchOnly()" style="display:flex; align-items:center; gap:10px; background:var(--ink); border:1px solid var(--line); border-radius:10px; padding:12px 13px; margin-bottom:10px; cursor:pointer;">
+      <div style="font-size:18px; width:22px; text-align:center;">👁</div>
+      <div><div style="font-size:13px; font-weight:600;">Watch-only</div><div style="font-size:11px; color:var(--sub);">Paste any BSC address — no wallet app needed</div></div>
+    </div>
+    <div id="watch-only-row" style="display:none; margin-bottom:10px;">
+      <input id="watch-addr" placeholder="0x..." style="width:100%; background:var(--ink); border:1px solid var(--line); border-radius:9px; padding:11px 12px; color:var(--text); font-size:13px; margin-bottom:8px;">
+      <button class="btn btn-sm" style="width:100%;" onclick="connectWatchOnly()">Use this address</button>
+    </div>
+    <div id="wallet-env" class="hint" style="margin-bottom:6px;"></div>
     <div id="wallet-status" class="hint"></div>
     <div class="modal-actions"><button class="btn btn-ghost" onclick="closeWalletPicker()">Cancel</button></div>
   </div>
@@ -899,6 +937,7 @@ if(!window.storage){
 /* =========================================================
    DATA / CONSTANTS
    ========================================================= */
+const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const TEMPLATES = [
   {id:'wallet_monitor', icon:'👁', name:'Wallet Monitor', desc:'Watches a BSC address and evaluates rules against real balance and price data.',
    note:'Live: BNB + BEP-20 token balance via BSC RPC, BNB/USDT price via Binance public API. Build any combination of rules below.',
@@ -1803,7 +1842,27 @@ async function revokeSession(id){
 /* =========================================================
    WALLET CONNECT
    ========================================================= */
-function openWalletPicker(){ document.getElementById('wallet-overlay').classList.add('active'); document.getElementById('wallet-status').textContent=''; }
+function openWalletPicker(){
+  document.getElementById('wallet-overlay').classList.add('active');
+  document.getElementById('wallet-status').textContent='';
+  const env = document.getElementById('wallet-env');
+  if(window.ethereum){
+    const name = window.ethereum.isMetaMask ? 'MetaMask' : window.ethereum.isTrust || window.ethereum.isTrustWallet ? 'Trust Wallet' : window.ethereum.isOkxWallet ? 'OKX' : 'a wallet';
+    env.innerHTML = '<span style="color:var(--ok);">●</span> ' + name + ' detected — tap Browser wallet above.';
+  }else{
+    env.innerHTML = '<span style="color:var(--warn);">●</span> No wallet in this browser. On mobile: tap Browser wallet for open-in-app links, or use Watch-only below.';
+  }
+}
+function toggleWatchOnly(){
+  const row = document.getElementById('watch-only-row');
+  row.style.display = row.style.display==='none' ? 'block' : 'none';
+}
+function connectWatchOnly(){
+  const addr = document.getElementById('watch-addr').value.trim();
+  const status = document.getElementById('wallet-status');
+  if(!/^0x[a-fA-F0-9]{40}$/.test(addr)){ status.textContent = 'That does not look like a valid BSC address (0x + 40 hex characters).'; return; }
+  onWalletConnected(addr);
+}
 function closeWalletPicker(){ document.getElementById('wallet-overlay').classList.remove('active'); }
 
 async function ensureBscChain(provider){
@@ -2174,7 +2233,6 @@ document.addEventListener('keydown', ev=>{ if(ev.key==='Escape') closeDrawer(); 
 /* =========================================================
    MARKETING SITE: MOTION + INTERACTIVE SECTIONS
    ========================================================= */
-const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function initSiteMotion(){
   // Scroll reveals
@@ -2325,8 +2383,17 @@ function wpScroll(id){
 function downloadWhitepaper(){
   const body = document.getElementById('wp-body');
   let md = '# AppToChain Agents — Whitepaper\n\n';
-  body.querySelectorAll('h3, p').forEach(el=>{
+  body.querySelectorAll('h3, p, table').forEach(el=>{
     if(el.tagName==='H3') md += '## ' + el.textContent + '\n\n';
+    else if(el.tagName==='TABLE'){
+      const rows = [...el.querySelectorAll('tr')].map(tr=>[...tr.children].map(c=>c.textContent.trim()));
+      if(rows.length){
+        md += '| ' + rows[0].join(' | ') + ' |\n';
+        md += '|' + rows[0].map(()=> '---').join('|') + '|\n';
+        rows.slice(1).forEach(r=>{ md += '| ' + r.join(' | ') + ' |\n'; });
+        md += '\n';
+      }
+    }
     else md += el.textContent + '\n\n';
   });
   const blob = new Blob([md], {type:'text/markdown'});
@@ -2352,7 +2419,7 @@ async function ensureJsPDF(){
   return window.jspdf.jsPDF;
 }
 async function ensurePptx(){
-  if(!window.PptxGenJS) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/PptxGenJS/3.12.0/pptxgen.bundle.min.js');
+  if(!window.PptxGenJS) await loadScript('https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
   return window.PptxGenJS;
 }
 
@@ -2376,7 +2443,20 @@ async function downloadWhitepaperPDF(){
     pdfHeader(doc, 'Whitepaper');
     let y = 42;
     const body = document.getElementById('wp-body');
-    body.querySelectorAll('h3, p').forEach(el=>{
+    body.querySelectorAll('h3, p, table').forEach(el=>{
+      if(el.tagName==='TABLE'){
+        const rows = [...el.querySelectorAll('tr')].map(tr=>[...tr.children].map(c=>c.textContent.trim()));
+        doc.setFont('courier','normal'); doc.setFontSize(8.2); doc.setTextColor(60,64,72);
+        rows.forEach((r,ri)=>{
+          if(y + 6 > 282){ doc.addPage(); y = 20; }
+          if(ri===0){ doc.setFont('courier','bold'); } else { doc.setFont('courier','normal'); }
+          const cols = [16, 66, 84, 116, 138];
+          r.forEach((cell,ci)=>{ if(ci<cols.length) doc.text(cell.slice(0,30), cols[ci], y); });
+          y += 5.6;
+        });
+        y += 4;
+        return;
+      }
       const isH = el.tagName==='H3';
       const lines = doc.splitTextToSize(el.textContent, 178);
       const height = lines.length * (isH ? 6 : 5) + (isH ? 6 : 3);
