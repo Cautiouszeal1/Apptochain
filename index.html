@@ -8,57 +8,67 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22white%22>⛓</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ============ Tokens ============ */
 :root{
-  --bg:#07070a;
-  --bg-soft:#0a0a0d;
-  --elevated:#0e0e12;
-  --surface:#111116;
-  --surface-2:#16161c;
-  --border:#1e1e26;
-  --border-strong:#2a2a34;
-  --text:#f1f1f4;
-  --text-dim:#8b8b96;
-  --text-faint:#55555f;
-  --chrome-1:#eef0f4;
-  --chrome-2:#9ea1ac;
+  --bg:#050506;
+  --bg-soft:#08080a;
+  --elevated:#0f0f12;
+  --surface:#121214;
+  --surface-2:#18181c;
+  --border:#232327;
+  --border-strong:#333338;
+  --text:#f5f5f7;
+  --text-dim:#9a9aa2;
+  --text-faint:#5c5c64;
+  --chrome-1:#f5f5f8;
+  --chrome-2:#a9a9b2;
+  --accent:#f5f5f8;
+  --accent-2:#c4c4cc;
+  --accent-soft:rgba(255,255,255,.06);
+  --accent-grad: linear-gradient(180deg, #ffffff, #b7b7c0);
   --pos:#3ed598;
   --pos-bg:rgba(62,213,152,.12);
   --neg:#ff5c6c;
   --neg-bg:rgba(255,92,108,.12);
-  --focus:#7c9cff;
+  --focus:#e8e8ee;
   --radius-sm:8px;
   --radius-md:14px;
   --radius-lg:20px;
   --sidebar-w:248px;
-  --shadow-card: 0 1px 0 rgba(255,255,255,.02) inset, 0 20px 40px -24px rgba(0,0,0,.6);
-  --font-display:'Chakra Petch', 'Segoe UI', sans-serif;
-  --font-body:'Manrope', 'Segoe UI', sans-serif;
+  --shadow-card: 0 1px 0 rgba(255,255,255,.03) inset, 0 20px 40px -24px rgba(0,0,0,.75);
+  --glow-accent: 0 0 0 1px rgba(255,255,255,.08), 0 8px 30px -12px rgba(255,255,255,.12);
+  --font-display:'Sora', 'Segoe UI', sans-serif;
+  --font-body:'Inter', 'Segoe UI', sans-serif;
   --font-mono:'JetBrains Mono', ui-monospace, monospace;
 }
 html[data-theme="light"]{
-  --bg:#f5f5f3;
+  --bg:#f6f6f4;
   --bg-soft:#efefec;
   --elevated:#ffffff;
   --surface:#ffffff;
   --surface-2:#f2f2ef;
   --border:#e2e2dd;
   --border-strong:#cfcfc8;
-  --text:#16161a;
+  --text:#131316;
   --text-dim:#63636b;
   --text-faint:#9a9aa0;
-  --chrome-1:#101014;
-  --chrome-2:#4a4a52;
+  --chrome-1:#131316;
+  --chrome-2:#48484f;
+  --accent:#131316;
+  --accent-2:#48484f;
+  --accent-soft:rgba(0,0,0,.05);
+  --accent-grad: linear-gradient(180deg, #1a1a1e, #45454c);
   --pos:#0f9d63;
   --pos-bg:rgba(15,157,99,.1);
   --neg:#d8354a;
   --neg-bg:rgba(216,53,74,.1);
+  --glow-accent: 0 0 0 1px rgba(0,0,0,.05), 0 8px 24px -12px rgba(0,0,0,.15);
 }
 
 *,*::before,*::after{box-sizing:border-box}
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0;overflow-x:hidden;width:100%}
 body{
   background:var(--bg);
   color:var(--text);
@@ -91,7 +101,7 @@ button{font-family:inherit}
 html[data-theme="light"] #globe-canvas{opacity:.18}
 
 /* ============ Layout shell ============ */
-#app{display:flex;position:relative;z-index:1;min-height:100vh}
+#app{display:flex;position:relative;z-index:1;min-height:100vh;max-width:100vw;overflow-x:hidden}
 
 .mobile-topbar{display:none}
 
@@ -278,7 +288,14 @@ h1,h2,h3{font-family:var(--font-display);font-weight:700;margin:0;letter-spacing
 .pill-delta.neg{background:var(--neg-bg)}
 
 /* ============ Hero ============ */
-.hero{display:flex;justify-content:space-between;gap:40px;padding:18px 0 8px;align-items:flex-start}
+.hero{display:flex;justify-content:space-between;gap:40px;padding:18px 0 8px;align-items:flex-start;position:relative}
+.hero::before{
+  content:'';position:absolute;top:-120px;right:-160px;width:480px;height:480px;
+  background:radial-gradient(circle, var(--accent-soft), transparent 70%);
+  pointer-events:none;z-index:-1;
+}
+.dapp-card:hover, .featured-card:hover{box-shadow:var(--glow-accent)}
+.cat-chip .ic{font-size:20px;margin-bottom:6px;filter:drop-shadow(0 0 8px currentColor)}
 .hero-copy{max-width:560px}
 .hero h1{font-size:38px;line-height:1.12;margin-bottom:14px}
 .hero h1 .hl{
@@ -374,7 +391,6 @@ h1,h2,h3{font-family:var(--font-display);font-weight:700;margin:0;letter-spacing
   padding:16px 10px;text-align:center;cursor:pointer;transition:border-color .14s, transform .14s;
 }
 .cat-chip:hover{border-color:var(--border-strong);transform:translateY(-2px)}
-.cat-chip .ic{font-size:20px;margin-bottom:6px}
 .cat-chip .lbl{font-size:12px;font-weight:700}
 .cat-chip .cnt{font-size:10.5px;color:var(--text-faint);font-family:var(--font-mono)}
 
@@ -605,7 +621,7 @@ th.num{text-align:right}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="currentColor" stroke-width="2"/></svg>
           <span id="alerts-count" class="badge-count" style="display:none">0</span>
         </button>
-        <button class="btn btn-primary" id="wallet-btn">Connect wallet</button>
+        <button class="btn btn-ghost" id="wallet-btn">Connect wallet</button>
       </div>
     </header>
 
@@ -687,19 +703,20 @@ function toast(msg){
 
 /* ---------------- Category mapping ---------------- */
 const CATEGORY_DEFS = [
-  {id:"defi", label:"DeFi", icon:"◈", match:["Dexes","Lending","Yield","Yield Aggregator","CDP","Liquid Staking","Derivatives","Options","Synthetics","Insurance","Staking Pool","Leveraged Farming","Yield Aggregator","Options Vault","Liquidity manager","Restaking","Liquid Restaking","Farm"]},
-  {id:"ai", label:"AI", icon:"✦", match:["AI Agents","AI"]},
-  {id:"gaming", label:"Gaming", icon:"◆", match:["Gaming","Metaverse","Play to Earn"]},
-  {id:"nfts", label:"NFTs", icon:"▣", match:["NFT Marketplace","NFT Lending"]},
-  {id:"depin", label:"DePIN", icon:"⌬", match:["DePIN"]},
-  {id:"socialfi", label:"SocialFi", icon:"◎", match:["SocialFi"]},
-  {id:"infrastructure", label:"Infrastructure", icon:"▤", match:["Oracle","Indexer","Infrastructure","Services","Staking"]},
-  {id:"launchpads", label:"Launchpads", icon:"▲", match:["Launchpad"]},
-  {id:"wallets", label:"Wallets", icon:"◫", match:["Wallets","Wallet"]},
-  {id:"bridges", label:"Bridges", icon:"⇄", match:["Bridge","Cross Chain","Chain"]},
-  {id:"stablecoins", label:"Stablecoins", icon:"●", match:["Algo-Stables","Stablecoin"]},
-  {id:"rwa", label:"RWA", icon:"◧", match:["RWA","Onchain Capital Allocator"]},
-  {id:"payments", label:"Payments", icon:"◐", match:["Payments"]},
+  {id:"defi", label:"DeFi", icon:"◈", color:"#5b8cff", match:["Dexes","Lending","Yield","Yield Aggregator","CDP","Liquid Staking","Derivatives","Options","Synthetics","Insurance","Staking Pool","Leveraged Farming","Options Vault","Liquidity manager","Restaking","Liquid Restaking","Farm"]},
+  {id:"ai", label:"AI x Crypto", icon:"✦", color:"#c77dff", match:["AI Agents","AI"]},
+  {id:"gaming", label:"Gaming", icon:"◆", color:"#ff9f45", match:["Gaming","Metaverse","Play to Earn"]},
+  {id:"gambling", label:"Gambling", icon:"◎", color:"#ff5c9c", match:["Gambling","Prediction Market","Casino","Betting"]},
+  {id:"nfts", label:"NFTs", icon:"▣", color:"#4dd0e1", match:["NFT Marketplace","NFT Lending"]},
+  {id:"depin", label:"DePIN", icon:"⌬", color:"#2fdc8f", match:["DePIN"]},
+  {id:"social", label:"Social", icon:"◍", color:"#ffd166", match:["SocialFi","Social"]},
+  {id:"rwa", label:"Real-World Assets", icon:"◧", color:"#7cd992", match:["RWA","Onchain Capital Allocator"]},
+  {id:"infrastructure", label:"Infrastructure", icon:"▤", color:"#9598a8", match:["Oracle","Indexer","Infrastructure","Services","Staking"]},
+  {id:"launchpads", label:"Launchpads", icon:"▲", color:"#a68bff", match:["Launchpad"]},
+  {id:"wallets", label:"Wallets", icon:"◫", color:"#6cc4ff", match:["Wallets","Wallet"]},
+  {id:"bridges", label:"Bridges", icon:"⇄", color:"#5bd1c9", match:["Bridge","Cross Chain","Chain"]},
+  {id:"stablecoins", label:"Stablecoins", icon:"●", color:"#7cd992", match:["Algo-Stables","Stablecoin"]},
+  {id:"payments", label:"Payments", icon:"◐", color:"#ff8a65", match:["Payments"]},
 ];
 function classify(cat){
   if(!cat) return "infrastructure";
@@ -707,6 +724,10 @@ function classify(cat){
   return "infrastructure";
 }
 function catLabel(id){ const c=CATEGORY_DEFS.find(c=>c.id===id); return c?c.label:id; }
+function catColor(id){ return "var(--text-dim)"; }
+function catTag(id, cls){
+  return `<span class="${cls||'featured-cat'}">${esc(catLabel(id))}</span>`;
+}
 
 /* ---------------- Chain color palette ---------------- */
 const CHAIN_COLORS = {
@@ -740,7 +761,6 @@ async function fetchJSON(url, timeoutMs=15000){
 async function loadData(force){
   if(STORE.loadedAt && !force && (Date.now()-STORE.loadedAt < 90000)) return STORE;
   STORE.loading = true; STORE.error=null;
-  render(); // show skeletons
   try{
     const [protocols, chains, chart, dexs] = await Promise.all([
       fetchJSON(DL+"/protocols"),
@@ -984,7 +1004,7 @@ function dappCardHTML(p, rank){
     </div>
     <img class="dapp-logo" src="${p.logo||logoFallback(p.name)}" data-name="${esc(p.name)}" onerror="onImgErr(this)" loading="lazy" alt="">
     <div class="dapp-name">${esc(p.name)}</div>
-    <div class="dapp-cat">${esc(catLabel(p.bucket))}</div>
+    <div class="dapp-cat" style="color:${catColor(p.bucket)}">${esc(catLabel(p.bucket))}</div>
     <div class="dapp-metrics">
       <span class="dapp-tvl">${fmtUSD(p.tvl)}</span>
       ${deltaSpan(p.change1d)}
@@ -1093,7 +1113,7 @@ async function renderHome(){
     <div class="section-head"><h2>Featured projects</h2><a href="#/explore">View all →</a></div>
     <div class="grid grid-5" id="home-featured">
       ${featured.map(f=>`<div class="featured-card" data-open="${esc(f.id)}">
-        <span class="featured-cat">${esc(catLabel(f.bucket))}</span>
+        ${catTag(f.bucket)}
         <h3>${esc(f.name)}</h3>
         <p>${esc((f.description||`${f.name} is a leading ${catLabel(f.bucket).toLowerCase()} protocol tracked across ${f.chains.length||1} chain${f.chains.length===1?"":"s"}.`).slice(0,110))}${(f.description||"").length>110?"…":""}</p>
         <div class="featured-tvl">${fmtUSD(f.tvl)}</div>
@@ -1601,7 +1621,7 @@ function openDrawer(id){
     <div style="clear:both;padding-top:6px">
       <img class="dapp-logo" style="width:52px;height:52px;border-radius:12px" src="${p.logo||logoFallback(p.name)}" data-name="${esc(p.name)}" onerror="onImgErr(this)" alt="">
       <h2 style="font-size:20px;margin:14px 0 2px">${esc(p.name)}</h2>
-      <span class="featured-cat">${esc(catLabel(p.bucket))}</span>
+      ${catTag(p.bucket)}
       <p style="font-size:13px;color:var(--text-dim);line-height:1.6;margin:14px 0">${esc(p.description) || `${esc(p.name)} is tracked across ${p.chains.length||1} chain${p.chains.length===1?"":"s"} with a live TVL feed from DefiLlama.`}</p>
       <div class="grid grid-2" style="margin-bottom:16px">
         <div class="stat-card"><div class="stat-val">${fmtUSD(p.tvl)}</div><div class="stat-label">Total value locked</div></div>
@@ -1670,8 +1690,20 @@ function initMobileNav(){
   const toggle = document.getElementById("mobile-nav-toggle");
   const sidebar = document.getElementById("sidebar");
   const scrim = document.getElementById("sidebar-scrim");
-  toggle.addEventListener("click", ()=>{ sidebar.classList.add("open"); scrim.classList.add("open"); });
-  scrim.addEventListener("click", closeMobileSidebar);
+  function setIcon(open){
+    toggle.innerHTML = open
+      ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+      : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  }
+  toggle.addEventListener("click", ()=>{
+    const willOpen = !sidebar.classList.contains("open");
+    sidebar.classList.toggle("open", willOpen);
+    scrim.classList.toggle("open", willOpen);
+    setIcon(willOpen);
+  });
+  scrim.addEventListener("click", ()=>{ closeMobileSidebar(); setIcon(false); });
+  document.querySelectorAll(".nav-item").forEach(el=>el.addEventListener("click", ()=>setIcon(false)));
   document.getElementById("mobile-wallet-toggle").addEventListener("click", connectWallet);
 }
 
