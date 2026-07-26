@@ -1548,7 +1548,29 @@ async function checkAlertsNow(){
 setInterval(()=>{ if(currentPath()==="/alerts") checkAlertsNow(); }, 45000);
 
 /* ---------------- News (live, real headlines via CryptoCompare's free public news API — no key required) ---------------- */
-const NEWS_API = "https://min-api.cryptocompare.com/data/v2/news/?lang=EN";
+const NEWS_SOURCES = [
+  { name:"cryptocompare", url:"https://min-api.cryptocompare.com/data/v2/news/?lang=EN",
+    parse: (data) => (data && data.Data ? data.Data : []).map(a=>({
+      title:a.title, url:a.url, body:a.body||"", source:a.source_info?.name||a.source||"Unknown",
+      published_on: a.published_on || null,
+    }))
+  },
+  { name:"cointelegraph-rss", url:"https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent("https://cointelegraph.com/rss"),
+    parse: (data) => (data && data.items ? data.items : []).map(a=>({
+      title:a.title, url:a.link, body: stripHtml(a.description||a.content||""), source:"Cointelegraph",
+      published_on: a.pubDate ? Math.floor(new Date(a.pubDate.replace(" ","T")+"Z").getTime()/1000) : null,
+    }))
+  },
+  { name:"coindesk-rss", url:"https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent("https://www.coindesk.com/arc/outboundfeeds/rss/"),
+    parse: (data) => (data && data.items ? data.items : []).map(a=>({
+      title:a.title, url:a.link, body: stripHtml(a.description||a.content||""), source:"CoinDesk",
+      published_on: a.pubDate ? Math.floor(new Date(a.pubDate.replace(" ","T")+"Z").getTime()/1000) : null,
+    }))
+  },
+];
+function stripHtml(html){
+  return String(html||"").replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/\s+/g," ").trim();
+}
 let NEWS_STATE = { items:null, loading:false, error:null, filter:"all" };
 async function renderNews(){
   setView(`
@@ -1568,28 +1590,30 @@ async function loadNews(force){
   NEWS_STATE.loading = true; NEWS_STATE.error = null;
   const list = document.getElementById("news-list");
   if(list) list.innerHTML = `<div class="empty-state"><h3>Loading live headlines…</h3></div>`;
-  try{
-    const data = await fetchJSON(NEWS_API, 12000);
-    const items = (data && data.Data) ? data.Data.slice(0, 40) : [];
-    NEWS_STATE.items = items;
-    NEWS_STATE.loading = false;
-  }catch(e){
-    NEWS_STATE.loading = false;
-    NEWS_STATE.error = "Couldn't reach the live news feed right now.";
-    console.error(e);
+  let items = [];
+  let lastErr = null;
+  for(const src of NEWS_SOURCES){
+    try{
+      const data = await fetchJSON(src.url, 10000);
+      const parsed = src.parse(data).filter(a=>a.title && a.url).slice(0,30);
+      if(parsed.length){ items = parsed; lastErr = null; break; }
+    }catch(e){ lastErr = e; console.warn("news source failed:", src.name, e.message); }
   }
+  NEWS_STATE.loading = false;
+  if(items.length){ NEWS_STATE.items = items; NEWS_STATE.error = null; }
+  else { NEWS_STATE.error = "Couldn't reach any live news source right now."; }
 }
 function paintNews(){
   const listEl = document.getElementById("news-list");
   const filterEl = document.getElementById("news-filter");
   if(!listEl) return;
   if(NEWS_STATE.error){
-    listEl.innerHTML = `<div class="empty-state"><h3>${esc(NEWS_STATE.error)}</h3><p>The feed is fetched live from CryptoCompare's public news API — this usually resolves on a refresh.</p></div>`;
+    listEl.innerHTML = `<div class="empty-state"><h3>${esc(NEWS_STATE.error)}</h3><p>We try three independent live sources before giving up — this usually resolves on a refresh.</p></div>`;
     return;
   }
   const items = NEWS_STATE.items || [];
   if(filterEl && filterEl.children.length<=1 && items.length){
-    const sources = Array.from(new Set(items.map(i=>i.source_info?.name || i.source))).filter(Boolean).slice(0,8);
+    const sources = Array.from(new Set(items.map(i=>i.source))).filter(Boolean).slice(0,8);
     filterEl.innerHTML = `<div class="chip active" data-f="all">All sources</div>` + sources.map(s=>`<div class="chip" data-f="${esc(s)}">${esc(s)}</div>`).join("");
     filterEl.querySelectorAll(".chip").forEach(c=>c.addEventListener("click", ()=>{
       filterEl.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
@@ -1598,9 +1622,9 @@ function paintNews(){
       paintNews();
     }));
   }
-  const filtered = NEWS_STATE.filter==="all" ? items : items.filter(i=>(i.source_info?.name||i.source)===NEWS_STATE.filter);
+  const filtered = NEWS_STATE.filter==="all" ? items : items.filter(i=>i.source===NEWS_STATE.filter);
   listEl.innerHTML = filtered.length ? filtered.map(a=>{
-    const src = esc(a.source_info?.name || a.source || "Unknown source");
+    const src = esc(a.source || "Unknown source");
     const when = a.published_on ? timeAgo(a.published_on) : "";
     const body = esc((a.body||"").slice(0,160)) + ((a.body||"").length>160 ? "…" : "");
     return `<a href="${esc(a.url)}" target="_blank" rel="noopener" class="press-item" style="cursor:pointer">
