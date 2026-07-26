@@ -644,7 +644,7 @@ th.num{text-align:right}
 
     <footer class="app-footer">
       <span>© <span id="year"></span> ApptoChain. Data via DefiLlama &amp; CoinGecko public APIs.</span>
-      <span class="app-footer-links"><a href="#/press">Press</a><a href="#/about">About</a><a href="#/submit">List a project</a></span>
+      <span class="app-footer-links"><a href="#/news">News</a><a href="#/about">About</a><a href="#/submit">List a project</a></span>
     </footer>
   </div>
 </div>
@@ -880,7 +880,7 @@ const NAV = [
     {id:"alerts", label:"Alerts", path:"/alerts", icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="currentColor" stroke-width="2"/></svg>'},
   ]},
   {section:"More", items:[
-    {id:"press", label:"Press Releases", path:"/press", icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="14" height="16" rx="1.5" stroke="currentColor" stroke-width="2"/><path d="M7 8h6M7 12h6M7 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 8h2a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {id:"news", label:"News", path:"/news", icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="14" height="16" rx="1.5" stroke="currentColor" stroke-width="2"/><path d="M7 8h6M7 12h6M7 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 8h2a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'},
     {id:"about", label:"About", path:"/about", icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 8v.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'},
   ]},
 ];
@@ -1547,17 +1547,70 @@ async function checkAlertsNow(){
 }
 setInterval(()=>{ if(currentPath()==="/alerts") checkAlertsNow(); }, 45000);
 
-/* ---------------- Press releases ---------------- */
-async function renderPress(){
+/* ---------------- News (live, real headlines via CryptoCompare's free public news API — no key required) ---------------- */
+const NEWS_API = "https://min-api.cryptocompare.com/data/v2/news/?lang=EN";
+let NEWS_STATE = { items:null, loading:false, error:null, filter:"all" };
+async function renderNews(){
   setView(`
     <p class="eyebrow">More</p>
-    <h1 class="page-title">Press releases</h1>
-    <p class="page-sub">Product news and platform milestones.</p>
-    <div class="empty-state">
-      <h3>Nothing published yet</h3>
-      <p>This page is wired up and ready — connect it to your CMS or a simple JSON feed and entries will appear here automatically.</p>
+    <h1 class="page-title">News</h1>
+    <p class="page-sub">Live Web3 &amp; crypto headlines, pulled straight from the wire — not written or edited by ApptoChain.</p>
+    <div class="chip-row" id="news-filter" style="margin-bottom:18px">
+      <div class="chip active" data-f="all">All sources</div>
     </div>
+    <div id="news-list"></div>
   `);
+  await loadNews();
+  paintNews();
+}
+async function loadNews(force){
+  if(NEWS_STATE.items && !force) return;
+  NEWS_STATE.loading = true; NEWS_STATE.error = null;
+  const list = document.getElementById("news-list");
+  if(list) list.innerHTML = `<div class="empty-state"><h3>Loading live headlines…</h3></div>`;
+  try{
+    const data = await fetchJSON(NEWS_API, 12000);
+    const items = (data && data.Data) ? data.Data.slice(0, 40) : [];
+    NEWS_STATE.items = items;
+    NEWS_STATE.loading = false;
+  }catch(e){
+    NEWS_STATE.loading = false;
+    NEWS_STATE.error = "Couldn't reach the live news feed right now.";
+    console.error(e);
+  }
+}
+function paintNews(){
+  const listEl = document.getElementById("news-list");
+  const filterEl = document.getElementById("news-filter");
+  if(!listEl) return;
+  if(NEWS_STATE.error){
+    listEl.innerHTML = `<div class="empty-state"><h3>${esc(NEWS_STATE.error)}</h3><p>The feed is fetched live from CryptoCompare's public news API — this usually resolves on a refresh.</p></div>`;
+    return;
+  }
+  const items = NEWS_STATE.items || [];
+  if(filterEl && filterEl.children.length<=1 && items.length){
+    const sources = Array.from(new Set(items.map(i=>i.source_info?.name || i.source))).filter(Boolean).slice(0,8);
+    filterEl.innerHTML = `<div class="chip active" data-f="all">All sources</div>` + sources.map(s=>`<div class="chip" data-f="${esc(s)}">${esc(s)}</div>`).join("");
+    filterEl.querySelectorAll(".chip").forEach(c=>c.addEventListener("click", ()=>{
+      filterEl.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
+      c.classList.add("active");
+      NEWS_STATE.filter = c.dataset.f;
+      paintNews();
+    }));
+  }
+  const filtered = NEWS_STATE.filter==="all" ? items : items.filter(i=>(i.source_info?.name||i.source)===NEWS_STATE.filter);
+  listEl.innerHTML = filtered.length ? filtered.map(a=>{
+    const src = esc(a.source_info?.name || a.source || "Unknown source");
+    const when = a.published_on ? timeAgo(a.published_on) : "";
+    const body = esc((a.body||"").slice(0,160)) + ((a.body||"").length>160 ? "…" : "");
+    return `<a href="${esc(a.url)}" target="_blank" rel="noopener" class="press-item" style="cursor:pointer">
+      <div>
+        <p class="press-title">${esc(a.title)}</p>
+        <p class="press-excerpt">${body}</p>
+        <p class="press-excerpt" style="margin-top:4px;color:var(--text-faint)">${src} · ${when} ↗</p>
+      </div>
+    </a>`;
+  }).join("") : `<div class="empty-state"><h3>No headlines from that source right now</h3><p>Try "All sources".</p></div>`;
 }
 
 /* ---------------- Submit project ---------------- */
@@ -1744,7 +1797,7 @@ route("/airdrops", renderAirdrops);
 route("/watchlist", renderWatchlist);
 route("/portfolio", renderPortfolio);
 route("/alerts", renderAlerts);
-route("/press", renderPress);
+route("/news", renderNews);
 route("/submit", renderSubmit);
 route("/about", renderAbout);
 
