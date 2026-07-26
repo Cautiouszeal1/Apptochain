@@ -537,15 +537,20 @@ th.num{text-align:right}
     background:var(--bg);z-index:18;
   }
   .mobile-logo{display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:700;font-size:14px}
-  .topbar{padding:12px 16px;flex-wrap:wrap}
-  .topbar .btn-primary{order:1}
-  .search-wrap{order:3;max-width:100%;flex-basis:100%}
-  .view{padding:18px 16px 40px}
-  .hero{flex-direction:column;gap:16px}
-  .hero h1{font-size:28px}
-  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .topbar{padding:10px 16px}
+  .topbar-actions{display:none}
+  .search-wrap{max-width:100%}
+  .view{padding:16px 16px 36px}
+  .hero{flex-direction:column;gap:14px;padding:6px 0 4px}
+  .hero h1{font-size:26px}
+  .hero p{font-size:13.5px}
+  .section-head{margin:24px 0 12px}
+  .stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat-card{padding:13px 14px}
   .grid-6,.grid-5,.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}
   .cat-grid{grid-template-columns:repeat(2,1fr)}
+  .panel-grid{gap:10px;margin-top:16px}
+  .panel{padding:14px}
   #globe-canvas{opacity:.25;width:100vw;height:100vw;top:-20%;right:-30%}
   .drawer{width:100vw;max-width:100vw}
 }
@@ -573,9 +578,19 @@ th.num{text-align:right}
       <svg width="22" height="22" viewBox="0 0 40 40" fill="none"><path d="M14 30L20 8L26 30" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 22h6a3 3 0 0 0 0-6h-6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
       <span>ApptoChain</span>
     </div>
-    <button class="icon-btn" id="mobile-wallet-toggle" aria-label="Connect wallet">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    </button>
+    <div style="display:flex;align-items:center;gap:2px">
+      <button class="icon-btn" id="mobile-watchlist-toggle" aria-label="Watchlist">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 16.9 6.4 20.1l1.4-6.3-4.8-4.3 6.4-.6L12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <span id="mobile-watchlist-count" class="badge-count" style="display:none">0</span>
+      </button>
+      <button class="icon-btn" id="mobile-alerts-toggle" aria-label="Alerts">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="currentColor" stroke-width="2"/></svg>
+        <span id="mobile-alerts-count" class="badge-count" style="display:none">0</span>
+      </button>
+      <button class="icon-btn" id="mobile-wallet-toggle" aria-label="Connect wallet">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
   </header>
 
   <!-- Sidebar -->
@@ -809,8 +824,11 @@ function setAlerts(arr){ localStorage.setItem(LS_ALERTS, JSON.stringify(arr)); u
 function updateBadges(){
   const w=getWatchlist(), a=getAlerts().filter(x=>!x.triggered);
   const wb=document.getElementById("watchlist-count"), ab=document.getElementById("alerts-count");
-  if(w.length){wb.style.display="flex";wb.textContent=w.length;} else wb.style.display="none";
-  if(a.length){ab.style.display="flex";ab.textContent=a.length;} else ab.style.display="none";
+  const mwb=document.getElementById("mobile-watchlist-count"), mab=document.getElementById("mobile-alerts-count");
+  if(w.length){wb.style.display="flex";wb.textContent=w.length;mwb.style.display="flex";mwb.textContent=w.length;}
+  else {wb.style.display="none";mwb.style.display="none";}
+  if(a.length){ab.style.display="flex";ab.textContent=a.length;mab.style.display="flex";mab.textContent=a.length;}
+  else {ab.style.display="none";mab.style.display="none";}
 }
 
 /* expose to global for inline handlers */
@@ -1348,44 +1366,28 @@ function paintRankings(){
   bindGlobalCardEvents(document.getElementById("rank-body"));
 }
 
-/* ---------------- Airdrops (editorial/demo directory) ---------------- */
-const AIRDROP_SAMPLE = [
-  {name:"LayerZero Odyssey", cat:"Infrastructure", status:"live", desc:"Interact with omnichain messaging routes and earn retroactive credit toward a future distribution."},
-  {name:"Scroll Session", cat:"Bridges", status:"live", desc:"Bridge and swap on Scroll's zkEVM to accumulate activity points."},
-  {name:"ZetaChain Quest Line", cat:"Infrastructure", status:"live", desc:"Complete cross-chain quests to earn campaign points redeemable at TGE."},
-  {name:"Renzo Points Program", cat:"DeFi", status:"live", desc:"Restake ETH and earn points toward the protocol's governance token."},
-  {name:"Blast Gold", cat:"Infrastructure", status:"ended", desc:"Deposit-and-hold campaign that closed after mainnet launch."},
-  {name:"Friend.tech Season 1", cat:"SocialFi", status:"ended", desc:"Early key-trading rewards program, concluded after the first season."},
-];
+/* ---------------- Airdrops (structure is live; no free, reliable campaign-status API exists,
+   so this ships as an honest empty state rather than invented claims about real projects) ---------------- */
 async function renderAirdrops(){
   setView(`
     <p class="eyebrow">Intelligence</p>
     <h1 class="page-title">Airdrops &amp; campaign hub</h1>
-    <p class="page-sub">A directory of ongoing and past incentive campaigns. This is a sample editorial feed — connect a campaigns backend to make it fully live.</p>
+    <p class="page-sub">A directory for ongoing and past incentive campaigns.</p>
     <div class="chip-row" id="ad-filter" style="margin-bottom:18px">
       <div class="chip active" data-s="all">All</div>
       <div class="chip" data-s="live">Live</div>
       <div class="chip" data-s="ended">Ended</div>
     </div>
-    <div class="grid grid-3" id="ad-list"></div>
+    <div class="empty-state">
+      <h3>No campaigns connected yet</h3>
+      <p>There's no free, reliable live API for airdrop/campaign status, so nothing is shown here rather than guessing. Connect a campaigns backend or CMS to populate this feed — the filters and cards above are fully wired and ready.</p>
+      <a href="#/submit" class="btn btn-primary">List a campaign</a>
+    </div>
   `);
   document.querySelectorAll("#ad-filter .chip").forEach(c=>c.addEventListener("click", ()=>{
     document.querySelectorAll("#ad-filter .chip").forEach(x=>x.classList.remove("active"));
     c.classList.add("active");
-    paintAirdrops(c.dataset.s);
   }));
-  paintAirdrops("all");
-}
-function paintAirdrops(filter){
-  const items = AIRDROP_SAMPLE.filter(a=>filter==="all"||a.status===filter);
-  document.getElementById("ad-list").innerHTML = items.map(a=>`
-    <div class="airdrop-card">
-      <div class="airdrop-top"><span class="status-dot ${a.status==='ended'?'ended':''}"></span><span class="airdrop-status ${a.status==='live'?'pos':''}">${a.status==='live'?'Live':'Ended'}</span></div>
-      <h3 style="font-size:14.5px;margin:0">${esc(a.name)}</h3>
-      <span class="featured-cat" style="align-self:flex-start">${esc(a.cat)}</span>
-      <p style="font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:0">${esc(a.desc)}</p>
-      <button class="btn btn-sm btn-ghost" ${a.status==='ended'?'disabled':''}>${a.status==='live'?'View campaign':'Campaign closed'}</button>
-    </div>`).join("") || `<div class="empty-state">No campaigns match that filter.</div>`;
 }
 
 /* ---------------- Watchlist ---------------- */
@@ -1451,8 +1453,14 @@ async function connectWallet(){
 }
 function updateWalletBtn(){
   const btn = document.getElementById("wallet-btn");
-  if(window.ATC_WALLET){ btn.textContent = window.ATC_WALLET.slice(0,6)+"…"+window.ATC_WALLET.slice(-4); }
-  else { btn.textContent = "Connect wallet"; }
+  const mBtn = document.getElementById("mobile-wallet-toggle");
+  if(window.ATC_WALLET){
+    btn.textContent = window.ATC_WALLET.slice(0,6)+"…"+window.ATC_WALLET.slice(-4);
+    mBtn.style.color = "var(--pos)";
+  } else {
+    btn.textContent = "Connect wallet";
+    mBtn.style.color = "";
+  }
 }
 
 /* ---------------- Alerts (client-side, live price checks via DefiLlama coins API) ---------------- */
@@ -1539,19 +1547,16 @@ async function checkAlertsNow(){
 }
 setInterval(()=>{ if(currentPath()==="/alerts") checkAlertsNow(); }, 45000);
 
-/* ---------------- Press releases (editorial/static) ---------------- */
-const PRESS_SAMPLE = [
-  {date:"2026-07-18", title:"ApptoChain crosses 12,000 indexed applications", excerpt:"The directory now spans 268 chains after a wave of new launchpad and DePIN listings this quarter."},
-  {date:"2026-06-30", title:"Chain analytics rebuilt on live TVL feeds", excerpt:"Analytics and rankings now refresh continuously instead of on a daily snapshot."},
-  {date:"2026-06-04", title:"Watchlist and price alerts launch", excerpt:"Track any dApp and get notified the moment your target price is hit, right from the browser."},
-  {date:"2026-05-12", title:"Category taxonomy expanded to 13 verticals", excerpt:"DePIN, SocialFi, RWA and AI now have dedicated category pages with their own leaderboards."},
-];
+/* ---------------- Press releases ---------------- */
 async function renderPress(){
   setView(`
     <p class="eyebrow">More</p>
     <h1 class="page-title">Press releases</h1>
     <p class="page-sub">Product news and platform milestones.</p>
-    <div>${PRESS_SAMPLE.map(a=>`<div class="press-item"><div><p class="press-title">${esc(a.title)}</p><p class="press-excerpt">${esc(a.excerpt)}</p></div><span class="press-date">${a.date}</span></div>`).join("")}</div>
+    <div class="empty-state">
+      <h3>Nothing published yet</h3>
+      <p>This page is wired up and ready — connect it to your CMS or a simple JSON feed and entries will appear here automatically.</p>
+    </div>
   `);
 }
 
@@ -1705,6 +1710,8 @@ function initMobileNav(){
   scrim.addEventListener("click", ()=>{ closeMobileSidebar(); setIcon(false); });
   document.querySelectorAll(".nav-item").forEach(el=>el.addEventListener("click", ()=>setIcon(false)));
   document.getElementById("mobile-wallet-toggle").addEventListener("click", connectWallet);
+  document.getElementById("mobile-watchlist-toggle").addEventListener("click", ()=>navigate("/watchlist"));
+  document.getElementById("mobile-alerts-toggle").addEventListener("click", ()=>navigate("/alerts"));
 }
 
 /* ---------------- Theme ---------------- */
