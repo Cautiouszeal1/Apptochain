@@ -187,6 +187,59 @@
   .token-cell .v{font-family:'JetBrains Mono',monospace;font-size:15px;}
 
   .utility-list{margin-top:28px;display:grid;gap:10px;}
+
+  /* live dashboard */
+  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+  .dash-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;min-height:220px;}
+  .dash-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .dash-head h4{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;}
+  .live-chip{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--up);text-transform:uppercase;letter-spacing:0.05em;}
+  .live-chip .dot{width:5px;height:5px;border-radius:50%;background:var(--up);box-shadow:0 0 6px var(--up);animation:pulse 1.8s infinite;}
+
+  /* wallet panel */
+  .wallet-cta{background:linear-gradient(100deg,var(--violet),var(--magenta));color:#fff;border:none;padding:11px 16px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;width:100%;}
+  .wallet-info{display:none;flex-direction:column;gap:10px;}
+  .wallet-row{display:flex;justify-content:space-between;font-size:12.5px;padding:9px 12px;background:var(--panel-2);border-radius:9px;border:1px solid var(--line);}
+  .wallet-row .k{color:var(--faint);}
+  .wallet-row .v{font-family:'JetBrains Mono',monospace;color:var(--text);}
+  .wallet-msg{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.5;}
+  .disconnect-link{font-size:11.5px;color:var(--muted);margin-top:4px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+
+  /* chains panel */
+  .chain-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(139,92,246,0.08);font-size:12.5px;}
+  .chain-row:last-child{border-bottom:none;}
+  .chain-row .cname{display:flex;align-items:center;gap:8px;}
+  .chain-rank{width:16px;height:16px;border-radius:5px;background:var(--panel-2);color:var(--faint);font-family:'JetBrains Mono',monospace;font-size:9px;display:flex;align-items:center;justify-content:center;}
+  .chain-row .ctvl{font-family:'JetBrains Mono',monospace;color:var(--violet-soft);}
+
+  /* alerts panel */
+  .alert-form{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+  .alert-form-row{display:flex;gap:8px;}
+  select.a-input, input.a-input{
+    background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:9px 10px;font-size:12.5px;font-family:'Inter',sans-serif;width:100%;
+  }
+  select.a-input:focus, input.a-input:focus{outline:2px solid var(--violet);border-color:var(--violet);}
+  .btn-set-alert{background:var(--panel-2);border:1px solid var(--violet);color:var(--violet-soft);border-radius:8px;padding:9px 12px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .price-ticker{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);margin-bottom:10px;}
+  .alert-list{display:flex;flex-direction:column;gap:6px;max-height:120px;overflow-y:auto;}
+  .alert-item{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 10px;background:var(--panel-2);border-radius:8px;border:1px solid var(--line);}
+  .alert-item.triggered{border-color:var(--up);}
+  .alert-remove{color:var(--faint);cursor:pointer;font-size:14px;padding:0 4px;}
+  .alert-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--up);border-radius:12px;padding:12px 18px;font-size:13px;z-index:80;box-shadow:0 10px 30px rgba(0,0,0,0.4);opacity:0;transition:.3s;pointer-events:none;}
+  .alert-toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  /* news panel */
+  .news-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:220px;}
+  .news-item{padding-bottom:10px;border-bottom:1px solid rgba(139,92,246,0.08);}
+  .news-item:last-child{border-bottom:none;}
+  .news-item a{font-size:12.5px;font-weight:500;line-height:1.4;display:block;}
+  .news-item a:hover{color:var(--violet-soft);}
+  .news-meta{font-size:10.5px;color:var(--faint);margin-top:4px;font-family:'JetBrains Mono',monospace;}
+
+  @media (max-width:760px){
+    .dash-grid{grid-template-columns:1fr;}
+  }
   .utility-row{display:flex;gap:12px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;align-items:center;}
   .utility-row .uicon{color:var(--violet-soft);font-size:15px;flex-shrink:0;}
   .utility-row p{font-size:13.5px;color:var(--text);}
@@ -375,6 +428,75 @@
         </div>
       </div>
     </div>
+
+    <div class="section-head" style="margin-top:40px;">
+      <div>
+        <span class="idx">LIVE NOW</span>
+        <h2 style="font-size:20px;">Try the dashboard</h2>
+        <p class="section-sub">These panels are wired to real data and your real wallet — nothing here is a mockup.</p>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- WALLET -->
+      <div class="dash-panel" id="walletPanel">
+        <div class="dash-head"><h4>👛 Wallet</h4></div>
+        <button class="wallet-cta" id="connectBtn">Connect MetaMask</button>
+        <div class="wallet-info" id="walletInfo">
+          <div class="wallet-row"><span class="k">Address</span><span class="v" id="wAddr">—</span></div>
+          <div class="wallet-row"><span class="k">Network</span><span class="v" id="wChain">—</span></div>
+          <div class="wallet-row"><span class="k">Balance</span><span class="v" id="wBal">—</span></div>
+        </div>
+        <div class="wallet-msg" id="walletMsg">Connect to see your address, network, and native balance — read-only, no signature required.</div>
+        <span class="disconnect-link" id="disconnectLink" style="display:none;">Disconnect view</span>
+      </div>
+
+      <!-- CHAINS -->
+      <div class="dash-panel" id="chainsPanel">
+        <div class="dash-head"><h4>⛓ Top chains by TVL</h4><span class="live-chip"><span class="dot"></span>Live</span></div>
+        <div id="chainsList">
+          <div class="skel" style="height:14px;border-radius:4px;margin-bottom:10px;"></div>
+          <div class="skel" style="height:14px;border-radius:4px;margin-bottom:10px;"></div>
+          <div class="skel" style="height:14px;border-radius:4px;"></div>
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div class="dash-panel" id="alertsPanel">
+        <div class="dash-head"><h4>🔔 Price alerts</h4><span class="live-chip"><span class="dot"></span>Live</span></div>
+        <div class="price-ticker" id="priceTicker">Loading live prices…</div>
+        <div class="alert-form">
+          <div class="alert-form-row">
+            <select class="a-input" id="alertCoin">
+              <option value="bitcoin">BTC</option>
+              <option value="ethereum">ETH</option>
+              <option value="binancecoin">BNB</option>
+              <option value="solana">SOL</option>
+              <option value="matic-network">MATIC</option>
+            </select>
+            <select class="a-input" id="alertCond" style="max-width:90px;">
+              <option value="above">Above</option>
+              <option value="below">Below</option>
+            </select>
+          </div>
+          <div class="alert-form-row">
+            <input class="a-input" id="alertPrice" type="number" placeholder="Target price (USD)">
+            <button class="btn-set-alert" id="setAlertBtn">Set</button>
+          </div>
+        </div>
+        <div class="alert-list" id="alertList"></div>
+      </div>
+
+      <!-- NEWS -->
+      <div class="dash-panel" id="newsPanel">
+        <div class="dash-head"><h4>📰 Crypto news</h4><span class="live-chip"><span class="dot"></span>Live</span></div>
+        <div class="news-list" id="newsList">
+          <div class="skel" style="height:12px;border-radius:4px;margin-bottom:10px;"></div>
+          <div class="skel" style="height:12px;border-radius:4px;margin-bottom:10px;"></div>
+          <div class="skel" style="height:12px;border-radius:4px;"></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- TOKENOMICS -->
@@ -521,6 +643,7 @@
 (function(){
   const chainsEl = document.getElementById('statChains');
   const tvlEl = document.getElementById('statTVL');
+  const chainsListEl = document.getElementById('chainsList');
   function fmtUsd(n){
     if(n>=1e12) return '$'+(n/1e12).toFixed(2)+'T';
     if(n>=1e9) return '$'+(n/1e9).toFixed(1)+'B';
@@ -530,14 +653,209 @@
   fetch('https://api.llama.fi/v2/chains')
     .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
     .then(list=>{
-      const active = list.filter(c=>c.tvl && c.tvl>0);
+      const active = list.filter(c=>c.tvl && c.tvl>0).sort((a,b)=>b.tvl-a.tvl);
       const totalTvl = active.reduce((s,c)=>s+c.tvl,0);
       chainsEl.textContent = active.length;
       tvlEl.textContent = fmtUsd(totalTvl);
+      if(chainsListEl){
+        const top = active.slice(0,6);
+        chainsListEl.innerHTML = top.map((c,i)=>`
+          <div class="chain-row">
+            <div class="cname"><span class="chain-rank">${i+1}</span>${c.name}</div>
+            <div class="ctvl">${fmtUsd(c.tvl)}</div>
+          </div>`).join('');
+      }
     })
     .catch(()=>{
       chainsEl.textContent = 'N/A';
       tvlEl.textContent = 'N/A';
+      if(chainsListEl) chainsListEl.innerHTML = '<div style="font-size:12px;color:var(--faint);">Live chain data unavailable right now.</div>';
+    });
+})();
+
+// ---- wallet connect (MetaMask / EIP-1193) ----
+(function(){
+  const connectBtn = document.getElementById('connectBtn');
+  const walletInfo = document.getElementById('walletInfo');
+  const walletMsg = document.getElementById('walletMsg');
+  const disconnectLink = document.getElementById('disconnectLink');
+  const wAddr = document.getElementById('wAddr');
+  const wChain = document.getElementById('wChain');
+  const wBal = document.getElementById('wBal');
+
+  const CHAIN_NAMES = {
+    '0x1':'Ethereum', '0x38':'BNB Chain', '0x89':'Polygon',
+    '0xa4b1':'Arbitrum', '0xa':'Optimism', '0x2105':'Base',
+    '0xa86a':'Avalanche', '0xaa36a7':'Sepolia'
+  };
+  const NATIVE_SYMBOL = {
+    '0x1':'ETH', '0x38':'BNB', '0x89':'MATIC',
+    '0xa4b1':'ETH', '0xa':'ETH', '0x2105':'ETH', '0xa86a':'AVAX', '0xaa36a7':'ETH'
+  };
+
+  function shortAddr(a){ return a.slice(0,6)+'\u2026'+a.slice(-4); }
+
+  async function refreshWallet(address){
+    try{
+      const chainId = await window.ethereum.request({method:'eth_chainId'});
+      const balHex = await window.ethereum.request({method:'eth_getBalance', params:[address,'latest']});
+      const bal = (parseInt(balHex,16)/1e18).toFixed(4);
+      wAddr.textContent = shortAddr(address);
+      wChain.textContent = CHAIN_NAMES[chainId] || ('Chain '+parseInt(chainId,16));
+      wBal.textContent = bal+' '+(NATIVE_SYMBOL[chainId]||'ETH');
+      walletInfo.style.display='flex';
+      connectBtn.style.display='none';
+      walletMsg.style.display='none';
+      disconnectLink.style.display='block';
+    }catch(e){
+      walletMsg.textContent = 'Could not read wallet data. Try reconnecting.';
+    }
+  }
+
+  connectBtn?.addEventListener('click', async ()=>{
+    if(!window.ethereum){
+      walletMsg.textContent = 'No wallet detected. Install MetaMask (or another injected wallet) and reload this page.';
+      return;
+    }
+    connectBtn.textContent = 'Connecting\u2026';
+    try{
+      const accounts = await window.ethereum.request({method:'eth_requestAccounts'});
+      connectBtn.textContent = 'Connect MetaMask';
+      if(accounts && accounts[0]) await refreshWallet(accounts[0]);
+    }catch(e){
+      connectBtn.textContent = 'Connect MetaMask';
+      walletMsg.textContent = 'Connection was rejected or failed.';
+    }
+  });
+
+  disconnectLink?.addEventListener('click', ()=>{
+    walletInfo.style.display='none';
+    connectBtn.style.display='block';
+    walletMsg.style.display='block';
+    walletMsg.textContent = 'Connect to see your address, network, and native balance \u2014 read-only, no signature required.';
+    disconnectLink.style.display='none';
+  });
+
+  if(window.ethereum){
+    window.ethereum.on?.('accountsChanged', (accounts)=>{
+      if(accounts.length===0){ disconnectLink?.click(); }
+      else refreshWallet(accounts[0]);
+    });
+    window.ethereum.on?.('chainChanged', ()=>{
+      window.ethereum.request({method:'eth_accounts'}).then(accs=>{
+        if(accs[0]) refreshWallet(accs[0]);
+      });
+    });
+    window.ethereum.request({method:'eth_accounts'}).then(accs=>{
+      if(accs && accs[0]) refreshWallet(accs[0]);
+    }).catch(()=>{});
+  } else {
+    walletMsg.textContent = 'No wallet detected in this browser. Install MetaMask to connect.';
+  }
+})();
+
+// ---- live price ticker + price alerts (CoinGecko) ----
+(function(){
+  const ticker = document.getElementById('priceTicker');
+  const coinSel = document.getElementById('alertCoin');
+  const condSel = document.getElementById('alertCond');
+  const priceInput = document.getElementById('alertPrice');
+  const setBtn = document.getElementById('setAlertBtn');
+  const listEl = document.getElementById('alertList');
+  const COINS = ['bitcoin','ethereum','binancecoin','solana','matic-network'];
+  const SYMBOLS = {bitcoin:'BTC',ethereum:'ETH',binancecoin:'BNB',solana:'SOL','matic-network':'MATIC'};
+  let prices = {};
+  let alerts = [];
+
+  function renderTicker(){
+    ticker.textContent = COINS.map(c=>`${SYMBOLS[c]} $${prices[c]?.usd?.toLocaleString(undefined,{maximumFractionDigits:2}) ?? '\u2014'}`).join('   \u00b7   ');
+  }
+
+  function renderAlerts(){
+    if(!alerts.length){ listEl.innerHTML = '<div style="font-size:11.5px;color:var(--faint);">No alerts set yet.</div>'; return; }
+    listEl.innerHTML = alerts.map((a,i)=>`
+      <div class="alert-item ${a.triggered?'triggered':''}">
+        <span>${a.triggered?'\ud83d\udd14 ':''}${SYMBOLS[a.coin]} ${a.cond==='above'?'&gt;':'&lt;'} $${a.target.toLocaleString()}</span>
+        <span class="alert-remove" data-i="${i}">\u2715</span>
+      </div>`).join('');
+    listEl.querySelectorAll('.alert-remove').forEach(el=>{
+      el.addEventListener('click', ()=>{ alerts.splice(+el.dataset.i,1); renderAlerts(); });
+    });
+  }
+
+  function showToast(msg){
+    let toast = document.querySelector('.alert-toast');
+    if(!toast){
+      toast = document.createElement('div');
+      toast.className='alert-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 4000);
+    if('Notification' in window && Notification.permission==='granted'){
+      new Notification('AppToChain price alert', {body: msg});
+    }
+  }
+
+  function checkAlerts(){
+    alerts.forEach(a=>{
+      if(a.triggered) return;
+      const p = prices[a.coin]?.usd;
+      if(p==null) return;
+      if((a.cond==='above' && p>=a.target) || (a.cond==='below' && p<=a.target)){
+        a.triggered = true;
+        showToast(`${SYMBOLS[a.coin]} just went ${a.cond} $${a.target.toLocaleString()} \u2014 now $${p.toLocaleString()}`);
+      }
+    });
+    renderAlerts();
+  }
+
+  function fetchPrices(){
+    fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${COINS.join(',')}&vs_currencies=usd`)
+      .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
+      .then(data=>{ prices = data; renderTicker(); checkAlerts(); })
+      .catch(()=>{ ticker.textContent = 'Live prices unavailable right now.'; });
+  }
+
+  setBtn?.addEventListener('click', ()=>{
+    const target = parseFloat(priceInput.value);
+    if(!target || target<=0) return;
+    if('Notification' in window && Notification.permission==='default'){
+      Notification.requestPermission();
+    }
+    alerts.push({coin:coinSel.value, cond:condSel.value, target, triggered:false});
+    priceInput.value='';
+    renderAlerts();
+  });
+
+  fetchPrices();
+  setInterval(fetchPrices, 30000);
+  renderAlerts();
+})();
+
+// ---- live crypto news feed ----
+(function(){
+  const newsList = document.getElementById('newsList');
+  function timeAgo(unix){
+    const s = Math.floor(Date.now()/1000) - unix;
+    if(s<3600) return Math.floor(s/60)+'m ago';
+    if(s<86400) return Math.floor(s/3600)+'h ago';
+    return Math.floor(s/86400)+'d ago';
+  }
+  fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN')
+    .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
+    .then(data=>{
+      const items = (data.Data||[]).slice(0,7);
+      if(!items.length) throw new Error('empty');
+      newsList.innerHTML = items.map(n=>`
+        <div class="news-item">
+          <a href="${n.url}" target="_blank" rel="noopener">${n.title}</a>
+          <div class="news-meta">${n.source_info?.name || n.source || 'Source'} \u00b7 ${timeAgo(n.published_on)}</div>
+        </div>`).join('');
+    })
+    .catch(()=>{
+      newsList.innerHTML = '<div style="font-size:12px;color:var(--faint);">Live news feed unavailable right now.</div>';
     });
 })();
 
