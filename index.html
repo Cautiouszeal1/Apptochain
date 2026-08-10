@@ -212,22 +212,21 @@
   .chain-rank{width:16px;height:16px;border-radius:5px;background:var(--panel-2);color:var(--faint);font-family:'JetBrains Mono',monospace;font-size:9px;display:flex;align-items:center;justify-content:center;}
   .chain-row .ctvl{font-family:'JetBrains Mono',monospace;color:var(--violet-soft);}
 
-  /* alerts panel */
-  .alert-form{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
-  .alert-form-row{display:flex;gap:8px;}
-  select.a-input, input.a-input{
-    background:var(--panel-2);border:1px solid var(--line);color:var(--text);
-    border-radius:8px;padding:9px 10px;font-size:12.5px;font-family:'Inter',sans-serif;width:100%;
-  }
-  select.a-input:focus, input.a-input:focus{outline:2px solid var(--violet);border-color:var(--violet);}
-  .btn-set-alert{background:var(--panel-2);border:1px solid var(--violet);color:var(--violet-soft);border-radius:8px;padding:9px 12px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;}
-  .price-ticker{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);margin-bottom:10px;}
-  .alert-list{display:flex;flex-direction:column;gap:6px;max-height:120px;overflow-y:auto;}
-  .alert-item{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 10px;background:var(--panel-2);border-radius:8px;border:1px solid var(--line);}
-  .alert-item.triggered{border-color:var(--up);}
-  .alert-remove{color:var(--faint);cursor:pointer;font-size:14px;padding:0 4px;}
-  .alert-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--up);border-radius:12px;padding:12px 18px;font-size:13px;z-index:80;box-shadow:0 10px 30px rgba(0,0,0,0.4);opacity:0;transition:.3s;pointer-events:none;}
-  .alert-toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+  /* nft recommendations panel */
+  .reco-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .reco-tab{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);border-radius:100px;padding:6px 11px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .reco-tab.active{background:rgba(139,92,246,0.15);border-color:var(--violet);color:var(--violet-soft);}
+  .reco-list{display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto;}
+  .reco-item{display:flex;align-items:center;gap:10px;padding:8px;background:var(--panel-2);border-radius:10px;border:1px solid var(--line);}
+  .reco-thumb{width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--panel);}
+  .reco-info{flex:1;min-width:0;}
+  .reco-info .rname{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .reco-info .rwhy{font-size:10.5px;color:var(--faint);}
+  .reco-stat{font-family:'JetBrains Mono',monospace;font-size:11.5px;text-align:right;flex-shrink:0;}
+
+  /* shared retry state */
+  .panel-error{font-size:12px;color:var(--faint);line-height:1.5;}
+  .retry-btn{margin-top:10px;background:var(--panel-2);border:1px solid var(--violet);color:var(--violet-soft);border-radius:8px;padding:7px 12px;font-size:11.5px;font-weight:600;cursor:pointer;}
 
   /* news panel */
   .news-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:220px;}
@@ -433,7 +432,7 @@
       <div>
         <span class="idx">LIVE NOW</span>
         <h2 style="font-size:20px;">Try the dashboard</h2>
-        <p class="section-sub">These panels are wired to real data and your real wallet — nothing here is a mockup.</p>
+        <p class="section-sub">Live NFT recommendations and news, wired to real data — with retry built in if a source is slow.</p>
       </div>
     </div>
 
@@ -461,35 +460,24 @@
         </div>
       </div>
 
-      <!-- ALERTS -->
-      <div class="dash-panel" id="alertsPanel">
-        <div class="dash-head"><h4>🔔 Price alerts</h4><span class="live-chip"><span class="dot"></span>Live</span></div>
-        <div class="price-ticker" id="priceTicker">Loading live prices…</div>
-        <div class="alert-form">
-          <div class="alert-form-row">
-            <select class="a-input" id="alertCoin">
-              <option value="bitcoin">BTC</option>
-              <option value="ethereum">ETH</option>
-              <option value="binancecoin">BNB</option>
-              <option value="solana">SOL</option>
-              <option value="matic-network">MATIC</option>
-            </select>
-            <select class="a-input" id="alertCond" style="max-width:90px;">
-              <option value="above">Above</option>
-              <option value="below">Below</option>
-            </select>
-          </div>
-          <div class="alert-form-row">
-            <input class="a-input" id="alertPrice" type="number" placeholder="Target price (USD)">
-            <button class="btn-set-alert" id="setAlertBtn">Set</button>
-          </div>
+      <!-- NFT RECOMMENDATIONS -->
+      <div class="dash-panel" id="recoPanel">
+        <div class="dash-head"><h4>✨ Recommended for you</h4><span class="live-chip"><span class="dot"></span>Live</span></div>
+        <div class="reco-tabs" id="recoTabs">
+          <button class="reco-tab active" data-tab="momentum">🔥 Momentum</button>
+          <button class="reco-tab" data-tab="bluechip">💎 Blue chip</button>
+          <button class="reco-tab" data-tab="new">👀 New in</button>
         </div>
-        <div class="alert-list" id="alertList"></div>
+        <div id="recoList">
+          <div class="skel" style="height:14px;border-radius:4px;margin-bottom:10px;"></div>
+          <div class="skel" style="height:14px;border-radius:4px;margin-bottom:10px;"></div>
+          <div class="skel" style="height:14px;border-radius:4px;"></div>
+        </div>
       </div>
 
-      <!-- NEWS -->
+      <!-- NFT NEWS TRACKER -->
       <div class="dash-panel" id="newsPanel">
-        <div class="dash-head"><h4>📰 Crypto news</h4><span class="live-chip"><span class="dot"></span>Live</span></div>
+        <div class="dash-head"><h4>📰 NFT news tracker</h4><span class="live-chip"><span class="dot"></span>Live</span></div>
         <div class="news-list" id="newsList">
           <div class="skel" style="height:12px;border-radius:4px;margin-bottom:10px;"></div>
           <div class="skel" style="height:12px;border-radius:4px;margin-bottom:10px;"></div>
@@ -639,8 +627,15 @@
   resize(); tick();
 })();
 
+// ---- helper: fetch with timeout ----
+function fetchWithTimeout(url, ms=10000){
+  const controller = new AbortController();
+  const t = setTimeout(()=>controller.abort(), ms);
+  return fetch(url, {signal: controller.signal}).finally(()=>clearTimeout(t));
+}
+
 // ---- live TVL & chain count via DefiLlama public API ----
-(function(){
+function loadChains(){
   const chainsEl = document.getElementById('statChains');
   const tvlEl = document.getElementById('statTVL');
   const chainsListEl = document.getElementById('chainsList');
@@ -650,13 +645,17 @@
     if(n>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
     return '$'+n.toFixed(0);
   }
-  fetch('https://api.llama.fi/v2/chains')
+  if(chainsListEl) chainsListEl.innerHTML = `
+    <div class="skel" style="height:14px;border-radius:4px;margin-bottom:10px;"></div>
+    <div class="skel" style="height:14px;border-radius:4px;margin-bottom:10px;"></div>
+    <div class="skel" style="height:14px;border-radius:4px;"></div>`;
+  fetchWithTimeout('https://api.llama.fi/v2/chains')
     .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
     .then(list=>{
       const active = list.filter(c=>c.tvl && c.tvl>0).sort((a,b)=>b.tvl-a.tvl);
       const totalTvl = active.reduce((s,c)=>s+c.tvl,0);
-      chainsEl.textContent = active.length;
-      tvlEl.textContent = fmtUsd(totalTvl);
+      if(chainsEl) chainsEl.textContent = active.length;
+      if(tvlEl) tvlEl.textContent = fmtUsd(totalTvl);
       if(chainsListEl){
         const top = active.slice(0,6);
         chainsListEl.innerHTML = top.map((c,i)=>`
@@ -667,11 +666,11 @@
       }
     })
     .catch(()=>{
-      chainsEl.textContent = 'N/A';
-      tvlEl.textContent = 'N/A';
-      if(chainsListEl) chainsListEl.innerHTML = '<div style="font-size:12px;color:var(--faint);">Live chain data unavailable right now.</div>';
+      if(chainsEl) chainsEl.textContent = 'N/A';
+      if(tvlEl) tvlEl.textContent = 'N/A';
+      if(chainsListEl) chainsListEl.innerHTML = '<div class="panel-error">Live chain data didn\u2019t load in time.</div><button class="retry-btn" onclick="loadChains()">Retry</button>';
     });
-})();
+}
 
 // ---- wallet connect (MetaMask / EIP-1193) ----
 (function(){
@@ -714,7 +713,7 @@
 
   connectBtn?.addEventListener('click', async ()=>{
     if(!window.ethereum){
-      walletMsg.textContent = 'No wallet detected. Install MetaMask (or another injected wallet) and reload this page.';
+      walletMsg.textContent = 'No wallet browser extension detected. On mobile, open this site inside the MetaMask app browser to connect.';
       return;
     }
     connectBtn.textContent = 'Connecting\u2026';
@@ -749,133 +748,74 @@
     window.ethereum.request({method:'eth_accounts'}).then(accs=>{
       if(accs && accs[0]) refreshWallet(accs[0]);
     }).catch(()=>{});
+  } else if(walletMsg) {
+    walletMsg.textContent = 'No wallet detected in this browser. Install MetaMask, or open this site in the MetaMask app browser on mobile.';
+  }
+})();
+
+// ---- live trending NFTs + recommendations (single CoinGecko fetch powers both) ----
+let __nftTrendingCache = null;
+let __recoTab = 'momentum';
+
+function renderRecoTab(){
+  const listEl = document.getElementById('recoList');
+  if(!listEl) return;
+  if(!__nftTrendingCache || !__nftTrendingCache.length){
+    listEl.innerHTML = '<div class="panel-error">No live data to recommend from right now.</div><button class="retry-btn" onclick="loadNftData()">Retry</button>';
+    return;
+  }
+  let picks = [...__nftTrendingCache];
+  let why = '';
+  if(__recoTab === 'momentum'){
+    picks.sort((a,b)=>(b.floor_price_24h_percentage_change||-999)-(a.floor_price_24h_percentage_change||-999));
+    why = 'Fastest-rising floor, last 24h';
+  } else if(__recoTab === 'bluechip'){
+    picks.sort((a,b)=>(b.floor_price_in_native_currency||0)-(a.floor_price_in_native_currency||0));
+    why = 'Highest floor price right now';
   } else {
-    walletMsg.textContent = 'No wallet detected in this browser. Install MetaMask to connect.';
+    picks = picks.slice().reverse();
+    why = 'Newly surfaced in trending';
   }
-})();
+  picks = picks.slice(0,4);
+  listEl.innerHTML = picks.map(n=>{
+    const fp = n.floor_price_in_native_currency;
+    const symbol = (n.native_currency_symbol || n.native_currency || '').toUpperCase();
+    return `
+    <div class="reco-item">
+      <img class="reco-thumb" src="${n.thumb}" alt="" loading="lazy" onerror="this.style.opacity=0">
+      <div class="reco-info">
+        <div class="rname">${n.name}</div>
+        <div class="rwhy">${why}</div>
+      </div>
+      <div class="reco-stat">${fp ? fp+' '+symbol : '\u2014'}</div>
+    </div>`;
+  }).join('');
+}
 
-// ---- live price ticker + price alerts (CoinGecko) ----
-(function(){
-  const ticker = document.getElementById('priceTicker');
-  const coinSel = document.getElementById('alertCoin');
-  const condSel = document.getElementById('alertCond');
-  const priceInput = document.getElementById('alertPrice');
-  const setBtn = document.getElementById('setAlertBtn');
-  const listEl = document.getElementById('alertList');
-  const COINS = ['bitcoin','ethereum','binancecoin','solana','matic-network'];
-  const SYMBOLS = {bitcoin:'BTC',ethereum:'ETH',binancecoin:'BNB',solana:'SOL','matic-network':'MATIC'};
-  let prices = {};
-  let alerts = [];
-
-  function renderTicker(){
-    ticker.textContent = COINS.map(c=>`${SYMBOLS[c]} $${prices[c]?.usd?.toLocaleString(undefined,{maximumFractionDigits:2}) ?? '\u2014'}`).join('   \u00b7   ');
-  }
-
-  function renderAlerts(){
-    if(!alerts.length){ listEl.innerHTML = '<div style="font-size:11.5px;color:var(--faint);">No alerts set yet.</div>'; return; }
-    listEl.innerHTML = alerts.map((a,i)=>`
-      <div class="alert-item ${a.triggered?'triggered':''}">
-        <span>${a.triggered?'\ud83d\udd14 ':''}${SYMBOLS[a.coin]} ${a.cond==='above'?'&gt;':'&lt;'} $${a.target.toLocaleString()}</span>
-        <span class="alert-remove" data-i="${i}">\u2715</span>
-      </div>`).join('');
-    listEl.querySelectorAll('.alert-remove').forEach(el=>{
-      el.addEventListener('click', ()=>{ alerts.splice(+el.dataset.i,1); renderAlerts(); });
-    });
-  }
-
-  function showToast(msg){
-    let toast = document.querySelector('.alert-toast');
-    if(!toast){
-      toast = document.createElement('div');
-      toast.className='alert-toast';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(()=>toast.classList.remove('show'), 4000);
-    if('Notification' in window && Notification.permission==='granted'){
-      new Notification('AppToChain price alert', {body: msg});
-    }
-  }
-
-  function checkAlerts(){
-    alerts.forEach(a=>{
-      if(a.triggered) return;
-      const p = prices[a.coin]?.usd;
-      if(p==null) return;
-      if((a.cond==='above' && p>=a.target) || (a.cond==='below' && p<=a.target)){
-        a.triggered = true;
-        showToast(`${SYMBOLS[a.coin]} just went ${a.cond} $${a.target.toLocaleString()} \u2014 now $${p.toLocaleString()}`);
-      }
-    });
-    renderAlerts();
-  }
-
-  function fetchPrices(){
-    fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${COINS.join(',')}&vs_currencies=usd`)
-      .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
-      .then(data=>{ prices = data; renderTicker(); checkAlerts(); })
-      .catch(()=>{ ticker.textContent = 'Live prices unavailable right now.'; });
-  }
-
-  setBtn?.addEventListener('click', ()=>{
-    const target = parseFloat(priceInput.value);
-    if(!target || target<=0) return;
-    if('Notification' in window && Notification.permission==='default'){
-      Notification.requestPermission();
-    }
-    alerts.push({coin:coinSel.value, cond:condSel.value, target, triggered:false});
-    priceInput.value='';
-    renderAlerts();
-  });
-
-  fetchPrices();
-  setInterval(fetchPrices, 30000);
-  renderAlerts();
-})();
-
-// ---- live crypto news feed ----
-(function(){
-  const newsList = document.getElementById('newsList');
-  function timeAgo(unix){
-    const s = Math.floor(Date.now()/1000) - unix;
-    if(s<3600) return Math.floor(s/60)+'m ago';
-    if(s<86400) return Math.floor(s/3600)+'h ago';
-    return Math.floor(s/86400)+'d ago';
-  }
-  fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN')
-    .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
-    .then(data=>{
-      const items = (data.Data||[]).slice(0,7);
-      if(!items.length) throw new Error('empty');
-      newsList.innerHTML = items.map(n=>`
-        <div class="news-item">
-          <a href="${n.url}" target="_blank" rel="noopener">${n.title}</a>
-          <div class="news-meta">${n.source_info?.name || n.source || 'Source'} \u00b7 ${timeAgo(n.published_on)}</div>
-        </div>`).join('');
-    })
-    .catch(()=>{
-      newsList.innerHTML = '<div style="font-size:12px;color:var(--faint);">Live news feed unavailable right now.</div>';
-    });
-})();
-
-(function(){
+function loadNftData(){
   const scroll = document.getElementById('trendScroll');
   const note = document.getElementById('dataNote');
+  const recoList = document.getElementById('recoList');
 
-  // skeleton placeholders while loading
-  scroll.innerHTML = Array.from({length:5}).map(()=>`
+  if(scroll) scroll.innerHTML = Array.from({length:5}).map(()=>`
     <div class="nft-card">
       <div class="nft-thumb skel"></div>
       <div class="skel" style="height:12px;width:70%;border-radius:4px;margin-bottom:8px;"></div>
       <div class="skel" style="height:10px;width:40%;border-radius:4px;"></div>
     </div>`).join('');
+  if(recoList) recoList.innerHTML = `
+    <div class="skel" style="height:14px;border-radius:4px;margin-bottom:10px;"></div>
+    <div class="skel" style="height:14px;border-radius:4px;margin-bottom:10px;"></div>
+    <div class="skel" style="height:14px;border-radius:4px;"></div>`;
+  if(note) note.textContent = 'Fetching live trending data\u2026';
 
-  fetch('https://api.coingecko.com/api/v3/search/trending')
+  fetchWithTimeout('https://api.coingecko.com/api/v3/search/trending')
     .then(r=>{ if(!r.ok) throw new Error('bad response'); return r.json(); })
     .then(data=>{
       const nfts = (data.nfts||[]).slice(0,8);
       if(!nfts.length){ throw new Error('empty'); }
+      __nftTrendingCache = nfts;
+
       const changes = nfts.map(n=>n.floor_price_24h_percentage_change).filter(v=>typeof v==='number');
       const avgChange = changes.length ? (changes.reduce((a,b)=>a+b,0)/changes.length) : null;
       const avgEl = document.getElementById('statNftChange');
@@ -887,32 +827,86 @@
           avgEl.textContent = 'N/A';
         }
       }
-      scroll.innerHTML = nfts.map((n,i)=>{
+
+      if(scroll) scroll.innerHTML = nfts.map((n,i)=>{
         const fp = n.floor_price_in_native_currency;
         const symbol = (n.native_currency_symbol || n.native_currency || '').toUpperCase();
         const change = n.floor_price_24h_percentage_change;
         const changeColor = change>=0 ? 'var(--up)' : 'var(--down)';
-        const changeStr = (typeof change === 'number') ? (change>=0?'+':'')+change.toFixed(1)+'%' : '—';
+        const changeStr = (typeof change === 'number') ? (change>=0?'+':'')+change.toFixed(1)+'%' : '\u2014';
         return `
         <div class="nft-card">
           <img class="nft-thumb" src="${n.thumb}" alt="${n.name}" loading="lazy" onerror="this.style.opacity=0">
           <span class="nft-rank">#${i+1} Trending</span>
           <div class="nft-name">${n.name}</div>
           <div class="nft-floor">
-            <div><div class="fp">${fp ? fp+' '+symbol : '—'}</div><div class="fp-lbl">Floor</div></div>
+            <div><div class="fp">${fp ? fp+' '+symbol : '\u2014'}</div><div class="fp-lbl">Floor</div></div>
             <div class="mono" style="font-size:12px;color:${changeColor};">${changeStr}</div>
           </div>
         </div>`;
       }).join('');
-      note.textContent = 'Live data via CoinGecko · updates on page load';
+      if(note) note.textContent = 'Live data via CoinGecko \u00b7 updates on page load';
+
+      renderRecoTab();
     })
     .catch(()=>{
-      scroll.innerHTML = `<div style="padding:20px;color:var(--muted);font-size:13.5px;">Live trending data is temporarily unavailable — check back shortly.</div>`;
-      note.textContent = 'Could not reach live data source just now.';
+      if(scroll) scroll.innerHTML = `<div class="panel-error" style="padding:20px;">Live trending data didn\u2019t load in time.</div><button class="retry-btn" style="margin:0 20px 20px;" onclick="loadNftData()">Retry</button>`;
+      if(note) note.textContent = 'Could not reach live data source just now.';
       const avgEl = document.getElementById('statNftChange');
       if(avgEl) avgEl.textContent = 'N/A';
+      if(recoList) recoList.innerHTML = '<div class="panel-error">No live data to recommend from right now.</div><button class="retry-btn" onclick="loadNftData()">Retry</button>';
     });
-})();
+}
+
+document.addEventListener('click', (e)=>{
+  const tab = e.target.closest('.reco-tab');
+  if(!tab) return;
+  document.querySelectorAll('.reco-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  __recoTab = tab.dataset.tab;
+  renderRecoTab();
+});
+
+// ---- live NFT news tracker ----
+function loadNftNews(){
+  const newsList = document.getElementById('newsList');
+  if(!newsList) return;
+  newsList.innerHTML = `
+    <div class="skel" style="height:12px;border-radius:4px;margin-bottom:10px;"></div>
+    <div class="skel" style="height:12px;border-radius:4px;margin-bottom:10px;"></div>
+    <div class="skel" style="height:12px;border-radius:4px;"></div>`;
+
+  function timeAgo(unix){
+    const s = Math.floor(Date.now()/1000) - unix;
+    if(s<3600) return Math.floor(s/60)+'m ago';
+    if(s<86400) return Math.floor(s/3600)+'h ago';
+    return Math.floor(s/86400)+'d ago';
+  }
+  const NFT_KEYWORDS = ['nft','opensea','blur','collectible','mint','floor price','pfp','collection','metaverse land','digital art'];
+
+  fetchWithTimeout('https://min-api.cryptocompare.com/data/v2/news/?lang=EN')
+    .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
+    .then(data=>{
+      let items = data.Data || [];
+      let nftItems = items.filter(n => NFT_KEYWORDS.some(k => (n.title||'').toLowerCase().includes(k)));
+      if(nftItems.length < 3) nftItems = items.slice(0,7); // fall back to general feed if too few NFT-specific hits
+      nftItems = nftItems.slice(0,7);
+      if(!nftItems.length) throw new Error('empty');
+      newsList.innerHTML = nftItems.map(n=>`
+        <div class="news-item">
+          <a href="${n.url}" target="_blank" rel="noopener">${n.title}</a>
+          <div class="news-meta">${n.source_info?.name || n.source || 'Source'} \u00b7 ${timeAgo(n.published_on)}</div>
+        </div>`).join('');
+    })
+    .catch(()=>{
+      newsList.innerHTML = '<div class="panel-error">Live news didn\u2019t load in time.</div><button class="retry-btn" onclick="loadNftNews()">Retry</button>';
+    });
+}
+
+// kick everything off
+loadChains();
+loadNftData();
+loadNftNews();
 
 // ---- active tab highlight on scroll ----
 (function(){
