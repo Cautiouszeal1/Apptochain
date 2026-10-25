@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Apptochain: token management, liquidity monitoring and AI agents for Web3 project teams.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Apptochain Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: landing page (explain → roadmap → connect) that opens into an app shell with sidebar / hamburger drawer */
+:root{
+  --bg:#0B0F17; --surface:#121826; --surface-2:#182033; --line:#243049;
+  --fg:#E8ECF4; --muted:#8C97AD; --gold:#F3BA2F; --gold-ink:#1A1405;
+  --up:#3DD68C; --down:#FF6B6B; --warn:#FFB547; --info:#6CB8FF; --scrim:rgba(3,6,12,.6);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#F5F6F9;--surface:#FFFFFF;--surface-2:#EEF1F6;--line:#DCE1EA;--fg:#111827;--muted:#5A657A;
+  --gold:#C98F00;--gold-ink:#FFFFFF;--up:#118A55;--down:#D23C3C;--warn:#B86E00;--info:#1F6FD1;--scrim:rgba(15,20,30,.4);color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#F5F6F9;--surface:#FFFFFF;--surface-2:#EEF1F6;--line:#DCE1EA;--fg:#111827;--muted:#5A657A;
+  --gold:#C98F00;--gold-ink:#FFFFFF;--up:#118A55;--down:#D23C3C;--warn:#B86E00;--info:#1F6FD1;--scrim:rgba(15,20,30,.4);color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.up{color:var(--up)}.down{color:var(--down)}.warn{color:var(--warn)}
+.grow{flex:1}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px;text-decoration:none;color:var(--fg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;background:var(--gold);color:var(--gold-ink);font-weight:600;padding:10px 16px;border-radius:10px;font-size:14px;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.sm{padding:6px 11px;font-size:13px}
+.btn.lg{padding:13px 22px;font-size:15px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.burger{display:none;width:42px;height:42px;border-radius:11px;border:1px solid var(--line);background:var(--surface);place-items:center;flex:none}
+.burger span,.burger span::before,.burger span::after{display:block;width:18px;height:2px;background:var(--fg);border-radius:2px;position:relative;transition:transform .25s,background .25s}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0}
+.burger span::before{top:-6px}.burger span::after{top:6px}
+.burger[aria-expanded="true"] span{background:transparent}
+.burger[aria-expanded="true"] span::before{transform:translateY(6px) rotate(45deg)}
+.burger[aria-expanded="true"] span::after{transform:translateY(-6px) rotate(-45deg)}
+.soc{display:flex;gap:8px}
+.soc a{flex:1;display:inline-flex;justify-content:center;align-items:center;gap:6px;height:36px;padding:0 12px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--fg);font-size:13px;background:var(--surface)}
+.soc a:hover{border-color:var(--gold)}
+.soc svg{width:14px;height:14px;fill:currentColor}
+.wchip{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:13.5px;font-weight:500;white-space:nowrap}
+.wchip .dot{width:8px;height:8px;border-radius:50%;background:var(--up)}
+.wchip.watch .dot{background:var(--info)}
+
+/* ---------- LANDING ---------- */
+.lhead{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.lwrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.lbar{display:flex;align-items:center;gap:18px;padding-block:12px}
+.lnav{display:flex;gap:4px}
+.lnav a{padding:8px 12px;border-radius:9px;text-decoration:none;color:var(--muted);font-weight:500;font-size:14px}
+.lnav a:hover{color:var(--fg);background:var(--surface-2)}
+.lactions{display:flex;gap:8px;align-items:center}
+.lmenu{display:none}
+.hero{padding-block:56px 40px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:40px;align-items:center}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(36px,5.6vw,64px);line-height:1;letter-spacing:-.03em;margin:14px 0 18px;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{color:var(--muted);font-size:17px;max-width:54ch;margin:0 0 24px}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.livetag{display:inline-flex;gap:8px;align-items:center}
+.livetag i{width:8px;height:8px;border-radius:50%;background:var(--up);box-shadow:0 0 0 4px color-mix(in srgb,var(--up) 22%,transparent)}
+.preview{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:12px}
+.preview .row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;padding:10px 12px;border-radius:10px;background:var(--surface-2)}
+.lsec{padding-block:48px;border-top:1px solid var(--line)}
+.lsec h2{font-family:var(--display);font-size:clamp(26px,3.4vw,38px);font-weight:800;letter-spacing:-.02em;margin:8px 0 10px;text-wrap:balance}
+.lsec > .lwrap > p.lead{color:var(--muted);max-width:62ch;margin:0 0 28px;font-size:16px}
+.feat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.feat div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.feat h3{margin:12px 0 6px;font-family:var(--display);font-size:18px;font-weight:600}
+.feat p{margin:0;color:var(--muted);font-size:14px}
+.ficon{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
+.problem{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.problem div{padding:16px;border-radius:14px;background:var(--surface-2);font-size:14.5px}
+.problem b{display:block;margin-bottom:4px}
+.problem span{color:var(--muted)}
+.road{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;position:relative}
+.phase{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:10px;align-content:start}
+.phase.now{border-color:var(--gold);background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 10%,var(--surface)),var(--surface))}
+.phase h3{margin:0;font-family:var(--display);font-size:20px;font-weight:600}
+.phase ul{margin:0;padding-left:18px;display:grid;gap:5px;font-size:14px}
+.phase li::marker{color:var(--gold)}
+.gate{margin-top:auto;padding-top:10px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted)}
+.gate b{color:var(--fg);font-weight:600}
+.connectbox{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:center;background:var(--surface);border:1px solid var(--gold);border-radius:20px;padding:28px}
+.connectbox h2{margin-top:0}
+.steps{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;counter-increment:s}
+.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--gold-ink);font-family:var(--mono);font-size:12px;font-weight:600}
+.lfoot{border-top:1px solid var(--line);padding-block:28px calc(36px + env(safe-area-inset-bottom,0px))}
+.lfoot .lwrap{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:center}
+.lfoot p{margin:6px 0 0;color:var(--muted);font-size:13px;max-width:56ch}
+
+/* ---------- APP ---------- */
+.shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px calc(18px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));overflow:auto}
+.side .brand{padding:4px 8px 18px}
+.proj{margin:0 4px 16px;padding:12px;border-radius:12px;background:var(--surface-2)}
+.proj b{display:block;font-family:var(--display);font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav{display:grid;gap:2px}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:500}
+.nav a:hover{background:var(--surface-2);color:var(--fg)}
+.nav a[aria-current="page"]{background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--fg)}
+.nav a[aria-current="page"] svg{color:var(--gold)}
+.nav svg{width:19px;height:19px;flex:none}
+.nav .count{margin-left:auto;font-family:var(--mono);font-size:11px;background:var(--down);color:#fff;border-radius:99px;padding:1px 7px}
+.nav hr{border:0;border-top:1px solid var(--line);margin:8px 6px}
+.sidefoot{margin-top:auto;padding:16px 8px 0;display:grid;gap:10px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:12px;padding-block:12px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top h1{margin:0;font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:-.01em;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sync{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);white-space:nowrap}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.sync.ok i{background:var(--up)}.sync.busy i{background:var(--warn)}.sync.err i{background:var(--down)}
+.scrim{display:none}
+main{padding-block:22px 48px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));max-width:1240px;width:100%}
+.view{display:grid;gap:18px}
+.banner{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;border:1px dashed var(--gold);background:color-mix(in srgb,var(--gold) 8%,transparent);font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}
+.card h2{margin:0;font-size:16px;font-weight:600}
+.chead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.kpi b{display:block;font-family:var(--mono);font-size:24px;font-weight:600;margin:6px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi small{font-size:12.5px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px}
+.icon-btn{border:1px solid transparent;background:transparent;color:var(--muted);border-radius:8px;padding:5px 8px;font-size:12.5px}
+.icon-btn:hover{border-color:var(--line);color:var(--fg)}
+.icon-btn.arm{color:var(--down);border-color:var(--down)}
+.tablewrap{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:400;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+td small{display:block;color:var(--muted);font-family:var(--mono);font-size:11.5px}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;padding:3px 8px;border-radius:999px;text-transform:uppercase;white-space:nowrap}
+.p-up{background:color-mix(in srgb,var(--up) 16%,transparent);color:var(--up)}
+.p-down{background:color-mix(in srgb,var(--down) 16%,transparent);color:var(--down)}
+.p-warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.p-info{background:color-mix(in srgb,var(--info) 16%,transparent);color:var(--info)}
+.p-mute{background:var(--surface-2);color:var(--muted)}
+.empty{padding:26px 10px;text-align:center;color:var(--muted);font-size:14px}
+.bar{height:8px;background:var(--surface-2);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold);border-radius:9px}
+.stack{display:flex;height:14px;border-radius:8px;overflow:hidden;background:var(--surface-2);gap:2px}
+.legend{display:grid;gap:8px;margin-top:14px}
+.legend div{display:flex;align-items:center;gap:10px;font-size:14px;min-width:0}
+.legend .sw{width:10px;height:10px;border-radius:3px;flex:none}
+.legend .v{margin-left:auto;font-family:var(--mono);white-space:nowrap}
+.alerts{display:grid;gap:10px}
+.al{display:flex;gap:12px;padding:12px;border-radius:12px;background:var(--surface-2);border-left:3px solid var(--warn);font-size:14px}
+.al.crit{border-left-color:var(--down)}.al.ok{border-left-color:var(--up)}
+.al b{display:block}
+.al span{color:var(--muted);font-size:13px}
+.ring{display:flex;gap:18px;align-items:center}
+.ring svg{width:112px;height:112px;flex:none}
+.impact{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.impact div{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.impact b{display:block;font-family:var(--mono);font-size:17px}
+.switch{position:relative;width:40px;height:22px;flex:none;display:inline-block}
+.switch input{opacity:0;width:100%;height:100%;margin:0;position:absolute;cursor:pointer}
+.switch span{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:background .2s;pointer-events:none}
+.switch span::after{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;border-radius:50%;background:var(--fg);transition:transform .2s}
+.switch input:checked+span{background:var(--gold)}
+.switch input:checked+span::after{transform:translateX(18px);background:var(--gold-ink)}
+.switch input:focus-visible+span{outline:2px solid var(--gold);outline-offset:2px}
+.wallet-card{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.wallet-card div{background:var(--surface-2);border-radius:10px;padding:10px 12px;min-width:0}
+.wallet-card b{display:block;font-family:var(--mono);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agents{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.agent{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:8px;align-content:start;color:var(--fg)}
+.agent[aria-pressed="true"]{border-color:var(--gold);background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 9%,var(--surface)),var(--surface))}
+.agent .ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:var(--surface-2);color:var(--gold)}
+.agent[aria-pressed="true"] .ico{background:var(--gold);color:var(--gold-ink)}
+.agent h3{margin:0;font-family:var(--display);font-size:17px;font-weight:600}
+.agent p{margin:0;color:var(--muted);font-size:13px}
+.field{display:grid;gap:6px}
+.field label{font-size:13px;font-weight:500}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+textarea{resize:vertical;min-height:84px;line-height:1.5}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.out{background:var(--surface-2);border-radius:12px;padding:16px 18px;min-height:140px;font-size:14.5px;line-height:1.6}
+.out h4{margin:14px 0 6px;font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+.out h4:first-child{margin-top:0}
+.out p{margin:0 0 8px}
+.out ul{margin:0 0 8px;padding-left:20px}
+.out li{margin-bottom:4px}
+.thinking{display:inline-flex;gap:8px;align-items:center;color:var(--muted)}
+.thinking i{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1s infinite alternate}
+@keyframes pulse{to{opacity:.25;transform:scale(.7)}}
+.hist{display:grid;gap:6px;max-height:360px;overflow:auto}
+.hist button{text-align:left;background:var(--surface-2);border:1px solid transparent;border-radius:10px;padding:10px 12px;color:var(--fg)}
+.hist button:hover{border-color:var(--line)}
+.hist small{display:block;color:var(--muted);font-size:12px}
+.guide{display:grid;gap:12px;margin:0;padding:0;list-style:none;counter-reset:g}
+.guide li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:14px;padding:16px;border-radius:14px;background:var(--surface-2);counter-increment:g}
+.guide li::before{content:counter(g);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--gold-ink);font-family:var(--mono);font-weight:600}
+.guide h3{margin:4px 0 4px;font-size:15.5px}
+.guide p{margin:0 0 8px;color:var(--muted);font-size:14px;max-width:70ch}
+.faq details{border-bottom:1px solid var(--line);padding:12px 2px}
+.faq summary{cursor:pointer;font-weight:500}
+.faq p{margin:8px 0 0;color:var(--muted);font-size:14px;max-width:72ch}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px));background:var(--scrim)}
+.sheet{width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:grid;gap:14px}
+.sheet h3{margin:0;font-family:var(--display);font-size:20px;font-weight:600}
+.sheet .actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.wlist{display:grid;gap:8px}
+.wopt{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);text-align:left;font-weight:500;color:var(--fg)}
+.wopt:hover{border-color:var(--gold)}
+.wopt img{width:28px;height:28px;border-radius:7px}
+.wopt .ph{width:28px;height:28px;border-radius:7px;background:var(--line);display:grid;place-items:center;font-size:13px}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:"";flex:1;border-top:1px solid var(--line)}
+.err{color:var(--down);font-size:13px}
+.note{font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;z-index:80;max-width:calc(100% - 32px)}
+.show-sm{display:none}
+
+@media (max-width:1080px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.agents{grid-template-columns:minmax(0,1fr)}.road{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){
+  .lnav,.lactions .hide-m{display:none}
+  .lhead .burger{display:grid}
+  .lmenu{display:grid;gap:4px;padding-block:0 14px}
+  .lmenu[hidden]{display:none!important}
+  .lmenu a{padding:12px;border-radius:10px;text-decoration:none;font-weight:500;background:var(--surface)}
+  .hero{grid-template-columns:minmax(0,1fr);padding-block:36px 28px}
+  .feat,.problem,.connectbox{grid-template-columns:minmax(0,1fr)}
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .side{position:fixed;z-index:50;top:0;left:0;bottom:0;width:min(300px,86vw);height:auto;transform:translateX(-102%);transition:transform .28s ease;padding-top:calc(18px + env(safe-area-inset-top,0px));box-shadow:0 0 0 1px var(--line)}
+  .side.open{transform:none}
+  .scrim{display:block;position:fixed;inset:0;z-index:45;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .25s}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .top .burger{display:grid}
+  .cols{grid-template-columns:minmax(0,1fr)}
+  .top h1{font-size:19px}
+  .wallet-card{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:560px){
+  .road{grid-template-columns:minmax(0,1fr)}
+  .kpi b{font-size:20px}
+  .impact{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .formgrid{grid-template-columns:minmax(0,1fr)}
+  .sync .t,.hide-sm{display:none}
+  .show-sm{display:block}
+  .connectbox{padding:20px}
+  .top .wchip .t{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<!-- ================= LANDING ================= -->
+<div id="landing">
+  <header class="lhead">
+    <div class="lwrap">
+      <div class="lbar">
+        <a class="brand" href="#home"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--gold)"/><path d="M9 22 16 8l7 14M11.5 17h9" stroke="var(--gold-ink)" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Apptochain</a>
+        <nav class="lnav" aria-label="Page sections">
+          <a href="#about" data-scroll="about">About</a><a href="#agents-l" data-scroll="agents-l">AI agents</a><a href="#roadmap" data-scroll="roadmap">Roadmap</a><a href="#connect" data-scroll="connect">Get started</a>
+        </nav>
+        <span class="grow"></span>
+        <div class="lactions">
+          <button class="btn ghost hide-m" data-open-app>Open dashboard</button>
+          <button class="btn" data-connect>Connect wallet</button>
+          <button class="burger" id="lburger" aria-label="Open menu" aria-controls="lmenu" aria-expanded="false"><span></span></button>
+        </div>
+      </div>
+      <nav class="lmenu" id="lmenu" hidden aria-label="Menu">
+        <a href="#about" data-scroll="about">About Apptochain</a>
+        <a href="#agents-l" data-scroll="agents-l">AI agents</a>
+        <a href="#roadmap" data-scroll="roadmap">Roadmap</a>
+        <a href="#connect" data-scroll="connect">Connect wallet</a>
+        <a href="#overview">Open dashboard</a>
+        <a href="#guide">How to use it</a>
+        <a href="https://claude.ai/artifact/XZFgb4gJnR1WKhubLsz99F" target="_blank" rel="noopener">Read the whitepaper</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="lwrap hero">
+    <div>
+      <span class="label livetag"><i></i>Launching on BNB Chain · Base and Ethereum next</span>
+      <h1>See your token's liquidity <em>before your community does</em></h1>
+      <p>Apptochain is one dashboard where Web3 project teams monitor liquidity pools, treasury wallets and vesting schedules, get alerts when something changes, and use AI agents to explain it all in plain language.</p>
+      <div class="cta">
+        <button class="btn lg" data-connect>Connect wallet</button>
+        <button class="btn ghost lg" data-open-app>Explore the dashboard</button>
+      </div>
+    </div>
+    <div class="preview" aria-label="Example of what Apptochain shows">
+      <span class="label">What your team sees</span>
+      <div class="row"><span>LP locked on main pool</span><b class="mono up">80%</b></div>
+      <div class="row"><span>$10k sell moves price by</span><b class="mono">−1.6%</b></div>
+      <div class="row"><span>Team unlock</span><span class="pill p-warn">in 24 days</span></div>
+      <div class="row"><span>Treasury runway</span><b class="mono">75 months</b></div>
+      <div class="row"><span>Weekly community update</span><span class="pill p-up">Drafted by AI</span></div>
+    </div>
+  </section>
+
+  <section class="lsec" id="about">
+    <div class="lwrap">
+      <span class="label">What is Apptochain</span>
+      <h2>Token management and liquidity monitoring in one place</h2>
+      <p class="lead">Most teams track liquidity in explorer tabs, vesting in private spreadsheets and updates by hand. Apptochain brings it together, watches it, and tells you what changed.</p>
+      <div class="problem" style="margin-bottom:24px">
+        <div><b>Liquidity is hard to read</b><span>See pool depth, locked LP and how much a sell moves your price, for every pool.</span></div>
+        <div><b>Problems get spotted late</b><span>Alert rules flag unlocked LP, thin liquidity, big unlocks and risky wallets.</span></div>
+        <div><b>Treasury and vesting are opaque</b><span>Every wallet and vesting schedule in one view, with runway and unlock dates.</span></div>
+        <div><b>Reporting takes hours</b><span>AI agents write research, portfolio reviews and community updates from your data.</span></div>
+      </div>
+      <div class="feat">
+        <div><span class="ficon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg></span><h3>Liquidity Monitor</h3><p>Pool liquidity, LP lock status and price impact for $1k to $250k sells.</p></div>
+        <div><span class="ficon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M16 13h2M3 10h18"/></svg></span><h3>Treasury and wallets</h3><p>Every project wallet with its type, split and on-chain balances read through your wallet.</p></div>
+        <div><span class="ficon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><h3>Vesting and alerts</h3><p>Unlock schedules, progress and alert rules you set yourself.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lsec" id="agents-l">
+    <div class="lwrap">
+      <span class="label">AI agents</span>
+      <h2>Three agents that read your data and explain it</h2>
+      <p class="lead">The agents give insight and draft content. They never trade, sign transactions or move funds.</p>
+      <div class="feat">
+        <div><span class="ficon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17l5-5 4 4 8-9"/><path d="M15 7h5v5"/></svg></span><h3>Trading Research</h3><p>Analyses fundamentals, liquidity, volume and market conditions into a research report with a verdict.</p></div>
+        <div><span class="ficon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 5"/></svg></span><h3>Portfolio</h3><p>Reviews holdings, concentration risk, runway and upcoming token unlocks.</p></div>
+        <div><span class="ficon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9h10M7 13h6M7 17h3"/></svg></span><h3>Web3 Operations</h3><p>Checks treasury and vesting setup for risks and drafts your weekly community update.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lsec" id="roadmap">
+    <div class="lwrap">
+      <span class="label">Roadmap</span>
+      <h2>Four phases from BNB Chain launch to multi-chain scale</h2>
+      <p class="lead">Each phase starts when the gate before it is met, so working software ships before the next layer.</p>
+      <div class="road">
+        <div class="phase now"><span class="pill p-up" style="justify-self:start">Now</span><h3>1 · Foundation</h3><span class="label">Q4 2026</span><ul><li>BNB Chain launch</li><li>Liquidity Monitor</li><li>Treasury dashboard</li><li>Vesting and unlocks</li><li>X and Telegram live</li></ul><div class="gate"><b>Gate:</b> 20 projects monitored live</div></div>
+        <div class="phase"><h3>2 · AI agents</h3><span class="label">Q1 2027</span><ul><li>Research Agent</li><li>Portfolio Agent</li><li>Operations Agent</li><li>Telegram alerts</li><li>Paid plans open</li></ul><div class="gate"><b>Gate:</b> 100 active teams, agents rated useful</div></div>
+        <div class="phase"><h3>3 · Expansion</h3><span class="label">Q2 2027</span><ul><li>Base and Ethereum</li><li>Public transparency pages</li><li>Verified Transparency Badge</li><li>Partner plans</li><li>Mobile-first app</li></ul><div class="gate"><b>Gate:</b> multi-chain stable, partners signed</div></div>
+        <div class="phase"><h3>4 · Scale</h3><span class="label">Q3 to Q4 2027</span><ul><li>Public data API</li><li>White-label pages</li><li>More EVM chains</li><li>Agent workflows</li><li>Team integrations</li></ul></div>
+      </div>
+      <p style="margin:18px 0 0"><a class="btn ghost" href="https://claude.ai/artifact/XZFgb4gJnR1WKhubLsz99F" target="_blank" rel="noopener">Read the full whitepaper</a></p>
+    </div>
+  </section>
+
+  <section class="lsec" id="connect">
+    <div class="lwrap">
+      <div class="connectbox">
+        <div>
+          <span class="label">Get started</span>
+          <h2>Connect your wallet to open your workspace</h2>
+          <p class="muted" style="margin:0 0 20px">Apptochain only reads data. Connecting proves which wallet is yours and lets the dashboard read balances on-chain. It never asks you to sign a transaction or approve spending.</p>
+          <div class="cta"><button class="btn lg" data-connect>Connect wallet</button><button class="btn ghost lg" data-open-app>Continue without wallet</button></div>
+        </div>
+        <ol class="steps">
+          <li>Connect a browser wallet such as MetaMask, Trust or Binance Wallet, or watch any address.</li>
+          <li>Name your project and add your token contract in Settings.</li>
+          <li>Add pools, treasury wallets and vesting schedules.</li>
+          <li>Set your alert rules and run the AI agents.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <footer class="lfoot">
+    <div class="lwrap">
+      <div><a class="brand" href="#home"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--gold)"/><path d="M9 22 16 8l7 14M11.5 17h9" stroke="var(--gold-ink)" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Apptochain</a>
+      <p>Token management, liquidity monitoring and AI agents for Web3 teams. Information only, not financial advice.</p></div>
+      <div class="soc" style="min-width:240px">
+        <a href="https://x.com/apptochain" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.8-6.3L6.4 22H3.3l7.3-8.3L1 2h6.3l4.4 5.8L18.9 2Zm-1.1 18.2h1.7L6.3 3.7H4.5l13.3 16.5Z"/></svg>X</a>
+        <a href="https://t.me/apptochain" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M21.9 4.3 18.6 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.2-8.3c.4-.4-.1-.6-.6-.2L6 13.6 1.1 12c-1.1-.3-1.1-1.1.2-1.6L20.5 3c.9-.3 1.7.2 1.4 1.3Z"/></svg>Telegram</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ================= APP ================= -->
+<div class="shell" id="app" hidden>
+  <aside class="side" id="side" aria-label="Main menu">
+    <a class="brand" href="#home"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--gold)"/><path d="M9 22 16 8l7 14M11.5 17h9" stroke="var(--gold-ink)" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Apptochain</a>
+    <div class="proj"><span class="label">Project</span><b id="projName">—</b><span class="mono muted" style="font-size:12px" id="projSub">BNB Chain</span></div>
+    <nav class="nav" id="nav">
+      <a href="#overview" data-v="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Overview</a>
+      <a href="#liquidity" data-v="liquidity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Liquidity</a>
+      <a href="#wallets" data-v="wallets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M16 13h2M3 10h18"/></svg>Treasury</a>
+      <a href="#vesting" data-v="vesting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Vesting</a>
+      <a href="#alerts" data-v="alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>Alerts<span class="count" id="alertCount" hidden>0</span></a>
+      <a href="#agents" data-v="agents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M5 9h14v9a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><circle cx="9.5" cy="14" r="1.2" fill="currentColor"/><circle cx="14.5" cy="14" r="1.2" fill="currentColor"/></svg>AI Agents</a>
+      <hr>
+      <a href="#guide" data-v="guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 7h6"/></svg>How to use</a>
+      <a href="#settings" data-v="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Settings</a>
+      <a href="#home" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home page</a>
+    </nav>
+    <div class="sidefoot">
+      <span class="label">Follow Apptochain</span>
+      <div class="soc">
+        <a href="https://x.com/apptochain" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.8-6.3L6.4 22H3.3l7.3-8.3L1 2h6.3l4.4 5.8L18.9 2Zm-1.1 18.2h1.7L6.3 3.7H4.5l13.3 16.5Z"/></svg>X</a>
+        <a href="https://t.me/apptochain" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M21.9 4.3 18.6 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.2-8.3c.4-.4-.1-.6-.6-.2L6 13.6 1.1 12c-1.1-.3-1.1-1.1.2-1.6L20.5 3c.9-.3 1.7.2 1.4 1.3Z"/></svg>Telegram</a>
+      </div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div style="min-width:0">
+    <header class="top">
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="side" aria-expanded="false"><span></span></button>
+      <h1 id="title">Overview</h1>
+      <span class="grow"></span>
+      <span class="sync" id="sync"><i></i><span class="t">Loading…</span></span>
+      <button class="wchip" id="topWallet" data-connect></button>
+    </header>
+
+    <main>
+      <!-- OVERVIEW -->
+      <section class="view" id="v-overview">
+        <div class="banner" id="exampleBanner" hidden>
+          <span><b>You're viewing an example project.</b> Explore it, then start fresh with your own token.</span>
+          <span style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn ghost sm" href="#guide">How to use</a><button class="btn sm" id="startFresh">Start my project</button></span>
+        </div>
+        <div class="kpis" id="kpis"></div>
+        <div class="cols">
+          <div class="card">
+            <div class="chead"><h2>Price impact on main pool</h2><span class="label" id="mainPoolName"></span></div>
+            <div class="impact" id="impact"></div>
+            <p class="muted" style="font-size:13px;margin:12px 0 0">How much one sell of each size moves the price, estimated from the pool's liquidity with the constant-product formula.</p>
+          </div>
+          <div class="card">
+            <div class="chead"><h2>Liquidity health</h2></div>
+            <div class="ring" id="health"></div>
+          </div>
+        </div>
+        <div class="cols">
+          <div class="card">
+            <div class="chead"><h2>Active alerts</h2><a class="btn ghost sm" href="#alerts">Manage rules</a></div>
+            <div class="alerts" id="ovAlerts"></div>
+          </div>
+          <div class="card">
+            <div class="chead"><h2>Treasury split</h2><a class="btn ghost sm" href="#wallets">Wallets</a></div>
+            <div id="split"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIQUIDITY -->
+      <section class="view" id="v-liquidity" hidden>
+        <div class="card">
+          <div class="chead"><h2>Liquidity pools</h2><button class="btn sm" data-add="pool">+ Add pool</button></div>
+          <div class="tablewrap"><table><thead><tr><th>Pair</th><th class="hide-sm">DEX</th><th class="num">Liquidity</th><th class="num">$10k sell</th><th>LP lock</th><th></th></tr></thead><tbody id="poolRows"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- WALLETS -->
+      <section class="view" id="v-wallets" hidden>
+        <div class="card">
+          <div class="chead"><h2>Connected wallet</h2><span id="walletActions" style="display:flex;gap:8px;flex-wrap:wrap"></span></div>
+          <div id="walletPanel"></div>
+        </div>
+        <div class="card">
+          <div class="chead"><h2>Treasury wallets</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost sm" id="syncChain">Sync on-chain</button><button class="btn sm" data-add="wallet">+ Add wallet</button></span></div>
+          <div class="tablewrap"><table><thead><tr><th>Wallet</th><th>Type</th><th class="num">Value (USD)</th><th class="num hide-sm">Share</th><th class="num">On-chain</th><th></th></tr></thead><tbody id="walletRows"></tbody></table></div>
+          <p class="muted" style="font-size:12.5px;margin:12px 0 0" id="syncNote"></p>
+        </div>
+      </section>
+
+      <!-- VESTING -->
+      <section class="view" id="v-vesting" hidden>
+        <div class="card">
+          <div class="chead"><h2>Vesting schedules</h2><button class="btn sm" data-add="vest">+ Add schedule</button></div>
+          <div id="vestList" style="display:grid;gap:14px"></div>
+        </div>
+      </section>
+
+      <!-- ALERTS -->
+      <section class="view" id="v-alerts" hidden>
+        <div class="card">
+          <div class="chead"><h2>Triggered now</h2></div>
+          <div class="alerts" id="alList"></div>
+        </div>
+        <div class="card">
+          <div class="chead"><h2>Alert rules</h2><span class="label">Checked every time your data changes</span></div>
+          <div class="tablewrap"><table><thead><tr><th>Rule</th><th class="num">Threshold</th><th>On</th></tr></thead><tbody id="ruleRows"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- AGENTS -->
+      <section class="view" id="v-agents" hidden>
+        <div class="agents" id="agentPick"></div>
+        <div class="cols">
+          <div class="card">
+            <div class="chead"><h2 id="agentTitle">Agent</h2><span class="label">Uses your project data</span></div>
+            <div style="display:grid;gap:12px">
+              <div class="field" id="researchFields">
+                <label for="rToken">Token to research</label>
+                <input type="text" id="rToken" placeholder="e.g. CAKE, or a contract address" maxlength="80">
+              </div>
+              <div class="field">
+                <label for="agentNotes" id="notesLabel">Extra context (optional)</label>
+                <textarea id="agentNotes" maxlength="6000"></textarea>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn" id="runAgent">Run agent</button>
+                <button class="btn ghost" id="stopAgent" hidden>Stop</button>
+                <button class="btn ghost" id="copyOut" hidden>Copy report</button>
+              </div>
+              <div class="out" id="agentOut" aria-live="polite"><p class="muted">Pick an agent and press Run agent. The report appears here and is saved to your history.</p></div>
+              <p class="muted" style="font-size:12.5px;margin:0">Reports are information only, not financial advice. Agents read only your workspace data and what you type here.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="chead"><h2>Report history</h2><button class="icon-btn" id="clearHist">Clear</button></div>
+            <div class="hist" id="hist"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GUIDE -->
+      <section class="view" id="v-guide" hidden>
+        <div class="card">
+          <div class="chead"><h2>How to use Apptochain</h2><span class="label">About 10 minutes to set up</span></div>
+          <ol class="guide">
+            <li><div><h3>Connect your wallet</h3><p>Press Connect wallet at the top. Pick MetaMask, Trust, Binance Wallet or another browser wallet and approve the connection. Apptochain only reads data; it never asks you to sign or approve spending. No browser wallet? Choose "Watch an address" and paste any wallet address.</p><button class="btn sm" data-connect>Connect wallet</button></div></li>
+            <li><div><h3>Set up your project</h3><p>Open Settings. Enter your project name, token symbol, chain and token contract address. Add your monthly spend so Apptochain can work out your treasury runway. With a wallet connected, press "Read from chain" to fill in total supply.</p><a class="btn ghost sm" href="#settings">Open Settings</a></div></li>
+            <li><div><h3>Add your liquidity pools</h3><p>In Liquidity, press + Add pool. Enter the pair, the DEX, total liquidity in USD, and how much of the LP is locked. Apptochain shows the price impact of $1k to $250k sells and flags unlocked LP.</p><a class="btn ghost sm" href="#liquidity">Open Liquidity</a></div></li>
+            <li><div><h3>Add treasury wallets and sync them</h3><p>In Treasury, add each wallet with its full 0x address, type and USD value. Press Sync on-chain to read each wallet's native balance (BNB, ETH) and your token balance straight from the blockchain through your connected wallet.</p><a class="btn ghost sm" href="#wallets">Open Treasury</a></div></li>
+            <li><div><h3>Add vesting schedules</h3><p>In Vesting, add each group (team, investors, advisors) with total tokens, tokens unlocked so far, and the next unlock date and amount. Progress bars and countdowns update automatically.</p><a class="btn ghost sm" href="#vesting">Open Vesting</a></div></li>
+            <li><div><h3>Set your alert rules</h3><p>In Alerts, turn rules on or off and set your own limits, such as "warn me when more than 25% of LP is unlocked" or "when an unlock is within 30 days". Triggered alerts show on the Overview and as a red count in the menu.</p><a class="btn ghost sm" href="#alerts">Open Alerts</a></div></li>
+            <li><div><h3>Run the AI agents</h3><p>In AI Agents, pick Research, Portfolio or Operations, add any notes, and press Run agent. The first time, you'll be asked to allow the AI.Reports are saved to your history, and the Operations agent drafts a community update you can copy to X or Telegram.</p><a class="btn ghost sm" href="#agents">Open AI Agents</a></div></li>
+          </ol>
+        </div>
+        <div class="card faq">
+          <div class="chead"><h2>Questions about Apptochain</h2></div>
+          <details><summary>What is Apptochain?</summary><p>Apptochain is a token management and liquidity monitoring platform for Web3 project teams. It shows your liquidity pools, treasury wallets and vesting schedules in one dashboard, alerts you when something changes, and uses AI agents to explain your data in plain language.</p></details>
+          <details><summary>Who is Apptochain for?</summary><p>Token projects from launch to maturity, launchpads and incubators that support many projects, market makers, and funds that manage crypto treasuries.</p></details>
+          <details><summary>Which blockchains does it support?</summary><p>Apptochain launches on BNB Chain. Base and Ethereum follow in Phase 3 of the roadmap, then more EVM chains in Phase 4.</p></details>
+          <details><summary>Does Apptochain have a token?</summary><p>No. Apptochain is a software product paid for by subscription. Be careful of anyone offering an "Apptochain token": it is not ours. Official news comes only from our X and Telegram channels.</p></details>
+          <details><summary>How much does it cost?</summary><p>There is a free Starter plan for one token and one pool. Paid plans add real-time alerts, more pools and wallets, the AI agents and public transparency pages. Partner plans cover launchpads and incubators with many projects. Final prices are announced at launch.</p></details>
+          <details><summary>Can Apptochain move my funds?</summary><p>No. Apptochain only reads public blockchain data through your wallet. It never asks for a signature, a transaction or a spending approval, and it never holds your private keys.</p></details>
+          <details><summary>Is my project data private?</summary><p>Yes. Your workspace is private to you. Only data you choose to publish, such as a future public transparency page, can be seen by others.</p></details>
+          <details><summary>Why can't it find my wallet?</summary><p>Browser wallets connect when Apptochain is opened in a desktop browser with the wallet extension installed, or inside a wallet app's built-in browser. Anywhere else, use "Watch an address" and enter balances by hand.</p></details>
+          <details><summary>Where do the pool numbers come from?</summary><p>For now you enter pool liquidity and lock status, and Apptochain calculates price impact, LP-locked share, runway, health score and alerts from them. Automatic pool tracking is part of the Foundation phase on the roadmap.</p></details>
+          <details><summary>Are the AI reports financial advice?</summary><p>No. The AI agents give information to help your team understand its data. They never trade or move funds. Check important figures before acting on them or publishing them.</p></details>
+          <details><summary>How do I get support or follow updates?</summary><p>Follow Apptochain on X and join the Telegram channel using the links in the menu. Project teams that want early access can apply there.</p></details>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="view" id="v-settings" hidden>
+        <div class="card">
+          <div class="chead"><h2>Project</h2></div>
+          <form id="projForm" style="display:grid;gap:14px" novalidate>
+            <div class="formgrid">
+              <div class="field"><label for="sName">Project name</label><input type="text" id="sName" maxlength="60"></div>
+              <div class="field"><label for="sSym">Token symbol</label><input type="text" id="sSym" maxlength="12"></div>
+              <div class="field"><label for="sChain">Chain</label><select id="sChain"><option>BNB Chain</option><option>Base</option><option>Ethereum</option></select></div>
+              <div class="field"><label for="sAddr">Token contract</label><input type="text" id="sAddr" placeholder="0x…" maxlength="42"></div>
+              <div class="field"><label for="sBurn">Monthly spend (USD)</label><input type="number" id="sBurn" min="0" step="any"></div>
+              <div class="field"><label for="sSupply">Total supply (tokens)</label><input type="number" id="sSupply" min="0" step="any"></div>
+            </div>
+            <div class="err" id="projErr" hidden></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="submit">Save project</button><button class="btn ghost" type="button" id="readSupply">Read from chain</button></div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="chead"><h2>Workspace</h2></div>
+          <p class="muted" style="margin:0 0 12px;font-size:14px" id="storeNote"></p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="loadExample">Load example project</button><button class="btn ghost" id="resetBtn">Clear workspace</button></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- modals -->
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <form class="sheet" id="mForm" novalidate>
+    <h3 id="mTitle"></h3>
+    <div id="mBody" style="display:grid;gap:12px"></div>
+    <div class="err" id="mErr" hidden></div>
+    <div class="actions"><button type="button" class="btn ghost" id="mCancel">Cancel</button><button class="btn" type="submit">Save</button></div>
+  </form>
+</div>
+<div class="modal" id="wmodal" hidden role="dialog" aria-modal="true" aria-labelledby="wTitle">
+  <div class="sheet">
+    <h3 id="wTitle">Connect wallet</h3>
+    <div class="wlist" id="wlist"></div>
+    <div class="err" id="wErr" hidden></div>
+    <div class="divider">or</div>
+    <form id="watchForm" style="display:grid;gap:8px" novalidate>
+      <label for="watchAddr" style="font-size:13px;font-weight:500">Watch an address (read-only)</label>
+      <div style="display:flex;gap:8px"><input type="text" id="watchAddr" placeholder="0x…" maxlength="42" style="flex:1;min-width:0"><button class="btn" type="submit">Watch</button></div>
+    </form>
+    <div class="note">Apptochain never asks for a signature, a transaction or a spending approval.</div>
+    <div class="actions"><button class="btn ghost" id="wClose">Close</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const uid = () => Math.random().toString(36).slice(2, 10);
+const money = n => { n = Number(n) || 0; const a = Math.abs(n);
+  return '$' + (a >= 1e9 ? (n/1e9).toFixed(2)+'B' : a >= 1e6 ? (n/1e6).toFixed(2)+'M' : a >= 1e3 ? (n/1e3).toFixed(1)+'K' : n.toFixed(0)); };
+const pct = n => (n < 0.1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : n.toFixed(0)) + '%';
+const num = n => Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 4 });
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isAddr = a => /^0x[a-fA-F0-9]{40}$/.test(String(a || '').trim());
+const short = a => a ? a.slice(0, 6) + '…' + a.slice(-4) : '';
+const todayStr = () => new Date().toISOString().slice(0, 10);
+const daysTo = d => Math.round((Date.parse(d + 'T00:00:00Z') - Date.parse(todayStr() + 'T00:00:00Z')) / 864e5);
+const fmtDate = d => { const x = new Date(d + 'T00:00:00'); return isNaN(x) ? d : x.toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' }); };
+const isoIn = n => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+function toast(t){ const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2600); }
+function armButton(btn, armedText, done){
+  if (btn.dataset.armed === '1') { btn.dataset.armed = ''; clearTimeout(btn._t); done(); return; }
+  const orig = btn.textContent; btn.dataset.armed = '1'; btn.classList.add('arm'); btn.textContent = armedText;
+  btn._t = setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ''; btn.classList.remove('arm'); btn.textContent = orig; } }, 3500);
+}
+
+/* ---------- state ---------- */
+const RULES = () => ({ unlockedLp: { on: true, v: 25 }, impact10k: { on: true, v: 2 }, unlockSoon: { on: true, v: 30 }, deployer: { on: true, v: 0 }, runway: { on: true, v: 18 }, concentration: { on: true, v: 60 } });
+function example(){
+  return {
+    example: true, account: null,
+    project: { name: 'Nova Finance (example)', symbol: 'NOVA', chain: 'BNB Chain', contract: '', burn: 38000, supply: 200000000 },
+    pools: [
+      { id: uid(), pair: 'NOVA / BNB', dex: 'PancakeSwap v3', liq: 1240000, lockedPct: 80, lockUntil: isoIn(240) },
+      { id: uid(), pair: 'NOVA / USDT', dex: 'PancakeSwap v2', liq: 386000, lockedPct: 0, lockUntil: '' },
+      { id: uid(), pair: 'NOVA / CAKE', dex: 'PancakeSwap v2', liq: 92000, lockedPct: 100, lockUntil: isoIn(60) }
+    ],
+    wallets: [
+      { id: uid(), label: 'Main treasury', address: '', type: 'Multisig', bal: 1920000 },
+      { id: uid(), label: 'Liquidity ops', address: '', type: 'Multisig', bal: 486000 },
+      { id: uid(), label: 'Stablecoin reserve', address: '', type: 'Multisig', bal: 420000 },
+      { id: uid(), label: 'Marketing', address: '', type: 'Hot wallet', bal: 61000 },
+      { id: uid(), label: 'Deployer', address: '', type: 'Deployer', bal: 1200 }
+    ],
+    vesting: [
+      { id: uid(), group: 'Team', total: 30000000, unlocked: 18600000, next: isoIn(24), nextAmt: 1250000 },
+      { id: uid(), group: 'Seed investors', total: 24000000, unlocked: 9120000, next: isoIn(82), nextAmt: 3000000 },
+      { id: uid(), group: 'Advisors', total: 6000000, unlocked: 4500000, next: isoIn(6), nextAmt: 250000 },
+      { id: uid(), group: 'Ecosystem fund', total: 40000000, unlocked: 8000000, next: isoIn(150), nextAmt: 5000000 }
+    ],
+    rules: RULES(), reports: []
+  };
+}
+function blank(keep){
+  return { example: false, account: keep?.account || null, project: { name: 'My project', symbol: '', chain: 'BNB Chain', contract: '', burn: 0, supply: 0 }, pools: [], wallets: [], vesting: [], rules: RULES(), reports: keep?.reports || [] };
+}
+function normalize(d){
+  const b = blank(); const s = Object.assign(b, d || {});
+  s.project = Object.assign(blank().project, s.project || {});
+  s.rules = Object.assign(RULES(), s.rules || {});
+  for (const k of ['pools', 'wallets', 'vesting', 'reports']) if (!Array.isArray(s[k])) s[k] = [];
+  return s;
+}
+let S = example();
+
+/* ---------- storage ---------- */
+let ref = null, mode = 'memory', chainP = Promise.resolve(), lastJSON = '';
+const LS = 'apptochain-workspace-v2';
+function setSync(cls, t){ const el = $('#sync'); el.className = 'sync ' + cls; el.querySelector('.t').textContent = t; }
+function save(){
+  const json = JSON.stringify(S);
+  if (json === lastJSON) return;
+  lastJSON = json;
+  if (mode === 'db') {
+    setSync('busy', 'Saving…');
+    chainP = chainP.then(() => ref.set(JSON.parse(json))).then(() => setSync('ok', 'Saved to your account'))
+      .catch(e => { setSync('err', 'Not saved'); toast(e && e.code === 'quota_exceeded' ? 'Storage is full. Clear old reports and try again.' : 'Could not save. Check your connection and try again.'); lastJSON = ''; });
+  } else if (mode === 'local') {
+    try { localStorage.setItem(LS, json); setSync('ok', 'Saved on this device'); } catch(e) { setSync('err', 'Not saved'); }
+  }
+}
+function commit(msg){ render(); save(); if (msg) toast(msg); }
+async function boot(){
+  render();
+  setSync('busy', 'Connecting…');
+  try {
+    const [d, u] = await Promise.all([window.claude?.use?.('db'), window.claude?.use?.('user')]);
+    const id = u ? await u.id() : null;
+    if (d && id) {
+      ref = d.doc('data/users/' + id + '/workspace');
+      const snap = await ref.get();
+      if (snap.exists) S = normalize(structuredClone(snap.data()));
+      mode = 'db'; lastJSON = JSON.stringify(S); setSync('ok', 'Saved to your account');
+      render(); restoreWallet(); return;
+    }
+  } catch(e) {}
+  try {
+    const raw = localStorage.getItem(LS);
+    if (raw) S = normalize(JSON.parse(raw));
+    localStorage.setItem(LS + '-probe', '1'); mode = 'local'; lastJSON = JSON.stringify(S); setSync('ok', 'Saved on this device');
+  } catch(e) { mode = 'memory'; setSync('err', 'Not saving'); }
+  render(); restoreWallet();
+}
+
+/* ---------- maths ---------- */
+const impact = (liq, sell) => liq > 0 ? (1 - Math.pow((liq/2) / (liq/2 + sell), 2)) * 100 : 100;
+function totals(){
+  const liq = S.pools.reduce((a,p) => a + (+p.liq || 0), 0);
+  const locked = S.pools.reduce((a,p) => a + (+p.liq || 0) * (+p.lockedPct || 0) / 100, 0);
+  const treas = S.wallets.reduce((a,w) => a + (+w.bal || 0), 0);
+  const main = [...S.pools].sort((a,b) => b.liq - a.liq)[0];
+  const upcoming = S.vesting.filter(v => v.next && daysTo(v.next) >= 0).sort((a,b) => a.next.localeCompare(b.next))[0];
+  const biggest = [...S.wallets].sort((a,b) => b.bal - a.bal)[0];
+  const runway = S.project.burn > 0 ? treas / S.project.burn : Infinity;
+  return { liq, locked, lockedPct: liq ? locked / liq * 100 : 0, treas, main, upcoming, biggest, runway };
+}
+function evaluate(){
+  const t = totals(), R = S.rules, out = [];
+  if (R.unlockedLp.on) S.pools.forEach(p => { const un = 100 - (+p.lockedPct || 0); if (un > R.unlockedLp.v && p.liq > 0) out.push(['crit', `${p.pair}: ${un}% of LP is unlocked`, `Above your ${R.unlockedLp.v}% limit. ${money(p.liq * un / 100)} could be withdrawn at any time.`]); });
+  if (R.impact10k.on && t.main) { const i = impact(t.main.liq, 10000); if (i > R.impact10k.v) out.push(['warn', `A $10k sell moves ${t.main.pair} by ${pct(i)}`, `Above your ${R.impact10k.v}% limit. Consider adding liquidity.`]); }
+  if (R.unlockSoon.on) S.vesting.forEach(v => { if (!v.next) return; const d = daysTo(v.next); if (d >= 0 && d <= R.unlockSoon.v) { const share = S.project.supply ? ` (${pct(v.nextAmt / S.project.supply * 100)} of supply)` : ''; out.push([d <= 7 ? 'crit' : 'warn', d === 0 ? `${v.group} unlock is today` : `${v.group} unlock in ${d} day${d === 1 ? '' : 's'}`, `${num(v.nextAmt)} tokens${share} on ${fmtDate(v.next)}. Prepare a community note.`]); } });
+  if (R.deployer.on) S.wallets.filter(w => w.type === 'Deployer' && w.bal > R.deployer.v).forEach(w => out.push(['warn', `Deployer wallet holds ${money(w.bal)}`, 'Deployer wallets should be empty after launch. Move funds to a multisig.']));
+  if (R.runway.on && isFinite(t.runway) && t.runway < R.runway.v) out.push(['warn', `Runway is ${t.runway.toFixed(1)} months`, `Below your ${R.runway.v}-month target at ${money(S.project.burn)} monthly spend.`]);
+  if (R.concentration.on && t.biggest && t.treas && t.biggest.bal / t.treas * 100 > R.concentration.v) out.push(['warn', `${t.biggest.label} holds ${pct(t.biggest.bal / t.treas * 100)} of treasury`, `Above your ${R.concentration.v}% concentration limit.`]);
+  return out;
+}
+function healthScore(alerts){
+  const t = totals(); if (!S.pools.length) return null;
+  let s = Math.min(35, t.lockedPct * 0.35);
+  const i = t.main ? impact(t.main.liq, 10000) : 100; s += i < 0.5 ? 30 : i < 1 ? 25 : i < 2 ? 18 : i < 5 ? 8 : 0;
+  s += isFinite(t.runway) ? Math.min(20, t.runway / 24 * 20) : 10;
+  s += Math.max(0, 15 - alerts.filter(a => a[0] === 'crit').length * 5);
+  return Math.round(Math.max(0, Math.min(100, s)));
+}
+
+/* ---------- wallet connect (EIP-6963 + injected) ---------- */
+const CHAINS = { 56: { name: 'BNB Chain', sym: 'BNB', hex: '0x38', rpc: 'https://bsc-dataseed.bnbchain.org', explorer: 'https://bscscan.com' }, 8453: { name: 'Base', sym: 'ETH', hex: '0x2105', rpc: 'https://mainnet.base.org', explorer: 'https://basescan.org' }, 1: { name: 'Ethereum', sym: 'ETH', hex: '0x1', rpc: 'https://ethereum-rpc.publicnode.com', explorer: 'https://etherscan.io' } };
+const chainIdFor = name => Number(Object.keys(CHAINS).find(k => CHAINS[k].name === name) || 56);
+const providers = new Map();
+const W = { provider: null, info: null, address: '', chainId: null, native: null };
+try {
+  window.addEventListener('eip6963:announceProvider', e => { const d = e.detail; if (d?.info?.uuid && d.provider) { providers.set(d.info.uuid, d); if (!$('#wmodal').hidden) renderWalletList(); } });
+  window.dispatchEvent(new Event('eip6963:requestProvider'));
+} catch(e) {}
+function allProviders(){
+  const list = [...providers.values()];
+  try { if (window.ethereum && !list.some(p => p.provider === window.ethereum)) list.push({ info: { uuid: 'injected', name: window.ethereum.isMetaMask ? 'MetaMask' : window.ethereum.isTrust ? 'Trust Wallet' : 'Browser wallet', icon: '', rdns: 'injected' }, provider: window.ethereum }); } catch(e) {}
+  return list;
+}
+function renderWalletList(){
+  const list = allProviders();
+  $('#wlist').innerHTML = list.length ? list.map(p => `<button class="wopt" data-wallet="${esc(p.info.uuid)}">${/^data:image\//.test(p.info.icon || '') ? `<img src="${esc(p.info.icon)}" alt="">` : '<span class="ph">◆</span>'}${esc(p.info.name)}<span class="grow"></span><span class="label">Connect</span></button>`).join('')
+    : `<div class="note"><b style="color:var(--fg)">No browser wallet found on this page.</b><br>Open Apptochain in a desktop browser with MetaMask, Trust Wallet, Binance Wallet or OKX installed, or in your wallet app's browser. You can also watch an address below.</div>`;
+}
+function openWallet(){ $('#wErr').hidden = true; $('#watchAddr').value = ''; renderWalletList(); $('#wmodal').hidden = false; try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch(e) {} setTimeout(() => ($('#wlist button') || $('#watchAddr')).focus(), 30); }
+function closeWallet(){ $('#wmodal').hidden = true; }
+async function connectWith(entry, silent){
+  const p = entry.provider;
+  try {
+    const accts = await p.request({ method: silent ? 'eth_accounts' : 'eth_requestAccounts' });
+    if (!accts || !accts.length) { if (!silent) throw new Error('No account was shared.'); return false; }
+    W.provider = p; W.info = entry.info; W.address = accts[0]; W.chainId = parseInt(await p.request({ method: 'eth_chainId' }), 16);
+    try { p.removeListener?.('accountsChanged', onAccounts); p.removeListener?.('chainChanged', onChain); } catch(e) {}
+    p.on?.('accountsChanged', onAccounts); p.on?.('chainChanged', onChain);
+    S.account = { address: W.address, mode: 'connected', wallet: entry.info.name, rdns: entry.info.rdns || entry.info.uuid };
+    await readNative();
+    commit(silent ? '' : 'Wallet connected');
+    return true;
+  } catch (e) {
+    if (!silent) { const m = e?.code === 4001 ? 'You rejected the connection in your wallet.' : e?.code === -32002 ? 'Your wallet already has a request open. Open the wallet to finish it.' : (e?.message || 'Could not connect to this wallet.'); $('#wErr').textContent = m; $('#wErr').hidden = false; }
+    return false;
+  }
+}
+function onAccounts(a){ if (!a || !a.length) { disconnect(true); return; } W.address = a[0]; S.account = { ...(S.account || {}), address: a[0], mode: 'connected' }; readNative().then(() => commit('Wallet account changed')); }
+function onChain(c){ W.chainId = parseInt(c, 16); readNative().then(() => render()); }
+async function readNative(){
+  W.native = null;
+  if (!W.provider || !W.address) return;
+  try { const hex = await W.provider.request({ method: 'eth_getBalance', params: [W.address, 'latest'] }); W.native = Number(BigInt(hex)) / 1e18; } catch(e) {}
+}
+async function restoreWallet(){
+  if (!S.account || S.account.mode !== 'connected') return;
+  await new Promise(r => setTimeout(r, 400));
+  const entry = allProviders().find(p => (p.info.rdns || p.info.uuid) === S.account.rdns) || allProviders()[0];
+  if (entry) await connectWith(entry, true);
+  render();
+}
+function disconnect(quiet){
+  try { W.provider?.removeListener?.('accountsChanged', onAccounts); W.provider?.removeListener?.('chainChanged', onChain); } catch(e) {}
+  try { W.provider?.request?.({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] }).catch(() => {}); } catch(e) {}
+  Object.assign(W, { provider: null, info: null, address: '', chainId: null, native: null });
+  S.account = null; commit(quiet ? 'Wallet disconnected in your wallet app' : 'Wallet disconnected');
+}
+async function switchChain(){
+  const id = chainIdFor(S.project.chain), c = CHAINS[id];
+  if (!W.provider) return toast('Connect a browser wallet first.');
+  try { await W.provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: c.hex }] }); }
+  catch (e) {
+    if (e?.code === 4902) { try { await W.provider.request({ method: 'wallet_addEthereumChain', params: [{ chainId: c.hex, chainName: c.name, nativeCurrency: { name: c.sym, symbol: c.sym, decimals: 18 }, rpcUrls: [c.rpc], blockExplorerUrls: [c.explorer] }] }); } catch(e2) { return toast('Your wallet did not add the network.'); } }
+    else return toast(e?.code === 4001 ? 'You declined the network switch.' : 'Your wallet could not switch network.');
+  }
+  W.chainId = parseInt(await W.provider.request({ method: 'eth_chainId' }), 16); await readNative(); render(); toast('Switched to ' + c.name);
+}
+const pad = a => a.toLowerCase().replace(/^0x/, '').padStart(64, '0');
+async function ethCall(to, data){ return W.provider.request({ method: 'eth_call', params: [{ to, data }, 'latest'] }); }
+async function tokenInfo(){
+  const c = S.project.contract;
+  if (!isAddr(c)) return null;
+  const decHex = await ethCall(c, '0x313ce567');
+  return { dec: Number(BigInt(decHex)) };
+}
+function needWalletOnChain(){
+  if (!W.provider) { toast('Connect a browser wallet to read from the blockchain.'); return false; }
+  const want = chainIdFor(S.project.chain);
+  if (W.chainId !== want) { toast(`Your wallet is on ${CHAINS[W.chainId]?.name || 'another network'}. Switch to ${CHAINS[want].name} first.`); return false; }
+  return true;
+}
+async function syncChain(){
+  if (!needWalletOnChain()) return;
+  const targets = S.wallets.filter(w => isAddr(w.address));
+  if (!targets.length) return toast('Add full 0x addresses to your wallets first.');
+  const btn = $('#syncChain'); btn.disabled = true; btn.textContent = 'Syncing…';
+  let ok = 0, fail = 0, tok = null;
+  try { tok = await tokenInfo(); } catch(e) { tok = null; }
+  for (const w of targets) {
+    try {
+      const nb = await W.provider.request({ method: 'eth_getBalance', params: [w.address, 'latest'] });
+      w.native = Number(BigInt(nb)) / 1e18;
+      if (tok) { const tb = await ethCall(S.project.contract, '0x70a08231' + pad(w.address)); w.token = Number(BigInt(tb)) / 10 ** tok.dec; } else delete w.token;
+      w.syncedAt = Date.now(); w.chain = W.chainId; ok++;
+    } catch(e) { fail++; }
+  }
+  btn.disabled = false; btn.textContent = 'Sync on-chain';
+  commit(fail ? `Synced ${ok}, ${fail} failed` : `Synced ${ok} wallet${ok === 1 ? '' : 's'} from the blockchain`);
+}
+async function readSupply(){
+  if (!isAddr($('#sAddr').value.trim())) { $('#projErr').textContent = 'Enter a valid token contract address (0x followed by 40 characters).'; $('#projErr').hidden = false; return; }
+  S.project.contract = $('#sAddr').value.trim(); S.project.chain = $('#sChain').value;
+  if (!needWalletOnChain()) return;
+  try {
+    const tok = await tokenInfo(); const ts = await ethCall(S.project.contract, '0x18160ddd');
+    const supply = Number(BigInt(ts)) / 10 ** tok.dec;
+    if (!isFinite(supply)) throw 0;
+    $('#sSupply').value = Math.round(supply); S.project.supply = Math.round(supply); $('#projErr').hidden = true; commit('Total supply read from chain');
+  } catch(e) { $('#projErr').textContent = 'Could not read this contract. Check the address and that it is a token on ' + S.project.chain + '.'; $('#projErr').hidden = false; }
+}
+
+/* ---------- render ---------- */
+const TITLES = { overview:'Overview', liquidity:'Liquidity', wallets:'Treasury', vesting:'Vesting', alerts:'Alerts', agents:'AI Agents', guide:'How to use', settings:'Settings' };
+const COLORS = ['var(--gold)','var(--info)','var(--up)','#C77DFF','#5ED3C9','var(--warn)','var(--muted)'];
+const alertHtml = a => `<div class="al ${a[0]}"><div><b>${esc(a[1])}</b><span>${esc(a[2])}</span></div></div>`;
+const blockie = a => { let h = 0; for (const c of a) h = (h * 31 + c.charCodeAt(0)) >>> 0; return `hsl(${h % 360} 70% 55%)`; };
+
+function renderWalletBits(){
+  const acct = S.account, connected = !!W.address, watch = acct?.mode === 'watch';
+  const tw = $('#topWallet');
+  if (connected || watch) {
+    const a = connected ? W.address : acct.address;
+    tw.className = 'wchip' + (watch ? ' watch' : ''); tw.innerHTML = `<span class="dot"></span><span class="mono">${short(a)}</span><span class="t muted">${watch ? 'watching' : (CHAINS[W.chainId]?.name || 'Unknown network')}</span>`;
+    tw.setAttribute('aria-label', 'Wallet ' + a);
+  } else { tw.className = 'btn sm'; tw.textContent = 'Connect wallet'; tw.removeAttribute('aria-label'); }
+  $$('#landing [data-connect]').forEach(b => { b.textContent = connected || watch ? 'Open my workspace' : 'Connect wallet'; });
+
+  const want = chainIdFor(S.project.chain), wrong = connected && W.chainId !== want;
+  $('#walletActions').innerHTML = connected ? `${wrong ? `<button class="btn sm" id="wSwitch">Switch to ${CHAINS[want].name}</button>` : ''}<button class="btn ghost sm" id="wAdd">Add to treasury</button><button class="btn ghost sm" id="wCopy">Copy address</button><button class="btn ghost sm" id="wDisc">Disconnect</button>`
+    : watch ? `<button class="btn ghost sm" id="wAdd">Add to treasury</button><button class="btn sm" data-connect>Connect a wallet</button><button class="btn ghost sm" id="wDisc">Stop watching</button>` : '';
+  $('#walletPanel').innerHTML = connected ? `<div class="wallet-card">
+      <div><span class="label">Address</span><b>${short(W.address)}</b></div>
+      <div><span class="label">Wallet</span><b style="font-family:var(--body)">${esc(W.info?.name || 'Browser wallet')}</b></div>
+      <div><span class="label">Network</span><b class="${wrong ? 'warn' : 'up'}" style="font-family:var(--body)">${esc(CHAINS[W.chainId]?.name || 'Chain ' + W.chainId)}</b></div>
+      <div><span class="label">Balance</span><b>${W.native == null ? '—' : num(W.native) + ' ' + (CHAINS[W.chainId]?.sym || '')}</b></div></div>
+      ${wrong ? `<p class="warn" style="font-size:13px;margin:12px 0 0">Your project is on ${CHAINS[want].name}. Switch network to sync balances.</p>` : ''}`
+    : watch ? `<div class="wallet-card"><div style="grid-column:span 2"><span class="label">Watching</span><b>${esc(acct.address)}</b></div><div><span class="label">Mode</span><b style="font-family:var(--body)">Read-only</b></div><div><span class="label">On-chain reads</span><b style="font-family:var(--body)">Need a browser wallet</b></div></div>`
+    : `<div class="empty">No wallet connected. <button class="btn sm" data-connect style="margin-left:8px">Connect wallet</button></div>`;
+  $('#syncNote').textContent = connected ? (wrong ? `Switch your wallet to ${CHAINS[want].name} to sync.` : `Sync reads native balances${isAddr(S.project.contract) ? ' and your token balance' : ''} for every wallet with a full address. Add your token contract in Settings to include token balances.`) : 'Connect a browser wallet to read balances from the blockchain. Values in USD are entered by you.';
+}
+
+function render(){
+  const t = totals(), alerts = evaluate();
+  $('#projName').textContent = S.project.name || 'My project';
+  $('#projSub').textContent = [S.project.symbol && '$' + S.project.symbol, S.project.chain].filter(Boolean).join(' · ');
+  $('#exampleBanner').hidden = !S.example;
+  const c = $('#alertCount'); c.hidden = !alerts.length; c.textContent = alerts.length;
+  const up = t.upcoming;
+  $('#kpis').innerHTML = [
+    ['Total liquidity', money(t.liq), `${S.pools.length} pool${S.pools.length === 1 ? '' : 's'}`],
+    ['LP locked', S.pools.length ? pct(t.lockedPct) : '—', S.pools.length ? `${money(t.locked)} locked` : 'Add a pool'],
+    ['Treasury', money(t.treas), isFinite(t.runway) ? `${t.runway.toFixed(1)} months runway` : 'Set monthly spend in Settings'],
+    ['Next unlock', up ? (daysTo(up.next) === 0 ? 'Today' : `${daysTo(up.next)}d`) : '—', up ? `${esc(up.group)} · ${fmtDate(up.next)}` : 'No upcoming unlocks']
+  ].map(k => `<div class="kpi"><span class="label">${k[0]}</span><b>${k[1]}</b><small>${k[2]}</small></div>`).join('');
+  $('#mainPoolName').textContent = t.main ? t.main.pair : '';
+  $('#impact').innerHTML = t.main ? [1000, 10000, 50000, 250000].map(x => { const i = impact(t.main.liq, x); return `<div><span class="label">Sell ${money(x)}</span><b class="${i > 5 ? 'down' : i > 1.5 ? 'warn' : 'up'}">−${pct(i)}</b></div>`; }).join('') : `<div class="empty" style="grid-column:1/-1">Add a liquidity pool to see price impact. <a href="#liquidity" style="color:var(--gold)">Add pool</a></div>`;
+  const hs = healthScore(alerts);
+  if (hs == null) $('#health').innerHTML = `<div class="empty">Add a pool to get a health score.</div>`;
+  else { const C = 2 * Math.PI * 46, col = hs >= 70 ? 'var(--up)' : hs >= 45 ? 'var(--warn)' : 'var(--down)';
+    $('#health').innerHTML = `<svg viewBox="0 0 112 112" role="img" aria-label="Health score ${hs} of 100"><circle cx="56" cy="56" r="46" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="56" cy="56" r="46" fill="none" stroke="${col}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C * hs / 100} ${C}" transform="rotate(-90 56 56)"/><text x="56" y="62" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="26" font-weight="600" fill="var(--fg)">${hs}</text></svg>
+    <div style="display:grid;gap:8px;font-size:14px;min-width:0"><span class="pill ${hs >= 70 ? 'p-up' : hs >= 45 ? 'p-warn' : 'p-down'}" style="justify-self:start">${hs >= 70 ? 'Healthy' : hs >= 45 ? 'Needs attention' : 'At risk'}</span><span class="muted">Scored on LP locked, price impact, treasury runway and open critical alerts.</span></div>`; }
+  $('#ovAlerts').innerHTML = alerts.length ? alerts.slice(0, 4).map(alertHtml).join('') + (alerts.length > 4 ? `<a href="#alerts" class="muted" style="font-size:13px">See all ${alerts.length} alerts</a>` : '') : `<div class="al ok"><div><b>All clear</b><span>No alert rules are triggered by your current data.</span></div></div>`;
+  if (!t.treas) $('#split').innerHTML = `<div class="empty">Add treasury wallets to see the split.</div>`;
+  else { const ws = [...S.wallets].sort((a,b) => b.bal - a.bal);
+    $('#split').innerHTML = `<div class="stack">${ws.map((w,i) => `<i style="width:${w.bal / t.treas * 100}%;background:${COLORS[i % COLORS.length]}"></i>`).join('')}</div><div class="legend">${ws.map((w,i) => `<div><span class="sw" style="background:${COLORS[i % COLORS.length]}"></span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(w.label)}</span><span class="v">${money(w.bal)} · ${pct(w.bal / t.treas * 100)}</span></div>`).join('')}</div>`; }
+
+  $('#poolRows').innerHTML = S.pools.length ? S.pools.map(p => { const i = impact(p.liq, 10000), un = 100 - (+p.lockedPct || 0);
+    return `<tr><td><b>${esc(p.pair)}</b><small class="show-sm">${esc(p.dex)}</small></td><td class="hide-sm">${esc(p.dex)}</td><td class="num">${money(p.liq)}</td><td class="num ${i > 5 ? 'down' : i > 1.5 ? 'warn' : 'up'}">−${pct(i)}</td>
+    <td><span class="pill ${p.lockedPct >= 75 ? 'p-up' : p.lockedPct > 0 ? 'p-warn' : 'p-down'}">${+p.lockedPct || 0}% locked</span>${p.lockUntil ? `<small>until ${fmtDate(p.lockUntil)}</small>` : un ? '<small>no lock</small>' : ''}</td>
+    <td class="num" style="white-space:nowrap"><button class="icon-btn" data-edit="pool" data-id="${p.id}">Edit</button><button class="icon-btn" data-del="pools" data-id="${p.id}">Remove</button></td></tr>`; }).join('')
+    : `<tr><td colspan="6"><div class="empty">No pools yet. <button class="btn sm" data-add="pool" style="margin-left:6px">+ Add your first pool</button></div></td></tr>`;
+
+  $('#walletRows').innerHTML = S.wallets.length ? S.wallets.map(w => {
+    const sym = CHAINS[w.chain]?.sym || '', chainCell = w.syncedAt ? `${num(w.native)} ${sym}${w.token != null ? `<small>${num(w.token)} ${esc(S.project.symbol || 'tokens')}</small>` : ''}<small>${new Date(w.syncedAt).toLocaleString(undefined, { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</small>` : `<span class="muted">${isAddr(w.address) ? 'Not synced' : 'No address'}</span>`;
+    return `<tr><td><b>${esc(w.label)}</b><small>${w.address ? esc(short(w.address)) : 'no address yet'}</small></td>
+    <td><span class="pill ${w.type === 'Multisig' ? 'p-up' : w.type === 'Deployer' ? 'p-down' : w.type === 'Hot wallet' ? 'p-warn' : 'p-info'}">${esc(w.type)}</span></td>
+    <td class="num">${money(w.bal)}</td><td class="num hide-sm">${t.treas ? pct(w.bal / t.treas * 100) : '—'}</td><td class="num">${chainCell}</td>
+    <td class="num" style="white-space:nowrap"><button class="icon-btn" data-edit="wallet" data-id="${w.id}">Edit</button><button class="icon-btn" data-del="wallets" data-id="${w.id}">Remove</button></td></tr>`; }).join('')
+    : `<tr><td colspan="6"><div class="empty">No wallets yet. <button class="btn sm" data-add="wallet" style="margin-left:6px">+ Add a wallet</button></div></td></tr>`;
+
+  $('#vestList').innerHTML = S.vesting.length ? S.vesting.map(v => { const p = v.total ? Math.min(100, v.unlocked / v.total * 100) : 0, d = v.next ? daysTo(v.next) : null;
+    return `<div style="display:grid;gap:6px;padding-bottom:14px;border-bottom:1px solid var(--line)">
+      <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><b>${esc(v.group)}</b><span class="mono muted" style="font-size:13px">${num(v.unlocked)} / ${num(v.total)}</span><span class="grow"></span><span class="mono">${pct(p)}</span></div>
+      <div class="bar"><i style="width:${p}%"></i></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px"><span class="muted">${v.next ? `Next: ${num(v.nextAmt)} tokens on ${fmtDate(v.next)}` : 'No upcoming unlock set'}</span>${d != null ? (d >= 0 ? `<span class="pill ${d <= 7 ? 'p-down' : d <= 30 ? 'p-warn' : 'p-mute'}">${d === 0 ? 'today' : 'in ' + d + 'd'}</span>` : '<span class="pill p-mute">date passed, update it</span>') : ''}<span class="grow"></span><button class="icon-btn" data-edit="vest" data-id="${v.id}">Edit</button><button class="icon-btn" data-del="vesting" data-id="${v.id}">Remove</button></div></div>`; }).join('')
+    : `<div class="empty">No vesting schedules yet. <button class="btn sm" data-add="vest" style="margin-left:6px">+ Add a schedule</button></div>`;
+
+  $('#alList').innerHTML = alerts.length ? alerts.map(alertHtml).join('') : `<div class="al ok"><div><b>All clear</b><span>No rules are triggered right now.</span></div></div>`;
+  const RL = { unlockedLp: ['LP unlocked above', '%'], impact10k: ['$10k sell moves price more than', '%'], unlockSoon: ['Vesting unlock within', 'days'], deployer: ['Deployer wallet value above', 'USD'], runway: ['Treasury runway below', 'months'], concentration: ['One wallet holds more than', '% of treasury'] };
+  if (!document.activeElement?.closest('#ruleRows'))
+    $('#ruleRows').innerHTML = Object.entries(RL).map(([k, [lab, unit]]) => `<tr><td>${lab}</td><td class="num" style="white-space:nowrap"><input type="number" min="0" step="any" value="${S.rules[k].v}" data-rule="${k}" id="rule-${k}" aria-label="${lab} (${unit})" style="width:90px;text-align:right;display:inline-block"> <span class="muted" style="font-size:12px">${unit}</span></td>
+    <td><label class="switch"><input type="checkbox" data-ruleon="${k}" id="ruleon-${k}" ${S.rules[k].on ? 'checked' : ''} aria-label="${lab} rule"><span></span></label></td></tr>`).join('');
+
+  if (!document.activeElement?.closest('#projForm')) {
+    $('#sName').value = S.project.name || ''; $('#sSym').value = S.project.symbol || ''; $('#sChain').value = S.project.chain || 'BNB Chain';
+    $('#sAddr').value = S.project.contract || ''; $('#sBurn').value = S.project.burn || ''; $('#sSupply').value = S.project.supply || '';
+  }
+  $('#storeNote').textContent = mode === 'db' ? 'Your workspace is saved privately to your account and syncs across your devices.' : mode === 'local' ? 'Your workspace is saved in this browser only.' : 'Saving is not available here, so changes last until you close the page.';
+  renderWalletBits();
+  renderAgents();
+}
+
+/* ---------- navigation ---------- */
+const side = $('#side'), burger = $('#burger'), scrim = $('#scrim'), lburger = $('#lburger'), lmenu = $('#lmenu');
+let view = 'home';
+function setMenu(open){ side.classList.toggle('open', open); scrim.classList.toggle('show', open); burger.setAttribute('aria-expanded', open); burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); if (open) side.querySelector('.nav a[aria-current="page"]')?.focus(); }
+function setLMenu(open){ lmenu.hidden = !open; lburger.setAttribute('aria-expanded', open); lburger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); }
+burger.onclick = () => setMenu(!side.classList.contains('open'));
+scrim.onclick = () => setMenu(false);
+lburger.onclick = () => setLMenu(lmenu.hidden);
+function go(v, push){
+  const inApp = !!TITLES[v];
+  $('#landing').hidden = inApp; $('#app').hidden = !inApp;
+  setMenu(false); setLMenu(false);
+  if (inApp) {
+    view = v;
+    Object.keys(TITLES).forEach(k => { $('#v-' + k).hidden = k !== v; });
+    $$('#nav a').forEach(a => { if (a.dataset.v === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    $('#title').textContent = TITLES[v];
+    window.scrollTo(0, 0);
+  } else { view = 'home'; const sec = ['about', 'agents-l', 'roadmap', 'connect'].includes(v) ? v : null; if (sec) setTimeout(() => document.getElementById(sec)?.scrollIntoView({ behavior: 'smooth' }), 10); else window.scrollTo(0, 0); }
+  if (push !== false) { try { history.replaceState(null, '', '#' + (inApp ? v : (v === 'home' ? 'home' : v))); } catch(e) {} }
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!$('#modal').hidden) closeModal(); else if (!$('#wmodal').hidden) closeWallet();
+  else if (side.classList.contains('open')) { setMenu(false); burger.focus(); }
+  else if (!lmenu.hidden) { setLMenu(false); lburger.focus(); }
+});
+
+/* ---------- forms ---------- */
+const FORMS = {
+  pool: { title: 'liquidity pool', list: 'pools', fields: [
+    ['pair','Pair','text','e.g. NOVA / BNB',true], ['dex','DEX','select',['PancakeSwap v3','PancakeSwap v2','Uniswap v3','Aerodrome','Other']],
+    ['liq','Total liquidity (USD)','number','e.g. 250000',true], ['lockedPct','LP locked (%)','number','0 to 100',true], ['lockUntil','Lock ends (optional)','date'] ] },
+  wallet: { title: 'wallet', list: 'wallets', fields: [
+    ['label','Name','text','e.g. Main treasury',true], ['address','Address (optional)','text','0x…'], ['type','Type','select',['Multisig','Hot wallet','Cold wallet','Deployer','Exchange']],
+    ['bal','Value (USD)','number','e.g. 50000',true] ] },
+  vest: { title: 'vesting schedule', list: 'vesting', fields: [
+    ['group','Group','text','e.g. Team',true], ['total','Total tokens','number','',true], ['unlocked','Unlocked so far','number','',true],
+    ['next','Next unlock date (optional)','date'], ['nextAmt','Next unlock amount','number'] ] }
+};
+let editing = null;
+function openModal(kind, id, preset){
+  const F = FORMS[kind], item = id ? S[F.list].find(x => x.id === id) : preset || null;
+  editing = { kind, id };
+  $('#mTitle').textContent = (id ? 'Edit ' : 'Add ') + F.title;
+  $('#mErr').hidden = true;
+  $('#mBody').innerHTML = `<div class="formgrid">${F.fields.map(([k, lab, type, ph]) => {
+    const val = item ? item[k] ?? '' : (k === 'lockedPct' ? 0 : '');
+    const ctl = type === 'select' ? `<select id="f-${k}">${ph.map(o => `<option ${o === val ? 'selected' : ''}>${o}</option>`).join('')}</select>`
+      : `<input id="f-${k}" type="${type}" ${type === 'number' ? 'min="0" step="any"' : ''} placeholder="${esc(ph || '')}" value="${esc(val)}">`;
+    return `<div class="field"><label for="f-${k}">${lab}</label>${ctl}</div>`; }).join('')}</div>`;
+  $('#modal').hidden = false;
+  setTimeout(() => $('#mBody input, #mBody select')?.focus(), 30);
+}
+function closeModal(){ $('#modal').hidden = true; editing = null; }
+$('#mCancel').onclick = closeModal;
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+$('#mForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const F = FORMS[editing.kind], obj = {}, fail = m => { $('#mErr').textContent = m; $('#mErr').hidden = false; };
+  for (const [k, lab, type, , req] of F.fields) {
+    const raw = $('#f-' + k).value.trim();
+    if (req && raw === '') return fail(`${lab} is required.`);
+    if (type === 'number') { const n = raw === '' ? 0 : Number(raw); if (!isFinite(n) || n < 0) return fail(`${lab} must be a positive number.`); obj[k] = n; } else obj[k] = raw;
+  }
+  if ('lockedPct' in obj && obj.lockedPct > 100) return fail('LP locked must be between 0 and 100.');
+  if (editing.kind === 'vest' && obj.unlocked > obj.total) return fail('Unlocked cannot be more than the total.');
+  if (editing.kind === 'wallet' && obj.address && !isAddr(obj.address)) return fail('Address must be 0x followed by 40 letters or numbers, or left empty.');
+  const list = S[F.list];
+  if (editing.id) { const it = list.find(x => x.id === editing.id); if (editing.kind === 'wallet' && it.address !== obj.address) { delete it.native; delete it.token; delete it.syncedAt; } Object.assign(it, obj); }
+  else list.push({ id: uid(), ...obj });
+  const wasNew = !editing.id; closeModal(); commit(wasNew ? 'Added' : 'Saved');
+});
+$('#projForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const addr = $('#sAddr').value.trim();
+  if (addr && !isAddr(addr)) { $('#projErr').textContent = 'Token contract must be 0x followed by 40 letters or numbers, or left empty.'; $('#projErr').hidden = false; return; }
+  $('#projErr').hidden = true;
+  S.project = { name: $('#sName').value.trim() || 'My project', symbol: $('#sSym').value.trim().toUpperCase(), chain: $('#sChain').value, contract: addr, burn: Math.max(0, Number($('#sBurn').value) || 0), supply: Math.max(0, Number($('#sSupply').value) || 0) };
+  S.example = false; document.activeElement?.blur(); commit('Project saved');
+});
+$('#readSupply').onclick = readSupply;
+$('#startFresh').onclick = () => { S = blank(S); commit('Fresh workspace ready. Start with your project details.'); go('settings'); setTimeout(() => $('#sName').focus(), 50); };
+$('#loadExample').onclick = function(){ armButton(this, 'Press again to replace your data', () => { const keep = { account: S.account, reports: S.reports }; S = example(); S.account = keep.account; S.reports = keep.reports; commit('Example project loaded'); }); };
+$('#resetBtn').onclick = function(){ armButton(this, 'Press again to clear everything', () => { S = blank(S); S.reports = []; commit('Workspace cleared'); }); };
+$('#clearHist').onclick = function(){ if (!S.reports.length) return; armButton(this, 'Confirm', () => { S.reports = []; commit('History cleared'); }); };
+$('#syncChain').onclick = syncChain;
+$('#wClose').onclick = closeWallet;
+$('#wmodal').addEventListener('click', e => { if (e.target.id === 'wmodal') closeWallet(); });
+$('#watchForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const a = $('#watchAddr').value.trim();
+  if (!isAddr(a)) { $('#wErr').textContent = 'Enter a valid address: 0x followed by 40 letters or numbers.'; $('#wErr').hidden = false; return; }
+  if (W.address) disconnect(true);
+  S.account = { address: a, mode: 'watch' }; closeWallet(); commit('Watching ' + short(a)); go('wallets');
+});
+
+/* one click handler for everything */
+document.addEventListener('click', async e => {
+  const t = e.target;
+  const conn = t.closest('[data-connect]');
+  if (conn) { e.preventDefault(); if (conn.closest('#landing') && (W.address || S.account)) return go('overview'); if (conn.id === 'topWallet' && (W.address || S.account)) return go('wallets'); return openWallet(); }
+  const wopt = t.closest('[data-wallet]');
+  if (wopt) { const entry = allProviders().find(p => p.info.uuid === wopt.dataset.wallet); if (!entry) return; wopt.disabled = true; wopt.querySelector('.label').textContent = 'Check your wallet…'; const ok = await connectWith(entry, false); wopt.disabled = false; if (ok) { closeWallet(); if (view === 'home') go('overview'); } else renderWalletList(); return; }
+  if (t.closest('[data-open-app]')) return go('overview');
+  const sc = t.closest('[data-scroll]');
+  if (sc) { e.preventDefault(); setLMenu(false); document.getElementById(sc.dataset.scroll)?.scrollIntoView({ behavior: 'smooth' }); return; }
+  const a = t.closest('a[href^="#"]');
+  if (a) { const v = a.getAttribute('href').slice(1); if (TITLES[v] || v === 'home') { e.preventDefault(); go(v); } return; }
+  if (t.closest('#wSwitch')) return switchChain();
+  if (t.closest('#wDisc')) return disconnect(false);
+  if (t.closest('#wCopy')) { navigator.clipboard.writeText(W.address).then(() => toast('Address copied')).catch(() => toast(W.address)); return; }
+  if (t.closest('#wAdd')) { const addr = W.address || S.account?.address; if (S.wallets.some(w => (w.address || '').toLowerCase() === addr.toLowerCase())) return toast('This wallet is already in your treasury.'); return openModal('wallet', null, { label: 'My wallet', address: addr, type: 'Hot wallet', bal: '' }); }
+  const add = t.closest('[data-add]'); if (add) return openModal(add.dataset.add);
+  const ed = t.closest('[data-edit]'); if (ed) return openModal(ed.dataset.edit, ed.dataset.id);
+  const del = t.closest('[data-del]');
+  if (del) return armButton(del, 'Confirm', () => { S[del.dataset.del] = S[del.dataset.del].filter(x => x.id !== del.dataset.id); commit('Removed'); });
+  const ag = t.closest('[data-agent]'); if (ag) { agent = ag.dataset.agent; renderAgents(); return; }
+  const rp = t.closest('[data-rep]'); if (rp) { const rep = S.reports.find(x => x.id === rp.dataset.rep); if (rep) { agent = rep.agent; renderAgents(); showReport(rep.text); lastText = rep.text; $('#copyOut').hidden = false; } }
+});
+document.addEventListener('change', e => {
+  const r = e.target.dataset.rule, ro = e.target.dataset.ruleon;
+  if (r) { S.rules[r].v = Math.max(0, Number(e.target.value) || 0); e.target.blur(); commit(); }
+  if (ro) { S.rules[ro].on = e.target.checked; commit(); }
+});
+
+/* ---------- AI agents ---------- */
+const AGENTS = {
+  research: { name: 'Trading Research', desc: 'Researches a token: fundamentals, liquidity, volume and market conditions.', icon: '<path d="M3 17l5-5 4 4 8-9"/><path d="M15 7h5v5"/>', notes: 'Market data or questions (optional)', ph: 'Paste price, 24h volume, holder stats, news, or ask a question.' },
+  portfolio: { name: 'Portfolio', desc: 'Reviews your treasury, concentration risk, runway and upcoming unlocks.', icon: '<circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 5"/>', notes: 'What should it focus on? (optional)', ph: 'e.g. Are we too concentrated in one wallet?' },
+  ops: { name: 'Web3 Operations', desc: 'Checks your setup for risks and drafts a community update for X and Telegram.', icon: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9h10M7 13h6M7 17h3"/>', notes: 'News to include in the update (optional)', ph: 'e.g. New partnership, CEX listing next week, AMA on Friday.' }
+};
+let agent = 'research', sampleFn, ctl = null, lastText = '';
+function renderAgents(){
+  $('#agentPick').innerHTML = Object.entries(AGENTS).map(([k, a]) => `<button class="agent" data-agent="${k}" aria-pressed="${k === agent}"><span class="ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${a.icon}</svg></span><h3>${a.name} Agent</h3><p>${a.desc}</p></button>`).join('');
+  $('#agentTitle').textContent = AGENTS[agent].name + ' Agent';
+  $('#researchFields').hidden = agent !== 'research';
+  $('#notesLabel').textContent = AGENTS[agent].notes; $('#agentNotes').placeholder = AGENTS[agent].ph;
+  $('#hist').innerHTML = S.reports.length ? S.reports.map(r => `<button data-rep="${r.id}"><b>${esc(r.title)}</b><small>${esc(AGENTS[r.agent]?.name || '')} · ${new Date(r.at).toLocaleString(undefined, { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</small></button>`).join('') : `<div class="empty">Reports you run are saved here.</div>`;
+}
+function inline(el, s){ s.split(/(\*\*[^*]+\*\*)/).forEach(part => { if (/^\*\*[^*]+\*\*$/.test(part)) { const b = document.createElement('b'); b.textContent = part.slice(2, -2); el.append(b); } else el.append(part); }); }
+function showReport(text){
+  const out = $('#agentOut'); out.innerHTML = ''; let ul = null;
+  text.split('\n').forEach(line => {
+    const l = line.trim(); if (!l) { ul = null; return; }
+    const h = l.match(/^#{1,4}\s+(.*)/);
+    if (h) { ul = null; const el = document.createElement('h4'); el.textContent = h[1].replace(/\*\*/g, ''); out.append(el); return; }
+    const li = l.match(/^[-*•]\s+(.*)/);
+    if (li) { if (!ul) { ul = document.createElement('ul'); out.append(ul); } const el = document.createElement('li'); inline(el, li[1]); ul.append(el); return; }
+    ul = null; const p = document.createElement('p'); inline(p, l); out.append(p);
+  });
+}
+function context(){
+  const t = totals();
+  return JSON.stringify({ project: { name: S.project.name, symbol: S.project.symbol, chain: S.project.chain, contract: S.project.contract || null, monthlySpendUsd: S.project.burn, totalSupply: S.project.supply },
+    pools: S.pools.map(p => ({ pair: p.pair, dex: p.dex, liquidityUsd: p.liq, lpLockedPct: p.lockedPct, lockEnds: p.lockUntil || null, priceImpactOf10kSellPct: +impact(p.liq, 10000).toFixed(2) })),
+    wallets: S.wallets.map(w => ({ name: w.label, type: w.type, valueUsd: w.bal, onChainNative: w.native ?? null, onChainToken: w.token ?? null })),
+    vesting: S.vesting.map(v => ({ group: v.group, total: v.total, unlocked: v.unlocked, nextUnlockDate: v.next || null, nextUnlockAmount: v.nextAmt || 0, daysUntil: v.next ? daysTo(v.next) : null })),
+    totals: { liquidityUsd: t.liq, lpLockedPct: +t.lockedPct.toFixed(1), treasuryUsd: t.treas, runwayMonths: isFinite(t.runway) ? +t.runway.toFixed(1) : null },
+    triggeredAlerts: evaluate().map(a => a[1]), today: todayStr() });
+}
+function prompt(){
+  const notes = $('#agentNotes').value.trim().slice(0, 6000);
+  const base = 'You are an Apptochain AI agent for a Web3 project team. Write in plain English with short sentences. Use "## " for section headings and "- " for bullets. Never give financial advice and never tell anyone to buy or sell. Use only the data provided; when something needed is missing, say what is missing instead of inventing numbers.';
+  if (agent === 'research') { const tok = $('#rToken').value.trim() || S.project.symbol || S.project.name;
+    return `${base}\n\nRole: Trading Research Agent.\nToken to research: ${tok}\n\nMarket data and questions from the user:\n${notes || '(none supplied)'}\n\nProject workspace data (JSON; relevant if the token is the project's own):\n${context()}\n\nWrite a research report under 350 words with these sections: ## Verdict (Constructive, Neutral or High risk, with one sentence why), ## Liquidity, ## Supply and holders, ## Volume and market conditions, ## Risks, ## What to watch next. You cannot browse the web, so work from the data above and say what extra data would sharpen the view.`; }
+  if (agent === 'portfolio') return `${base}\n\nRole: Portfolio Agent.\nFocus from the user: ${notes || 'general review'}\n\nWorkspace data (JSON):\n${context()}\n\nWrite a portfolio review under 300 words with sections: ## Summary, ## Concentration risk, ## Runway, ## Upcoming unlocks, ## Suggested actions (3 to 5 operational bullets).`;
+  return `${base}\n\nRole: Web3 Operations Agent.\nNews to include: ${notes || '(none)'}\n\nWorkspace data (JSON):\n${context()}\n\nWrite: ## Ops check (bullets: each risk found in the data and its fix), ## This week's checklist (4 to 6 bullets), ## Community update (ready to post on X and Telegram, under 120 words, factual and calm, covering liquidity, treasury and the next unlock, at most one emoji).`;
+}
+const ERR = { not_granted: 'AI agents need your permission. Reload the page to be asked again.', sampling_disabled: 'AI is not available on this account.', rate_limited: 'Too many requests right now. Wait a minute and try again.', session_expired: 'Your session expired. Sign in again and retry.', refused: 'The agent could not answer that. Try rewording your notes.', prompt_too_large: 'Your notes are too long. Shorten them and try again.', empty_completion: 'The agent returned nothing. Try again with fewer notes.' };
+$('#runAgent').onclick = async () => {
+  const btn = $('#runAgent'); btn.disabled = true;
+  if (sampleFn === undefined) { $('#agentOut').innerHTML = '<span class="thinking"><i></i>Starting the agent…</span>'; try { sampleFn = (await window.claude?.use?.('sample')) ?? null; } catch(e) { sampleFn = null; } }
+  if (!sampleFn) { btn.disabled = false; $('#agentOut').innerHTML = '<p class="muted">AI agents are not available in this version yet. They launch with Phase 2 of the Apptochain roadmap.</p>'; return; }
+  ctl = new AbortController(); const agentNow = agent;
+  $('#stopAgent').hidden = false; $('#copyOut').hidden = true;
+  $('#agentOut').innerHTML = '<span class="thinking"><i></i>Agent is analysing your data…</span>';
+  try {
+    const { text, truncated } = await sampleFn(prompt(), { signal: ctl.signal, cache: false, onText: ({ text }) => showReport(text) });
+    lastText = text; showReport(text);
+    if (truncated) $('#agentOut').insertAdjacentHTML('beforeend', '<p class="muted">The report was cut short. Ask for less detail and run again.</p>');
+    const tok = $('#rToken').value.trim();
+    const title = agentNow === 'research' ? `Research: ${tok || S.project.symbol || S.project.name}` : agentNow === 'portfolio' ? 'Portfolio review' : 'Ops check and community update';
+    S.reports = [{ id: uid(), agent: agentNow, title, text, at: Date.now() }, ...S.reports].slice(0, 15);
+    $('#copyOut').hidden = false; commit('Report saved to history');
+  } catch (e) {
+    if (e?.text) { showReport(e.text); lastText = e.text; $('#copyOut').hidden = false; }
+    if (e?.code === 'cancelled') { if (!e?.text) $('#agentOut').innerHTML = '<p class="muted">Stopped.</p>'; }
+    else $('#agentOut').insertAdjacentHTML('beforeend', `<p class="err">${esc(ERR[e?.code] || 'Something went wrong. Try again.')}</p>`);
+  } finally { btn.disabled = false; $('#stopAgent').hidden = true; ctl = null; }
+};
+$('#stopAgent').onclick = () => ctl?.abort();
+$('#copyOut').onclick = () => { navigator.clipboard.writeText(lastText).then(() => toast('Report copied')).catch(() => { const r = document.createRange(); r.selectNodeContents($('#agentOut')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Text selected. Press copy.'); }); };
+
+/* start */
+const h = (location.hash || '').slice(1);
+go(TITLES[h] ? h : 'home', false);
+boot();
+})();
+</script>
+
+</body>
+</html>
